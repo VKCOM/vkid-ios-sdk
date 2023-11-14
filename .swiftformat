@@ -1,0 +1,68 @@
+# SwiftFormat min version
+--minversion 0.52.1
+
+# file options 
+--exclude .build,VKIDCore/Sources/VKAPI/Core/VKAPI.swift # Issue with "repeat each" keywords
+
+# options
+--swiftversion 5.8
+--self insert # redundantSelf
+--importgrouping testable-bottom # sortedImports
+--commas always # trailingCommas
+--trimwhitespace always # trailingSpace
+--indent 4 #indent
+--tabwidth 4 #indent
+--ifdef no-indent #indent
+--indentstrings true #indent
+--xcodeindentation enabled #indent
+--wrapparameters before-first # wrapArguments
+--closingparen balanced # wrapArguments
+--funcattributes prev-line # wrapAttributes
+--typeattributes prev-line # wrapAttributes
+--extensionacl on-declarations # extensionAccessControl
+--patternlet inline # hoistPatternLet
+--emptybraces no-space # emptyBraces
+--elseposition same-line #elseOnSameLine
+
+--maxwidth 120 # wrap
+
+# rules
+--rules blankLinesBetweenScopes
+--rules consecutiveSpaces
+--rules consecutiveBlankLines
+--rules duplicateImports
+--rules extensionAccessControl
+--rules hoistPatternLet
+--rules indent
+--rules redundantParens
+--rules redundantReturn
+--rules redundantSelf
+--rules redundantType
+--rules redundantPattern
+--rules redundantGet
+--rules redundantFileprivate
+--rules sortImports
+--rules strongifiedSelf
+--rules trailingCommas
+--rules trailingSpace
+--rules typeSugar
+--rules wrap
+--rules wrapArguments
+--rules wrapAttributes
+--rules wrapMultilineStatementBraces
+--rules braces
+--rules redundantOptionalBinding
+--rules spaceInsideBrackets
+--rules spaceInsideBraces
+--rules spaceAroundBraces
+--rules spaceInsideParens
+--rules enumNamespaces
+--rules blockComments
+--rules spaceAroundComments
+--rules spaceInsideComments
+--rules blankLinesAtStartOfScope
+--rules blankLinesAtEndOfScope
+--rules emptyBraces
+--rules andOperator
+--rules trailingClosures
+--rules elseOnSameLine

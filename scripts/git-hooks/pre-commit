@@ -1,0 +1,6 @@
+#!/bin/sh
+
+set -e
+
+PROJECT_PATH="$(git rev-parse --show-toplevel)"
+sh $PROJECT_PATH/scripts/style-staged.sh

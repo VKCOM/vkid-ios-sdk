@@ -1,0 +1,38 @@
+{
+  "configurations" : [
+    {
+      "id" : "729E7F9C-3173-43D7-BCA3-65164C64BDFC",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:..",
+        "identifier" : "VKIDCoreTests",
+        "name" : "VKIDCoreTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:..",
+        "identifier" : "VKIDTests",
+        "name" : "VKIDTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:VKIDDemo.xcodeproj",
+        "identifier" : "A23148DA2ACC5B6C0077B442",
+        "name" : "VKIDKeychainTests"
+      }
+    }
+  ],
+  "version" : 1
+}
