@@ -28,19 +28,20 @@
 
 import Foundation
 import UIKit
+import VKIDCore
 
 extension OneTapControl {
     internal struct Configuration {
         var primaryTitle: String
         var briefTitle: String
         var titleFont: UIFont?
-        var titleColor: Color
+        var titleColor: any Color
 
-        var borderColor: Color
+        var borderColor: any Color
         var borderWidth: CGFloat
 
-        var backgroundColor: Color
-        var activityIndicatorColor: Color
+        var backgroundColor: any Color
+        var activityIndicatorColor: any Color
 
         var cornerRadius: CGFloat
         var buttonHeight: CGFloat
@@ -54,11 +55,11 @@ extension OneTapControl {
             primaryTitle: String,
             briefTitle: String,
             titleFont: UIFont? = nil,
-            titleColor: Color,
-            borderColor: Color,
+            titleColor: some Color,
+            borderColor: some Color,
             borderWidth: CGFloat,
-            backgroundColor: Color,
-            activityIndicatorColor: Color,
+            backgroundColor: some Color,
+            activityIndicatorColor: some Color,
             cornerRadius: CGFloat,
             buttonHeight: CGFloat,
             logoSize: CGSize,
@@ -82,8 +83,7 @@ extension OneTapControl {
 
         internal init(
             appearance: OneTapButton.Appearance,
-            layout: OneTapButton.Layout,
-            colorScheme: Appearance.ColorScheme
+            layout: OneTapButton.Layout
         ) {
             let logoSize: CGSize
             let fontSize: CGFloat
@@ -100,12 +100,7 @@ extension OneTapControl {
             }
 
             let titleFont: UIFont = .systemFont(ofSize: fontSize, weight: .semibold)
-            let theme: OneTapButton.Appearance.Theme
-            if appearance.theme.rawTheme == .matchesVKIDColorScheme {
-                theme = colorScheme.oneTapButtonTheme
-            } else {
-                theme = appearance.theme
-            }
+            let theme: OneTapButton.Appearance.Theme = appearance.theme
 
             switch appearance.style.rawStyle {
             case .primary:
@@ -147,16 +142,6 @@ extension OneTapControl {
                     isLogoOnlyLayout: layout.kind == .logoOnly
                 )
             }
-        }
-    }
-}
-
-extension Appearance.ColorScheme {
-    fileprivate var oneTapButtonTheme: OneTapButton.Appearance.Theme {
-        switch self {
-        case .system: .system
-        case .light: .light
-        case .dark: .dark
         }
     }
 }

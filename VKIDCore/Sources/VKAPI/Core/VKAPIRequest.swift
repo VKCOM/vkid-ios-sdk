@@ -32,15 +32,9 @@ public struct VKAPIRequest {
     public typealias Parameters = [String: Any]
     public typealias Headers = [String: String]
 
-    public struct HTTPMethod: RawRepresentable, Equatable {
-        public let rawValue: String
-
-        public static let get = HTTPMethod(rawValue: "GET")
-        public static let post = HTTPMethod(rawValue: "POST")
-
-        public init(rawValue: String) {
-            self.rawValue = rawValue
-        }
+    public enum HTTPMethod: String, Equatable {
+        case post = "POST"
+        case get = "GET"
     }
 
     /// Хост, на который будет отправлен запрос
@@ -66,7 +60,7 @@ public struct VKAPIRequest {
     public init(
         host: Host,
         path: String,
-        httpMethod: HTTPMethod = .get,
+        httpMethod: HTTPMethod,
         parameters: Parameters = .init(),
         headers: Headers = .init(),
         authorization: Authorization

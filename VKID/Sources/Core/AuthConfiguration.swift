@@ -29,5 +29,9 @@
 import Foundation
 
 public struct AuthConfiguration {
-    public init () {}
+    let oAuthProvider: OAuthProvider
+
+    public init () {
+        self.oAuthProvider = .vkid
+    }
 }

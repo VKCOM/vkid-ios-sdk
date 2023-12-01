@@ -27,6 +27,8 @@
 //
 
 import Foundation
+import VKIDCore
+
 extension OneTapControl {
     /// Layout для основного состояния кнопки. logo и title центрируются совместно
     /// [ --- [ logo ] - [ title] --- ] или [ --- logo --- ]

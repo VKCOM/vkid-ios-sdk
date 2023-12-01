@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		051FD2922AF3C7B90082990B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 051FD2942AF3C7B90082990B /* Localizable.strings */; };
-		1752AE2D2AF135460013D976 /* CustomizationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1752AE2C2AF135460013D976 /* CustomizationViewController.swift */; };
+		057500D12B0E0635008EEB4B /* PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057500D02B0E0635008EEB4B /* PickerView.swift */; };
 		1752AE322AF135890013D976 /* StepSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1752AE302AF135890013D976 /* StepSlider.swift */; };
 		17CA41892AF1BB93008C81C1 /* VKIDDemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CA41882AF1BB93008C81C1 /* VKIDDemoViewController.swift */; };
 		17CA418C2AF1D755008C81C1 /* MeasureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CA418B2AF1D755008C81C1 /* MeasureView.swift */; };
@@ -20,7 +20,12 @@
 		A24B64612A9E407B00E45F3B /* AuthViewController+DebugSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A24B64602A9E407B00E45F3B /* AuthViewController+DebugSettings.swift */; };
 		A24B64C42AA1FD6B00E45F3B /* UIColot+Palette.swift in Sources */ = {isa = PBXBuildFile; fileRef = A24B64C32AA1FD6B00E45F3B /* UIColot+Palette.swift */; };
 		A254E63A2ACC61920035D4F7 /* VKIDCore in Frameworks */ = {isa = PBXBuildFile; productRef = A254E6392ACC61920035D4F7 /* VKIDCore */; };
+		A257BEFF2B162C390060F9A2 /* AlertPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = A257BEFE2B162C390060F9A2 /* AlertPresentable.swift */; };
 		A2628D052ACE8E9C00E61A0E /* KeychainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2628D042ACE8E9C00E61A0E /* KeychainTests.swift */; };
+		A26A35FC2B0D005A008A4F99 /* ControlsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26A35FB2B0D005A008A4F99 /* ControlsViewController.swift */; };
+		A26A35FE2B0D0CED008A4F99 /* OneTapButtonCustomizationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26A35FD2B0D0CED008A4F99 /* OneTapButtonCustomizationController.swift */; };
+		A26A36002B0D151E008A4F99 /* OneTapBottomSheetCustomizationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26A35FF2B0D151E008A4F99 /* OneTapBottomSheetCustomizationController.swift */; };
+		A27EFD332B185245001CF285 /* DebugSettingsStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A27EFD322B185245001CF285 /* DebugSettingsStorage.swift */; };
 		A2E5F5EE2A55A65D0079DE1F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2E5F5ED2A55A65D0079DE1F /* AppDelegate.swift */; };
 		A2E5F5F22A55A65D0079DE1F /* AuthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2E5F5F12A55A65D0079DE1F /* AuthViewController.swift */; };
 		A2E5F5F72A55A65E0079DE1F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2E5F5F62A55A65E0079DE1F /* Assets.xcassets */; };
@@ -46,7 +51,7 @@
 		051FD2992AF3CD120082990B /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/Localizable.strings; sourceTree = "<group>"; };
 		051FD29A2AF3CD210082990B /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		051FD29B2AF3CD2E0082990B /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
-		1752AE2C2AF135460013D976 /* CustomizationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomizationViewController.swift; sourceTree = "<group>"; };
+		057500D02B0E0635008EEB4B /* PickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerView.swift; sourceTree = "<group>"; };
 		1752AE302AF135890013D976 /* StepSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepSlider.swift; sourceTree = "<group>"; };
 		17CA41882AF1BB93008C81C1 /* VKIDDemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VKIDDemoViewController.swift; sourceTree = "<group>"; };
 		17CA418B2AF1D755008C81C1 /* MeasureView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeasureView.swift; sourceTree = "<group>"; };
@@ -61,7 +66,12 @@
 		A24B645E2A9E2DD500E45F3B /* DebugSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugSettings.swift; sourceTree = "<group>"; };
 		A24B64602A9E407B00E45F3B /* AuthViewController+DebugSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AuthViewController+DebugSettings.swift"; sourceTree = "<group>"; };
 		A24B64C32AA1FD6B00E45F3B /* UIColot+Palette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColot+Palette.swift"; sourceTree = "<group>"; };
+		A257BEFE2B162C390060F9A2 /* AlertPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresentable.swift; sourceTree = "<group>"; };
 		A2628D042ACE8E9C00E61A0E /* KeychainTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeychainTests.swift; sourceTree = "<group>"; };
+		A26A35FB2B0D005A008A4F99 /* ControlsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlsViewController.swift; sourceTree = "<group>"; };
+		A26A35FD2B0D0CED008A4F99 /* OneTapButtonCustomizationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OneTapButtonCustomizationController.swift; sourceTree = "<group>"; };
+		A26A35FF2B0D151E008A4F99 /* OneTapBottomSheetCustomizationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneTapBottomSheetCustomizationController.swift; sourceTree = "<group>"; };
+		A27EFD322B185245001CF285 /* DebugSettingsStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugSettingsStorage.swift; sourceTree = "<group>"; };
 		A2E370692ACDBE1900715703 /* MRPipeline.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = MRPipeline.xctestplan; sourceTree = "<group>"; };
 		A2E5F5EA2A55A65D0079DE1F /* VKIDDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VKIDDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2E5F5ED2A55A65D0079DE1F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -95,8 +105,10 @@
 		17CA418A2AF1D1F9008C81C1 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				A257BEFE2B162C390060F9A2 /* AlertPresentable.swift */,
 				17CA418B2AF1D755008C81C1 /* MeasureView.swift */,
 				1752AE302AF135890013D976 /* StepSlider.swift */,
+				057500D02B0E0635008EEB4B /* PickerView.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -139,8 +151,10 @@
 				A2E5F5ED2A55A65D0079DE1F /* AppDelegate.swift */,
 				A2E5F5F12A55A65D0079DE1F /* AuthViewController.swift */,
 				A24B64602A9E407B00E45F3B /* AuthViewController+DebugSettings.swift */,
-				1752AE2C2AF135460013D976 /* CustomizationViewController.swift */,
 				17CA41882AF1BB93008C81C1 /* VKIDDemoViewController.swift */,
+				A26A35FB2B0D005A008A4F99 /* ControlsViewController.swift */,
+				A26A35FD2B0D0CED008A4F99 /* OneTapButtonCustomizationController.swift */,
+				A26A35FF2B0D151E008A4F99 /* OneTapBottomSheetCustomizationController.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -150,6 +164,7 @@
 			children = (
 				A24B645C2A9E2C4400E45F3B /* DebugSettingsViewController.swift */,
 				A24B645E2A9E2DD500E45F3B /* DebugSettings.swift */,
+				A27EFD322B185245001CF285 /* DebugSettingsStorage.swift */,
 			);
 			path = DebugSettings;
 			sourceTree = "<group>";
@@ -343,14 +358,19 @@
 			files = (
 				A2E5F5F22A55A65D0079DE1F /* AuthViewController.swift in Sources */,
 				A24B64612A9E407B00E45F3B /* AuthViewController+DebugSettings.swift in Sources */,
+				A27EFD332B185245001CF285 /* DebugSettingsStorage.swift in Sources */,
+				A26A35FC2B0D005A008A4F99 /* ControlsViewController.swift in Sources */,
 				1752AE322AF135890013D976 /* StepSlider.swift in Sources */,
 				A24B645D2A9E2C4400E45F3B /* DebugSettingsViewController.swift in Sources */,
 				17CA418C2AF1D755008C81C1 /* MeasureView.swift in Sources */,
-				1752AE2D2AF135460013D976 /* CustomizationViewController.swift in Sources */,
 				A24B645F2A9E2DD500E45F3B /* DebugSettings.swift in Sources */,
+				A257BEFF2B162C390060F9A2 /* AlertPresentable.swift in Sources */,
 				A2E5F5EE2A55A65D0079DE1F /* AppDelegate.swift in Sources */,
+				A26A35FE2B0D0CED008A4F99 /* OneTapButtonCustomizationController.swift in Sources */,
 				17CA41892AF1BB93008C81C1 /* VKIDDemoViewController.swift in Sources */,
+				A26A36002B0D151E008A4F99 /* OneTapBottomSheetCustomizationController.swift in Sources */,
 				A24B64C42AA1FD6B00E45F3B /* UIColot+Palette.swift in Sources */,
+				057500D12B0E0635008EEB4B /* PickerView.swift in Sources */,
 				A201B19E2AAB375900E8FA58 /* InfoPlist.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -571,7 +591,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UIRequiresFullScreen = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -603,7 +623,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UIRequiresFullScreen = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

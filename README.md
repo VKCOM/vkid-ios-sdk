@@ -7,11 +7,17 @@
   </p>
 </div>
 
+---
+
+:information_source: VK ID SDK сейчас находится в бета-тестировании. О проблемах вы можете сообщить с помощью <a href="https://github.com/VKCOM/vkid-ios-sdk/issues">issues репозитория</a>.
+
+---
+
 ## Предварительно
 
-Общий план интеграции и в целом что такое VK ID можно прочитать [здесь](https://id.vk.com/business/go/docs/vkid/latest/start-page).
+Общий план интеграции и в целом что такое VK ID можно прочитать [здесь](https://id.vk.com/business/go/docs/ru/vkid/latest/vk-id/intro/plan).
 
-Чтобы подключить VK ID SDK, сначала получите ID приложения (app_id) и защищенный ключ (client_secret). Для этого создайте приложение в [кабинете подключения VK ID](https://platform.vk.com/docs/vkid/latest/create-application).
+Чтобы подключить VK ID SDK, сначала получите ID приложения (app_id) и защищенный ключ (client_secret). Для этого создайте приложение в [кабинете подключения VK ID](https://id.vk.com/business/go).
 
 ## Требования к приложению
 * iOS 12.0 и выше
@@ -23,14 +29,14 @@
 Добавьте VKID как зависимость в ваш `Package.swift`:
 ```swift
 dependencies: [
-    .package(url: "https://github.com/VKCOM/vkid-ios-sdk.git", .upToNextMajor(from: "0.0.1-alpha"))
+    .package(url: "https://github.com/VKCOM/vkid-ios-sdk.git", .upToNextMajor(from: "1.0.0"))
 ]
 ```
 
 ### CocoaPods
 Добавьте в ваш `Podfile`:
 ```ruby
-pod 'VKID', ~> '0.0.1-alpha'
+pod 'VKID', ~> '1.0'
 ```
 Выполните следующие команды, чтобы установить зависимости:
 ```shell
@@ -66,7 +72,7 @@ VK ID SDK взаимодействует с провайдерами автор�
 При [настройке VK ID](https://id.vk.com/business/go/docs/vkid/latest/plan#Podgotovka-k-integracii) в кабинете его подключения укажите Universal Link, по которой провайдер авторизации откроет ваше приложение. Добавьте [поддержку Universal Links](https://developer.apple.com/documentation/xcode/supporting-associated-domains?language=objc) в приложение.
 
 ### Инициализация VK ID SDK
-Все взаимодействие с VK ID SDK происходит через объект `VKID`.
+Все взаимодействие с VK ID SDK происходит через объект `VKID`. SDK не предоставляет shared объект, его необходимо удерживать самостоятельно после инициализации, например, в `ApplicationDelegate` или `SceneDelegate`. Повторная инициализация будет приводить к ошибке.
 ```swift
 import VKID
 
@@ -84,11 +90,11 @@ do {
 }
 ```
 
-### Авторизация
+### Базовая авторизация
 Флоу авторизации запускается вызовом метода `authorize`:
 ```swift
 vkid.authorize(
-    using: .uiViewController(self)
+    using: .uiViewController(presentingController)
 ) { result in
     do {
         let session = try result.get()
@@ -124,48 +130,69 @@ func scene(
 }
 ```
 
-### Запуск авторизации по кнопке One Tap
-Чтобы создать кнопку авторизации One Tap, сконфигурируйте `OneTapButton` и получите `UIView`:
+### Авторизация по кнопке OneTap
+`OneTapButton` - конфигурация стилизованной кнопки авторизации. Чтобы использовать кнопку OneTap на своих экранах, сконфигурируйте `OneTapButton` и получите `UIView` для нее:
 ```swift
-let oneTap = OneTapButton(onCompleteAuth: { result in
+let oneTap = OneTapButton { authResult in
     do {
-        let session = try result.get()
+        let session = try authResult.get()
         print("Auth succeeded with token: \(session.accessToken)")
     } catch AuthError.cancelled {
         print("Auth cancelled by user")
     } catch {
         print("Auth failed with error: \(error)")
     }
-})
-let oneTapTrampoline = vkid.ui(for: oneTap)
-let uiView = oneTapTrampoline.uiView()
+}
+let oneTapView = vkid.ui(for: oneTap).uiView()
+view.addSubview(oneTapView)
 ```
 
-При необходимости вы можете настроить кнопку:
+При необходимости вы можете настроить стиль кнопки:
 ```swift
 let oneTap = OneTapButton(
-    appearance: OneTapButton.Appearance(style: .primary(), theme: .system),
-    layout: .regular(),
+    appearance: .init(
+        style: .primary(),
+        theme: .matchingColorScheme(.system)
+    ),
+    layout: .regular(
+        height: .large(.h56),
+        cornerRadius: 28
+    ),
     presenter: .newUIWindow
-)
+) { authResult in
+    // authResult handling
+}
 ```
+Детальная кастомизация `OneTapButton` доступна на экране [OneTapButtonCustomizationController](VKIDDemo/VKIDDemo/Sources/OneTapButtonCustomizationController.swift) в демо-приложении.
 
-Также можно переопределить поведение при нажатии на кнопку:
+### Шторка авторизации
+`OneTapBottomSheet` - конфигурация для модальной шторки авторизации. Этот компонент представляет собой модальную карточку, которая анимированно выезжает снизу экрана и скрывается свайпом или тапом вне области карточки. Шторка позволяет добавить контекст, в котором проходит авторизация, выбрав нужный текст для целевого действия.
+
+Для показа шторки сконфигурируйте `OneTapBottomSheet`, получите `UIViewController` и покажите его модально:
 ```swift
-let oneTap = OneTapButton(onTap: { activityIndicating in
-    activityIndicating.startAnimating()
-    // aвторизация
-    activityIndicating.stopAnimating()
-})
+let oneTapSheet = OneTapBottomSheet(
+    serviceName: "Your service name",
+    targetActionText: .signIn,
+    oneTapButton: .init(
+        height: .medium(.h44),
+        cornerRadius: 8
+    ),
+    theme: .matchingColorScheme(.system),
+    autoDismissOnSuccess: true
+) { authResult in
+    // authResult handling
+}
+let sheetViewController = vkid.ui(for: oneTapSheet).uiViewController()
+present(sheetViewController, animated: true)
 ```
+Детальная кастомизация `OneTapBottomSheet` доступна на экране [OneTapBottomSheetCustomizationController](VKIDDemo/VKIDDemo/Sources/OneTapBottomSheetCustomizationController.swift) в демо-приложении.
 
 ## Демонстрация
 
-SDK поставляется с примером приложения, где можно посмотреть работу авторизации.
-В папке [VKIDDemo](VKIDDemo) содержится тестовое приложение. Для корректной работы тестового приложения укажите параметры `CLIENT_ID` и `CLIENT_SECRET` вашего приложения VKID в файле [Info.plist](VKIDDemo/VKIDDemo/Resources/Info.plist).
+SDK поставляется с демо-приложением [VKIDDemo](VKIDDemo), где можно посмотреть работу авторизации и как кастомизируются предоставляемые визуальные компоненты. Для корректной работы демо-приложения укажите параметры `CLIENT_ID` и `CLIENT_SECRET` вашего приложения VKID в файле [Info.plist](VKIDDemo/VKIDDemo/Resources/Info.plist).
 
 ## Документация
 
-- [Что такое VK ID](https://id.vk.com/business/go/docs/vkid/latest/start-page)
-- [Создание приложения](https://platform.vk.com/docs/vkid/latest/create-application)
-- [Требования к дизайну](https://platform.vk.com/docs/vkid/latest/guidelines/design-rules)
+- [Что такое VK ID](https://id.vk.com/business/go/docs/ru/vkid/latest/vk-id/intro/plan)
+- [Создание приложения](https://id.vk.com/business/go/docs/ru/vkid/latest/vk-id/connection/create-application)
+- [Требования к дизайну](https://id.vk.com/business/go/docs/ru/vkid/archive/1.60/vk-id/guidelines/design-rules )

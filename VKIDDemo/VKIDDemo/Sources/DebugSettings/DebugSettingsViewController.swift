@@ -78,8 +78,7 @@ final class DebugSettingsViewController: UITableViewController {
             withIdentifier: String(describing: UITableViewCell.self),
             for: indexPath
         )
-        cell.textLabel?.text = vm.title
-        cell.accessoryType = vm.checked ? .checkmark : .none
+        vm.configureCell(cell)
         return cell
     }
 

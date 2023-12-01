@@ -26,37 +26,15 @@
 // THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
 //
 
-import UIKit
-import VKIDCore
+import Foundation
 
-internal protocol Color {
-    var value: UIColor { get }
-}
+/// Конфигурация сети, используемая только в отладочных целях самими разработчиками VKID!
+/// Отключение SSL пиннинга подвергает риску передаваемые данные пользователя!
+@_spi(VKIDDebug)
+public struct NetworkConfiguration {
+    public var isSSLPinningEnabled: Bool
 
-extension UIColor: Color {
-    internal var value: UIColor {
-        self
-    }
-}
-
-internal struct DynamicColor: Color {
-    internal var light: UIColor
-    internal var dark: UIColor
-
-    internal var value: UIColor {
-        UIScreen
-            .main
-            .traitCollection
-            .userInterfaceStyle == .light ?
-            self.light :
-            self.dark
-    }
-}
-
-internal let stubColor: Color = StubColor()
-
-private struct StubColor: Color {
-    var value: UIColor {
-        Never()
+    public init(isSSLPinningEnabled: Bool) {
+        self.isSSLPinningEnabled = isSSLPinningEnabled
     }
 }

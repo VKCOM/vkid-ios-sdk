@@ -30,10 +30,10 @@ import Foundation
 import UIKit
 import VKID
 
-final class CustomizationViewController: VKIDDemoViewController {
+final class OneTapButtonCustomizationController: VKIDDemoViewController {
     var config: OneTapButtonConfiguration = .init(
         oneTapButtonStyle: .primary(),
-        oneTapButtonTheme: .system,
+        oneTapButtonTheme: .matchingColorScheme(.system),
         oneTapButtonHeight: .large(.h48),
         oneTapButtonCornerRadius: 5,
         oneTapButtonKind: .regular
@@ -215,11 +215,6 @@ final class CustomizationViewController: VKIDDemoViewController {
 
     public override func viewDidLoad() {
         super.viewDidLoad()
-        if #available(iOS 13.0, *) {
-            self.view.backgroundColor = .systemBackground
-        } else {
-            self.view.backgroundColor = .gray
-        }
 
         self.setupSettings()
         self.updateOneTapButton()

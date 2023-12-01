@@ -31,20 +31,26 @@ import VKIDCore
 
 internal final class RootContainer {
     private let appCredentials: AppCredentials
+    private let networkConfiguration: NetworkConfiguration
 
-    internal init(appCredentials: AppCredentials) {
+    internal init(
+        appCredentials: AppCredentials,
+        networkConfiguration: NetworkConfiguration
+    ) {
         self.appCredentials = appCredentials
+        self.networkConfiguration = networkConfiguration
     }
 
     internal var anonymousTokenTransport: URLSessionTransport {
         URLSessionTransport(
-            hostname: Env.apiHost,
+            urlRequestBuilder: URLRequestBuilder(hostname: Env.apiHost),
             genericParameters: VKAPIGenericParameters(
                 deviceId: DeviceId.currentDeviceId.description,
                 clientId: self.appCredentials.clientId,
                 apiVersion: Env.VKAPIVersion,
                 vkidVersion: Env.VKIDVersion
-            )
+            ),
+            sslPinningConfiguration: self.sslPinningConfiguration
         )
     }
 
@@ -56,7 +62,7 @@ internal final class RootContainer {
         )
 
         return URLSessionTransport(
-            hostname: Env.apiHost,
+            urlRequestBuilder: URLRequestBuilder(hostname: Env.apiHost),
             requestInterceptors: [
                 RequestAuthorizationInterceptor(anonymousTokenService: anonTokenService),
             ],
@@ -68,9 +74,15 @@ internal final class RootContainer {
                 clientId: self.appCredentials.clientId,
                 apiVersion: Env.VKAPIVersion,
                 vkidVersion: Env.VKIDVersion
-            )
+            ),
+            sslPinningConfiguration: self.sslPinningConfiguration
         )
     }()
+
+    internal var sslPinningConfiguration: SSLPinningConfiguration {
+        self.networkConfiguration.isSSLPinningEnabled
+            ? .init(domains: [.vkcom]) : .pinningDisabled
+    }
 
     internal lazy var appInteropHandler = AppInteropCompositeHandler()
     internal lazy var responseParser = AuthCodeResponseParserImpl()

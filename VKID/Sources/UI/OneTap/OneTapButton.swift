@@ -27,29 +27,30 @@
 //
 
 import UIKit
+import VKIDCore
 
 /// Конфигурация OneTapButton
 public struct OneTapButton: UIViewElement {
     public typealias Factory = VKID
     public typealias OnTapCallback = (ActivityIndicating) -> Void
 
-    private let appearance: Appearance
-    private let layout: Layout
-    private let presenter: UIKitPresenter?
-    private let onTap: OnTapCallback?
-    private let onCompleteAuth: AuthResultCompletion?
+    internal var appearance: Appearance
+    internal var layout: Layout
+    internal var presenter: UIKitPresenter?
+    internal var onTap: OnTapCallback?
+    internal var onCompleteAuth: AuthResultCompletion?
 
-    /// Инициализация конфигурации кнопки
+    /// Создает конфигурацию для OneTap кнопки
     /// - Parameters:
-    ///   - appearance: Внешний вид кнопки.
-    ///   - layout: Оформление кнопки.
-    ///   - presenter: Источник отображения авторизации, при нажатии на кнопку.
-    ///   - onCompleteAuth: Замыкание, вызывающееся при завершении авторизации.
+    ///   - appearance: Конфигурация внешнего вида кнопки
+    ///   - layout: Конфигурация лейаут кнопки
+    ///   - presenter: Объект, отвечающий за отображение экранов авторизации
+    ///   - onCompleteAuth: Колбэк о завершении авторизации
     public init(
         appearance: Appearance = Appearance(),
         layout: Layout = .regular(),
         presenter: UIKitPresenter = .newUIWindow,
-        onCompleteAuth: AuthResultCompletion? = nil
+        onCompleteAuth: AuthResultCompletion?
     ) {
         self.appearance = appearance
         self.layout = layout
@@ -58,15 +59,15 @@ public struct OneTapButton: UIViewElement {
         self.onTap = nil
     }
 
-    /// Инициализация конфигурации кнопки
+    /// Создает конфигурацию для OneTap кнопки
     /// - Parameters:
-    ///   - appearance: Внешний вид кнопки.
-    ///   - layout: Оформление кнопки.
-    ///   - onTap: Замыкание, вызывающееся при нажатии на кнопку.
+    ///   - appearance: Конфигурация внешнего вида кнопки
+    ///   - layout: Конфигурация лейаут кнопки
+    ///   - onTap: Колбэк для обработки нажатия на кнопку
     public init(
         appearance: Appearance = Appearance(),
         layout: Layout = .regular(),
-        onTap: OnTapCallback? = nil
+        onTap: OnTapCallback?
     ) {
         self.appearance = appearance
         self.layout = layout
@@ -78,8 +79,7 @@ public struct OneTapButton: UIViewElement {
     public func _uiView(factory: Factory) -> UIView {
         let control = OneTapControl(configuration: .init(
             appearance: self.appearance,
-            layout: self.layout,
-            colorScheme: factory.appearance.colorScheme
+            layout: self.layout
         ))
 
         if let onTap = self.onTap {
@@ -111,7 +111,7 @@ extension OneTapButton {
         internal let style: Style
         internal let theme: Theme
 
-        fileprivate init(
+        internal init(
             title: Title,
             style: Style,
             theme: Theme
@@ -122,13 +122,23 @@ extension OneTapButton {
         }
 
         public init(
-            style: Style = .primary(),
-            theme: Theme = .matchesVKIDColorScheme
+            style: Style,
+            theme: Theme
         ) {
             self.init(
                 title: .vkid,
                 style: style,
                 theme: theme
+            )
+        }
+
+        public init(
+            style: Style = .primary()
+        ) {
+            self.init(
+                title: .vkid,
+                style: style,
+                theme: .matchingColorScheme(.current)
             )
         }
     }
@@ -190,19 +200,11 @@ extension OneTapButton.Appearance {
         }
 
         public static let vkidPrimary = Self(
-            image: .init(
-                named: "vk_id_logo_primary",
-                in: .module,
-                compatibleWith: nil
-            )!
+            image: .logoPrimary
         )
 
         public static let vkidSecondary = Self(
-            image: .init(
-                named: "vk_id_logo_secondary",
-                in: .module,
-                compatibleWith: nil
-            )!
+            image: .logoSecondary
         )
     }
 }
@@ -211,73 +213,54 @@ extension OneTapButton.Appearance {
     /// Цветовая тема кнопки
     public struct Theme {
         internal struct Colors {
-            internal let primary: Color
-            internal let secondary: Color
+            internal let primary: any Color
+            internal let secondary: any Color
 
-            internal init(primary: Color, secondary: Color) {
+            internal init(primary: some Color, secondary: some Color) {
                 self.primary = primary
                 self.secondary = secondary
             }
         }
 
-        internal enum _Theme {
-            case light
-            case dark
-            case system
-            case matchesVKIDColorScheme
-        }
-
-        internal let rawTheme: _Theme
         internal let colors: Colors
 
-        fileprivate init(
-            rawTheme: _Theme,
-            colors: Colors
-        ) {
-            self.rawTheme = rawTheme
+        fileprivate init(colors: Colors) {
             self.colors = colors
         }
 
-        public static let system = Self(
-            rawTheme: .system,
-            colors: .init(
-                primary: DynamicColor(
-                    light: light.colors.primary.value,
-                    dark: dark.colors.primary.value
-                ),
-                secondary: DynamicColor(
-                    light: light.colors.secondary.value,
-                    dark: dark.colors.secondary.value
+        public static func matchingColorScheme(_ scheme: Appearance.ColorScheme) -> Self {
+            switch scheme {
+            case .system:
+                let light = self.matchingColorScheme(.light)
+                let dark = self.matchingColorScheme(.dark)
+                return .init(
+                    colors: .init(
+                        primary: DynamicColor(
+                            light: light.colors.primary.value,
+                            dark: dark.colors.primary.value
+                        ),
+                        secondary: DynamicColor(
+                            light: light.colors.secondary.value,
+                            dark: dark.colors.secondary.value
+                        )
+                    )
                 )
-            )
-        )
-
-        public static let light = Self(
-            rawTheme: .light,
-            colors: .init(
-                primary: UIColor.azure,
-                secondary: UIColor.backgroundDark
-            )
-        )
-
-        public static let dark = Self(
-            rawTheme: .dark,
-            colors: .init(
-                primary: UIColor.azure,
-                secondary: UIColor.backgroundLight
-            )
-        )
-
-        /// Тема будет соответствовать цветовой схеме `ColorScheme`,
-        /// указанной в структуре `Appearance` при инициализации инстанса `VKID`
-        /// По умолчанию используется `colorScheme = .system`
-        public static let matchesVKIDColorScheme = Self(
-            rawTheme: .matchesVKIDColorScheme,
-            colors: .init(
-                primary: stubColor,
-                secondary: stubColor
-            )
-        )
+            case .light:
+                return .init(
+                    colors: .init(
+                        primary: UIColor.azure,
+                        secondary: UIColor.backgroundDark
+                    )
+                )
+            case .dark:
+                return .init(
+                    colors: .init(
+                        primary: UIColor.azure,
+                        secondary: UIColor.backgroundLight
+                    )
+                )
+            }
+        }
     }
 }
 
@@ -358,7 +341,7 @@ extension OneTapButton {
                 case h56 = 56
             }
 
-            internal var rawValue: CGFloat {
+            public var rawValue: CGFloat {
                 switch self {
                 case .small(let value):
                     return value.rawValue

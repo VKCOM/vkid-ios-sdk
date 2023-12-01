@@ -1,2 +1,15 @@
 "vkid_button_primary_title" = "Iniciar sesión con VK ID";
 "vkid_button_brief_title" = "VK ID";
+"vkconnect_auth_floatingonetap_btn_unauth_sign_in_to_account" = "Iniciar sesión con VK ID";
+"vkconnect_auth_floatingonetap_header_sign_in_to_service" = "Acceder al servicio o registrarse";
+"vkconnect_auth_floatingonetap_btn_unauth_sign_in_to_service" = "Iniciar sesión con VK ID";
+"vkconnect_auth_floatingonetap_description" = "Después, tendrás acceso a todas las funciones del servicio. Tus datos personales estarán cuidadosamente protegidos.";
+"vkconnect_auth_floatingonetap_header_sign_in_to_account" = "Acceder a la cuenta %@";
+"vkconnect_auth_floatingonetap_header_registration_for_event" = "Registrarse en el evento";
+"vkconnect_auth_floatingonetap_btn_unauth_registration_for_event" = "Continuar con VK ID";
+"vkconnect_auth_floatingonetap_header_submit_applications" = "Solicitar con VK ID";
+"vkconnect_auth_floatingonetap_btn_unauth_submit_applications" = "Continuar con VK ID";
+"vkconnect_auth_floatingonetap_header_make_order_without_service" = "Realizar pedido con VK ID";
+"vkconnect_auth_floatingonetap_btn_unauth_make_order_without_service" = "Pedir con VK ID";
+"vkconnect_auth_floatingonetap_header_make_order_with_service" = "Realizar pedido en %@ con VK ID";
+"vkconnect_auth_floatingonetap_btn_unauth_make_order_with_service" = "Pedir con VK ID";

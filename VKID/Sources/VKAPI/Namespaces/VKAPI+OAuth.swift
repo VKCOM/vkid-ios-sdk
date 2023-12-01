@@ -43,6 +43,7 @@ internal struct OAuth: VKAPINamespace {
             VKAPIRequest(
                 host: .id,
                 path: "/get_config",
+                httpMethod: .post,
                 parameters: parameters.dictionaryRepresentation,
                 authorization: .anonymousToken
             )
@@ -69,6 +70,7 @@ internal struct OAuth: VKAPINamespace {
             VKAPIRequest(
                 host: .oauth,
                 path: "/access_token",
+                httpMethod: .post,
                 parameters: parameters.dictionaryRepresentation,
                 authorization: .anonymousToken
             )
@@ -91,6 +93,7 @@ internal struct OAuth: VKAPINamespace {
             VKAPIRequest(
                 host: .oauth,
                 path: "/oauth/get_anonym_token",
+                httpMethod: .post,
                 parameters: parameters.dictionaryRepresentation,
                 authorization: .none
             )

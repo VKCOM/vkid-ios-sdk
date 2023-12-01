@@ -28,13 +28,14 @@
 
 import Foundation
 
-public final class URLSessionTransport: VKAPITransport {
-    private let hostname: String
+public final class URLSessionTransport: NSObject, VKAPITransport {
+    private let urlRequestBuilder: URLRequestBuilding
     private let requestInterceptors: [VKAPIRequestInterceptor]
     private let responseInterceptors: [VKAPIResponseInterceptor]
     private let genericParameters: VKAPIGenericParameters
+    private let sslPinningValidator: SSLPinningValidating
     private let logger: Logging
-    private let session: URLSession
+    private let processingQueue: DispatchQueue
     private let jsonDecoder: JSONDecoder = {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
@@ -42,32 +43,32 @@ public final class URLSessionTransport: VKAPITransport {
         return decoder
     }()
 
-    private let processingQueue: DispatchQueue
-
-    public init(
-        hostname: String,
-        requestInterceptors: [VKAPIRequestInterceptor] = [],
-        responseInterceptors: [VKAPIResponseInterceptor] = [],
-        genericParameters: VKAPIGenericParameters,
-        logger: Logging = Logger(subsystem: "VKAPI")
-    ) {
-        self.hostname = hostname
-        self.requestInterceptors = requestInterceptors
-        self.responseInterceptors = responseInterceptors
-        self.genericParameters = genericParameters
-        self.logger = logger
-
-        self.processingQueue = DispatchQueue(label: "com.vkid.core.transport.processingQueue")
-
+    private lazy var session: URLSession = {
         let delegateQueue = OperationQueue()
         delegateQueue.maxConcurrentOperationCount = 1 // make serial
         delegateQueue.underlyingQueue = self.processingQueue
-
-        self.session = URLSession(
+        return URLSession(
             configuration: .default,
-            delegate: nil,
+            delegate: self,
             delegateQueue: delegateQueue
         )
+    }()
+
+    public init(
+        urlRequestBuilder: URLRequestBuilding,
+        requestInterceptors: [VKAPIRequestInterceptor] = [],
+        responseInterceptors: [VKAPIResponseInterceptor] = [],
+        genericParameters: VKAPIGenericParameters,
+        sslPinningConfiguration: SSLPinningConfiguration,
+        logger: Logging = Logger(subsystem: "VKAPI")
+    ) {
+        self.urlRequestBuilder = urlRequestBuilder
+        self.requestInterceptors = requestInterceptors
+        self.responseInterceptors = responseInterceptors
+        self.genericParameters = genericParameters
+        self.sslPinningValidator = SSLPinningValidator(configuration: sslPinningConfiguration)
+        self.logger = logger
+        self.processingQueue = DispatchQueue(label: "com.vkid.core.transport.processingQueue")
     }
 
     public func execute<T: VKAPIResponse>(
@@ -96,7 +97,7 @@ public final class URLSessionTransport: VKAPITransport {
                         self.logger.info(
                             "Ready to start: \(interceptedRequest.id) \(interceptedRequest.path)"
                         )
-                        let urlRequest = try self.urlRequest(for: interceptedRequest)
+                        let urlRequest = try self.urlRequestBuilder.buildURLRequest(from: interceptedRequest)
                         self.execute(
                             urlRequest,
                             for: interceptedRequest
@@ -240,35 +241,31 @@ public final class URLSessionTransport: VKAPITransport {
 
         return try self.jsonDecoder.decode(T.self, from: data)
     }
+}
 
-    private func urlRequest(for request: VKAPIRequest) throws -> URLRequest {
+extension URLSessionTransport: URLSessionDelegate {
+    public func urlSession(
+        _ session: URLSession,
+        didReceive challenge: URLAuthenticationChallenge,
+        completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
+    ) {
         dispatchPrecondition(condition: .onQueue(self.processingQueue))
 
-        let url = try self.url(for: request)
-        var urlRequest = URLRequest(url: url)
-        urlRequest.httpMethod = request.httpMethod.rawValue
-        urlRequest.allHTTPHeaderFields = urlRequest
-            .allHTTPHeaderFields?
-            .merging(
-                request.headers,
-                uniquingKeysWith: { $1 }
-            )
-        return urlRequest
-    }
-
-    private func url(for request: VKAPIRequest) throws -> URL {
-        dispatchPrecondition(condition: .onQueue(self.processingQueue))
-
-        var components = URLComponents()
-        components.scheme = "https"
-        components.host = "\(request.host.rawValue).\(self.hostname)"
-        components.path = request.path
-        components.queryItems = request.parameters
-            .map { ($0.key, String(describing: $0.value)) }
-            .map(URLQueryItem.init(name:value:))
-        guard let url = components.url else {
-            throw VKAPIError.invalidRequest(reason: "Could not construct url for request: \(request)")
+        let host = challenge.protectionSpace.host
+        let validationResult = self.sslPinningValidator.validateChallenge(challenge)
+        switch validationResult {
+        case .trustedDomain(let trust):
+            self.logger.info("Allow secure connection to trusted host: \(host)")
+            completionHandler(.useCredential, URLCredential(trust: trust))
+        case .domainNotPinned:
+            self.logger.warning("\(host) is not pinned. Continue with default handling.")
+            completionHandler(.performDefaultHandling, nil)
+        case .noMatchingPins:
+            self.logger.error("No matching pins for \(host). Canceling connection.")
+            completionHandler(.cancelAuthenticationChallenge, nil)
+        case .failedToProcessServerCertificate:
+            self.logger.error("Failed to process server certificate for \(host)")
+            completionHandler(.cancelAuthenticationChallenge, nil)
         }
-        return url
     }
 }

@@ -1,2 +1,15 @@
 "vkid_button_primary_title" = "Войти с VK ID";
 "vkid_button_brief_title" = "VK ID";
+"vkconnect_auth_floatingonetap_btn_unauth_sign_in_to_account" = "Войти с VK ID";
+"vkconnect_auth_floatingonetap_header_sign_in_to_service" = "Войдите в сервис или зарегистрируйтесь";
+"vkconnect_auth_floatingonetap_btn_unauth_sign_in_to_service" = "Войти с VK ID";
+"vkconnect_auth_floatingonetap_description" = "После этого вам станут доступны все возможности сервиса. Ваши данные будут надёжно защищены.";
+"vkconnect_auth_floatingonetap_header_sign_in_to_account" = "Войдите в учётную запись %@";
+"vkconnect_auth_floatingonetap_header_registration_for_event" = "Зарегистрируйтесь на мероприятие";
+"vkconnect_auth_floatingonetap_btn_unauth_registration_for_event" = "Продолжить с VK ID";
+"vkconnect_auth_floatingonetap_header_submit_applications" = "Подайте заявку с VK ID";
+"vkconnect_auth_floatingonetap_btn_unauth_submit_applications" = "Продолжить с VK ID";
+"vkconnect_auth_floatingonetap_header_make_order_without_service" = "Оформите заказ с VK ID";
+"vkconnect_auth_floatingonetap_btn_unauth_make_order_without_service" = "Оформить с VK ID";
+"vkconnect_auth_floatingonetap_header_make_order_with_service" = "Оформите заказ в %@ с VK ID";
+"vkconnect_auth_floatingonetap_btn_unauth_make_order_with_service" = "Оформить с VK ID";
