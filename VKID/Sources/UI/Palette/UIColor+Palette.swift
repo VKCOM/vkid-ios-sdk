@@ -36,6 +36,12 @@ extension UIColor {
     internal static let backgroundDark = UIColor.moduleNamed("background_dark")
     internal static let iconMediumLight = UIColor.moduleNamed("icon_medium_light")
     internal static let iconMediumDark = UIColor.moduleNamed("icon_medium_dark")
+    internal static let textSecondaryDark = UIColor.moduleNamed("color_text_secondary_dark")
+    internal static let textSecondaryLight = UIColor.moduleNamed("color_text_secondary_light")
+    internal static let textPrimaryLight = UIColor.moduleNamed("color_text_primary_light")
+    internal static let textPrimaryDark = UIColor.moduleNamed("color_text_primary_dark")
+    internal static let backgroundModalDark = UIColor.moduleNamed("color_background_modal_dark")
+    internal static let backgroundModalLight = UIColor.moduleNamed("color_background_modal_light")
 }
 
 extension UIColor {

@@ -95,34 +95,13 @@ class VKIDDemoViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        if #available(iOS 13.0, *) {
+            self.view.backgroundColor = .systemBackground
+        } else {
+            self.view.backgroundColor = .white
+        }
+
         self.setupSubviews()
-        self.addDebugSettingsButton()
-    }
-
-    @objc
-    private func onOpenDebugSettings(sender: AnyObject) {
-        let tableStyle: UITableView.Style = {
-            if #available(iOS 13.0, *) {
-                return .insetGrouped
-            } else {
-                return .grouped
-            }
-        }()
-        let settings = DebugSettingsViewController(style: tableStyle)
-        let navigation = UINavigationController(rootViewController: settings)
-        self.present(navigation, animated: true)
-        settings.render(viewModel: self.buildDebugSettings())
-        self.debugSettingsVC = settings
-    }
-
-    private func addDebugSettingsButton() {
-        let bt = UIBarButtonItem(
-            title: "Debug",
-            style: .plain,
-            target: self,
-            action: #selector(self.onOpenDebugSettings(sender:))
-        )
-        self.navigationItem.rightBarButtonItem = bt
     }
 
     private func setupSubviews() {
@@ -138,14 +117,17 @@ class VKIDDemoViewController: UIViewController {
             self.backgroundImage.rightAnchor.constraint(equalTo: self.view.rightAnchor),
 
             self.titleLabel.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 32),
-            self.titleLabel.leftAnchor.constraint(equalTo: self.view.leftAnchor, constant: 16),
+            self.titleLabel.leftAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leftAnchor, constant: 16),
 
             self.subtitleLabel.topAnchor.constraint(equalTo: self.titleLabel.bottomAnchor, constant: 16),
-            self.subtitleLabel.leftAnchor.constraint(equalTo: self.view.leftAnchor, constant: 16),
+            self.subtitleLabel.leftAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leftAnchor, constant: 16),
             self.subtitleLabel.rightAnchor.constraint(equalTo: self.view.rightAnchor, constant: -16),
 
             self.descriptionLabel.topAnchor.constraint(equalTo: self.subtitleLabel.bottomAnchor, constant: 16),
-            self.descriptionLabel.leftAnchor.constraint(equalTo: self.view.leftAnchor, constant: 16),
+            self.descriptionLabel.leftAnchor.constraint(
+                equalTo: self.view.safeAreaLayoutGuide.leftAnchor,
+                constant: 16
+            ),
             self.descriptionLabel.rightAnchor.constraint(equalTo: self.view.rightAnchor, constant: -16),
         ])
     }

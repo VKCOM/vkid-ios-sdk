@@ -31,6 +31,8 @@ import VKID
 import VKIDCore
 
 final class AuthViewController: VKIDDemoViewController {
+    var debugSettings: DebugSettingsStorage!
+
     private enum Constants {
         static let authButtonSize = CGSize(width: 220, height: 40)
     }
@@ -57,22 +59,28 @@ final class AuthViewController: VKIDDemoViewController {
                 height: .medium(.h44),
                 cornerRadius: 8
             ),
-            presenter: .uiViewController(self)
+            presenter: .uiViewController(self),
+            onCompleteAuth: nil
         )
         return vkid.ui(for: oneTap).uiView()
     }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        if #available(iOS 13.0, *) {
-            self.view.backgroundColor = .systemBackground
-        } else {
-            self.view.backgroundColor = .white
-        }
-        self.vkid?.add(observer: self)
 
         self.addTermsOfAgreement()
         self.addAuthButton()
+        self.addDebugSettingsButton()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        self.vkid?.add(observer: self)
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        self.vkid?.remove(observer: self)
     }
 
     private func addTermsOfAgreement() {
@@ -99,19 +107,37 @@ final class AuthViewController: VKIDDemoViewController {
         ])
     }
 
-    private func showAlert(message: String) {
-        let alert = UIAlertController(
-            title: "VK ID",
-            message: message,
-            preferredStyle: .alert
+    private func addDebugSettingsButton() {
+        let bt = UIBarButtonItem(
+            title: "Debug",
+            style: .plain,
+            target: self,
+            action: #selector(self.onOpenDebugSettings(sender:))
         )
-        alert.addAction(.init(title: "OK", style: .cancel))
-        self.present(alert, animated: true)
+        self.navigationItem.rightBarButtonItem = bt
+    }
+
+    @objc
+    private func onOpenDebugSettings(sender: AnyObject) {
+        let tableStyle: UITableView.Style = {
+            if #available(iOS 13.0, *) {
+                return .insetGrouped
+            } else {
+                return .grouped
+            }
+        }()
+        let settings = DebugSettingsViewController(style: tableStyle)
+        let navigation = UINavigationController(rootViewController: settings)
+        self.present(navigation, animated: true)
+        settings.render(viewModel: self.buildDebugSettings())
+        self.debugSettingsVC = settings
     }
 }
 
 extension AuthViewController: VKIDObserver {
-    func vkid(_ vkid: VKID, didCompleteAuthWith result: AuthResult) {
+    func vkid(_ vkid: VKID, didStartAuthUsing oAuth: OAuthProvider) {}
+
+    func vkid(_ vkid: VKID, didCompleteAuthWith result: AuthResult, in oAuth: OAuthProvider) {
         do {
             let session = try result.get()
             let maskedToken = session.accessToken.value.maskingForLogging()

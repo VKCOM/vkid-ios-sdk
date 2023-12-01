@@ -26,7 +26,7 @@
 // THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
 //
 
-import Foundation
+import UIKit
 
 struct DebugSettingsViewModel {
     var title: String
@@ -61,8 +61,53 @@ struct DebugSettingsSection {
     var cells: [DebugSettingsCellViewModel]
 }
 
-struct DebugSettingsCellViewModel {
+protocol DebugSettingsCellViewModel {
+    func configureCell(_ cell: UITableViewCell)
+    var action: () -> Void { get set }
+}
+
+struct DebugSettingsCheckboxCellViewModel: DebugSettingsCellViewModel {
     var title: String
     var checked: Bool
     var action: () -> Void
+
+    func configureCell(_ cell: UITableViewCell) {
+        cell.textLabel?.text = self.title
+        cell.accessoryView = nil
+        cell.accessoryType = self.checked ? .checkmark : .none
+    }
+}
+
+final class DebugSettingsToggleCellViewModel: DebugSettingsCellViewModel {
+    var title: String
+    var isOn: Bool
+    var action: () -> Void
+
+    lazy var toggle = {
+        let toggle = UISwitch()
+        toggle.addTarget(
+            self,
+            action: #selector(self.onToggle),
+            for: .valueChanged
+        )
+        toggle.onTintColor = UIColor.azure
+        return toggle
+    }()
+
+    init(title: String, isOn: Bool, action: @escaping () -> Void) {
+        self.title = title
+        self.isOn = isOn
+        self.action = action
+    }
+
+    func configureCell(_ cell: UITableViewCell) {
+        cell.textLabel?.text = self.title
+        cell.accessoryView = self.toggle
+        self.toggle.isOn = self.isOn
+    }
+
+    @objc
+    private func onToggle() {
+        self.action()
+    }
 }

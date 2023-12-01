@@ -33,12 +33,31 @@ public struct Configuration {
     public let appCredentials: AppCredentials
     public var appearance: Appearance
 
+    // Only for debug purposes
+    @_spi(VKIDDebug)
+    public var network: NetworkConfiguration
+
     public init(
         appCredentials: AppCredentials,
         appearance: Appearance = Appearance()
     ) {
+        self.init(
+            appCredentials: appCredentials,
+            appearance: appearance,
+            network: .init(isSSLPinningEnabled: true)
+        )
+    }
+
+    // Only for debug purposes
+    @_spi(VKIDDebug)
+    public init(
+        appCredentials: AppCredentials,
+        appearance: Appearance = Appearance(),
+        network: NetworkConfiguration
+    ) {
         self.appCredentials = appCredentials
         self.appearance = appearance
+        self.network = network
     }
 }
 
@@ -56,14 +75,14 @@ public struct AppCredentials {
 /// Конфигурация внешнего вида визуальных элементов VK ID
 public struct Appearance {
     /// Цветовая схема интерфейса
-    public enum ColorScheme: CaseIterable {
+    public enum ColorScheme: String, CaseIterable {
         case system
         case light
         case dark
     }
 
     /// Локализация интерфейса
-    public enum Locale: CaseIterable {
+    public enum Locale: String, CaseIterable {
         /// Будет использована системная локаль
         case system
         /// Russian
@@ -94,4 +113,9 @@ public struct Appearance {
         self.colorScheme = colorScheme
         self.locale = locale
     }
+}
+
+extension Appearance.ColorScheme {
+    /// Цветовая схема, указанная при инициализации VK ID SDK
+    internal static var current: Appearance.ColorScheme = .system
 }

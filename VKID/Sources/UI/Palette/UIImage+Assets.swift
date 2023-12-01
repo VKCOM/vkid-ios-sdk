@@ -26,38 +26,23 @@
 // THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
 //
 
-import CoreGraphics
+import UIKit
 
-extension CGSize {
-    internal static func +(lhs: CGSize, rhs: CGSize) -> CGSize {
-        .init(width: lhs.width + rhs.width, height: lhs.height + rhs.height)
-    }
+extension UIImage {
+    internal static let logoPrimary = UIImage.moduleNamed("vk_id_logo_primary")
+    internal static let logoSecondary = UIImage.moduleNamed("vk_id_logo_secondary")
+    internal static let closeDark = UIImage.moduleNamed("dismiss_24_dark")
+    internal static let closeLight = UIImage.moduleNamed("dismiss_24_light")
+    internal static let logoLight = UIImage.moduleNamed("logo_vkid_light")
+    internal static let logoDark = UIImage.moduleNamed("logo_vkid_dark")
+}
 
-    internal static func -(lhs: CGSize, rhs: CGSize) -> CGSize {
-        .init(width: lhs.width - rhs.width, height: lhs.height - rhs.height)
-    }
-
-    internal static func *(lhs: CGSize, rhs: CGSize) -> CGSize {
-        .init(width: lhs.width * rhs.width, height: lhs.height * rhs.height)
-    }
-
-    internal static func /(lhs: CGSize, rhs: CGSize) -> CGSize {
-        .init(width: lhs.width / rhs.width, height: lhs.height / rhs.height)
-    }
-
-    internal static func +(lhs: CGSize, rhs: CGFloat) -> CGSize {
-        .init(width: lhs.width + rhs, height: lhs.height + rhs)
-    }
-
-    internal static func -(lhs: CGSize, rhs: CGFloat) -> CGSize {
-        .init(width: lhs.width - rhs, height: lhs.height - rhs)
-    }
-
-    internal static func *(lhs: CGSize, rhs: CGFloat) -> CGSize {
-        .init(width: lhs.width * rhs, height: lhs.height * rhs)
-    }
-
-    internal static func /(lhs: CGSize, rhs: CGFloat) -> CGSize {
-        .init(width: lhs.width / rhs, height: lhs.height / rhs)
+extension UIImage {
+    fileprivate static func moduleNamed(_ named: String) -> UIImage {
+        UIImage(
+            named: named,
+            in: .module,
+            compatibleWith: nil
+        )!
     }
 }

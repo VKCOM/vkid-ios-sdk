@@ -30,7 +30,8 @@ import Foundation
 import VKIDCore
 
 public protocol VKIDObserver: AnyObject {
-    func vkid(_ vkid: VKID, didCompleteAuthWith result: AuthResult)
+    func vkid(_ vkid: VKID, didStartAuthUsing oAuth: OAuthProvider)
+    func vkid(_ vkid: VKID, didCompleteAuthWith result: AuthResult, in oAuth: OAuthProvider)
 }
 
 /// Объект, через который идет все взаимодействие с VKID
@@ -48,6 +49,7 @@ public final class VKID {
         }
         set {
             self.config.appearance = newValue
+            Appearance.ColorScheme.current = newValue.colorScheme
         }
     }
 
@@ -55,7 +57,11 @@ public final class VKID {
     /// - Parameter config: объект конфигурация VKID
     public init(config: Configuration) throws {
         self.config = config
-        self.rootContainer = RootContainer(appCredentials: config.appCredentials)
+        Appearance.ColorScheme.current = config.appearance.colorScheme
+        self.rootContainer = RootContainer(
+            appCredentials: config.appCredentials,
+            networkConfiguration: config.network
+        )
     }
 
     public func add(observer: VKIDObserver) {
@@ -105,9 +111,12 @@ public final class VKID {
             self.currentAuthorizedSession = try? userSessionResult.get()
             let authResult = AuthResult(userSessionResult)
             self.observers.notify {
-                $0.vkid(self, didCompleteAuthWith: authResult)
+                $0.vkid(self, didCompleteAuthWith: authResult, in: authConfig.oAuthProvider)
             }
             completion(authResult)
+        }
+        self.observers.notify {
+            $0.vkid(self, didStartAuthUsing: authConfig.oAuthProvider)
         }
     }
 

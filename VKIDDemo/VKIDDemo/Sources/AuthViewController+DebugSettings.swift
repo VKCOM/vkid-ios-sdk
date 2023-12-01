@@ -29,7 +29,7 @@
 import Foundation
 import VKID
 
-extension VKIDDemoViewController {
+extension AuthViewController {
     func buildDebugSettings() -> DebugSettingsViewModel {
         DebugSettingsViewModel(
             title: "DebugSettings",
@@ -42,6 +42,10 @@ extension VKIDDemoViewController {
                     title: "Locale",
                     cells: self.localeCells()
                 ),
+                .init(
+                    title: "Network",
+                    cells: self.networkConfigurationCells()
+                ),
             ]
         )
     }
@@ -51,12 +55,12 @@ extension VKIDDemoViewController {
             .ColorScheme
             .allCases
             .map { theme in
-                DebugSettingsCellViewModel(
+                DebugSettingsCheckboxCellViewModel(
                     title: "\(theme)",
                     checked: self.appearance.colorScheme == theme
-                ) {
-                    self.appearance.colorScheme = theme
-                    self.updateSettings()
+                ) { [weak self] in
+                    self?.appearance.colorScheme = theme
+                    self?.updateSettings()
                 }
             }
     }
@@ -66,14 +70,26 @@ extension VKIDDemoViewController {
             .Locale
             .allCases
             .map { locale in
-                DebugSettingsCellViewModel(
+                DebugSettingsCheckboxCellViewModel(
                     title: "\(locale)",
                     checked: self.appearance.locale == locale
-                ) {
-                    self.appearance.locale = locale
-                    self.updateSettings()
+                ) { [weak self] in
+                    self?.appearance.locale = locale
+                    self?.updateSettings()
                 }
             }
+    }
+
+    private func networkConfigurationCells() -> [DebugSettingsCellViewModel] {
+        [
+            DebugSettingsToggleCellViewModel(
+                title: "SSL Pinning Enabled",
+                isOn: self.debugSettings.isSSLPinningEnabled
+            ) { [weak self] in
+                self?.debugSettings.isSSLPinningEnabled.toggle()
+                self?.updateSettings()
+            },
+        ]
     }
 
     func updateSettings() {

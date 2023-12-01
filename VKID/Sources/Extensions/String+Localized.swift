@@ -36,4 +36,8 @@ extension String {
 
         return NSLocalizedString(self, bundle: .module, comment: "")
     }
+
+    internal func localizedWithFormat(_ arguments: CVarArg...) -> String {
+        String(format: self.localized, arguments)
+    }
 }

@@ -1,2 +1,15 @@
-"vkid_button_primary_title" = "VK ID den gir";
+"vkid_button_primary_title" = "VK ID aracılığıyla gir";
 "vkid_button_brief_title" = "VK ID";
+"vkconnect_auth_floatingonetap_btn_unauth_sign_in_to_account" = "VK ID aracılığıyla gir";
+"vkconnect_auth_floatingonetap_header_sign_in_to_service" = "Hizmete girin yada oturum oluşturun";
+"vkconnect_auth_floatingonetap_btn_unauth_sign_in_to_service" = "VK ID aracılığıyla gir";
+"vkconnect_auth_floatingonetap_description" = "Bundan sonra hizmetin tüm özellikleri kullanımınıza sunulacaktır. Verileriniz güvenilir bir şekilde korunacaktır.";
+"vkconnect_auth_floatingonetap_header_sign_in_to_account" = "%@ hesabına girin";
+"vkconnect_auth_floatingonetap_header_registration_for_event" = "Eylemde kaydolun";
+"vkconnect_auth_floatingonetap_btn_unauth_registration_for_event" = "VK ID aracılığıyla devam et";
+"vkconnect_auth_floatingonetap_header_submit_applications" = "VK ID yardımıyla başvuru gönderin";
+"vkconnect_auth_floatingonetap_btn_unauth_submit_applications" = "VK ID aracılığıyla devam et";
+"vkconnect_auth_floatingonetap_header_make_order_without_service" = " VK ID aracılığıyla sipariş oluşturun";
+"vkconnect_auth_floatingonetap_btn_unauth_make_order_without_service" = "VK ID ile işlem yap";
+"vkconnect_auth_floatingonetap_header_make_order_with_service" = "VK ID aracılığıyla %@ te sipariş oluşturun";
+"vkconnect_auth_floatingonetap_btn_unauth_make_order_with_service" = "VK ID aracılığıyla oluştur";

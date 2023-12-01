@@ -27,13 +27,16 @@
 //
 
 import UIKit
-import VKID
-import VKIDCore
+
+// Only for debug purposes. Do not use in your projects.
+@_spi(VKIDDebug) import VKID
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var vkid: VKID?
     var window: UIWindow?
+
+    private let debugSettings = DebugSettingsStorage()
 
     func application(
         _ application: UIApplication,
@@ -53,8 +56,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                         clientId: clientId,
                         clientSecret: clientSecret
                     ),
-                    appearance: Appearance(
-                        colorScheme: .light
+                    // Only for debug purposes
+                    network: NetworkConfiguration(
+                        isSSLPinningEnabled: self.debugSettings.isSSLPinningEnabled
                     )
                 )
             )
@@ -96,6 +100,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             tag: 0
         )
         authViewController.vkid = self.vkid
+        authViewController.debugSettings = self.debugSettings
 
         return UINavigationController(
             rootViewController: authViewController
@@ -103,10 +108,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     private func makeCustomizationViewController() -> UIViewController {
-        let customizationViewController = CustomizationViewController(
+        let customizationViewController = ControlsViewController(
             title: "Кастомизация",
-            subtitle: "OneTapButton",
-            description: "Нажмите на кнопку, чтобы включить или выключить анимацию"
+            subtitle: "Примеры контролов из VK ID SDK",
+            description: "Выберите контрол из списка, чтобы посмотреть его детальные настройки"
         )
         customizationViewController.vkid = self.vkid
         customizationViewController.tabBarItem = UITabBarItem(

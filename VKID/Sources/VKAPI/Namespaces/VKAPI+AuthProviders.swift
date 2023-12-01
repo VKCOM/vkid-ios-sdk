@@ -50,6 +50,7 @@ internal struct AuthProviders: VKAPINamespace {
             VKAPIRequest(
                 host: .api,
                 path: "/method/auth.getVKConnectSettings",
+                httpMethod: .post,
                 parameters: parameters.dictionaryRepresentation,
                 authorization: .anonymousToken
             )
