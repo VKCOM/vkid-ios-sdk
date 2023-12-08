@@ -77,7 +77,7 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
                 subtitleFont: .systemFont(ofSize: 16, weight: .regular)
             )
         )
-
+        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
 
@@ -100,15 +100,11 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
         return bar
     }()
 
-    private lazy var contentStackView: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .vertical
-        stack.addArrangedSubview(self.initialStateView)
-        stack.spacing = 8
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.alignment = .fill
-
-        return stack
+    private lazy var contentPlaceholderView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = .clear
+        return view
     }()
 
     override func viewDidLoad() {
@@ -118,38 +114,43 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
 
     private func setupUI() {
         self.view.backgroundColor = .clear
-        self.contentStackView.clipsToBounds = false
+
         self.view.addSubview(self.topBar)
-        self.view.addSubview(self.contentStackView)
+        self.view.addSubview(self.contentPlaceholderView)
+
         NSLayoutConstraint.activate([
             self.topBar.topAnchor.constraint(
-                equalTo: self.view.topAnchor,
-                constant: Constants.topBarInsets.top
+                equalTo: self.view.topAnchor
             ),
             self.topBar.leadingAnchor.constraint(
-                equalTo: self.view.leadingAnchor,
-                constant: Constants.topBarInsets.left
+                equalTo: self.view.leadingAnchor
             ),
             self.topBar.trailingAnchor.constraint(
-                equalTo: self.view.trailingAnchor,
-                constant: -Constants.topBarInsets.right
+                equalTo: self.view.trailingAnchor
             ),
-            self.contentStackView.leadingAnchor.constraint(
+            self.contentPlaceholderView.leadingAnchor.constraint(
                 equalTo: self.view.leadingAnchor,
-                constant: Constants.contentStackViewInsets.left
+                constant: Constants.contentPlaceholderInsets.left
             ),
-            self.contentStackView.trailingAnchor.constraint(
+            self.contentPlaceholderView.trailingAnchor.constraint(
                 equalTo: self.view.trailingAnchor,
-                constant: -Constants.contentStackViewInsets.right
+                constant: -Constants.contentPlaceholderInsets.right
             ),
-            self.contentStackView.topAnchor.constraint(
-                equalTo: self.topBar.bottomAnchor
-            ),
-            self.contentStackView.bottomAnchor.constraint(
+            self.contentPlaceholderView.bottomAnchor.constraint(
                 equalTo: self.view.bottomAnchor,
-                constant: -Constants.contentStackViewInsets.bottom
+                constant: -Constants.contentPlaceholderInsets.bottom
             ),
         ])
+
+        let verticalSpacer = self.contentPlaceholderView.topAnchor.constraint(
+            equalTo: self.topBar.bottomAnchor
+        )
+        verticalSpacer.priority = .defaultLow
+        verticalSpacer.isActive = true
+
+        self.contentPlaceholderView.addSubview(self.initialStateView) {
+            $0.pinToEdges()
+        }
     }
 
     private func onClose() {
@@ -157,25 +158,10 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
     }
 
     func preferredContentSize(withParentContainerSize parentSize: CGSize) -> CGSize {
-        let headerSize = self.topBar.systemLayoutSizeFitting(
-            parentSize - Constants.topBarInsets,
+        self.view.systemLayoutSizeFitting(
+            parentSize,
             withHorizontalFittingPriority: .required,
             verticalFittingPriority: .fittingSizeLevel
-        )
-        let stackViewDiffSize = CGSize(
-            width: Constants.contentStackViewInsets.left + Constants.contentStackViewInsets.right,
-            height: headerSize.height + Constants.topBarInsets.top + Constants.contentStackViewInsets.bottom
-        )
-        let stackViewSize = self.contentStackView.systemLayoutSizeFitting(
-            parentSize - stackViewDiffSize,
-            withHorizontalFittingPriority: .required,
-            verticalFittingPriority: .fittingSizeLevel
-        )
-
-        return CGSize(
-            width: headerSize.width + Constants.topBarInsets.left + Constants.topBarInsets.right,
-            height: headerSize.height + Constants.topBarInsets.top +
-                stackViewSize.height + Constants.contentStackViewInsets.bottom
         )
     }
 
@@ -191,18 +177,11 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
 
 extension OneTapBottomSheetContentViewController {
     enum Constants {
-        static let contentStackViewInsets = UIEdgeInsets(
+        static let contentPlaceholderInsets = UIEdgeInsets(
             top: 16,
             left: 16,
             bottom: 16,
             right: 16
-        )
-
-        static let topBarInsets = UIEdgeInsets(
-            top: 2,
-            left: 16,
-            bottom: 0,
-            right: 2
         )
     }
 }

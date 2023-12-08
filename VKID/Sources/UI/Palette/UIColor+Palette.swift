@@ -48,7 +48,7 @@ extension UIColor {
     fileprivate static func moduleNamed(_ named: String) -> UIColor {
         UIColor(
             named: named,
-            in: .module,
+            in: .resources,
             compatibleWith: nil
         )!
     }
