@@ -33,6 +33,16 @@ dependencies: [
 ]
 ```
 
+### CocoaPods
+Добавьте в ваш `Podfile`:
+```ruby
+pod 'VKID', '~> 1.0'
+```
+Выполните следующие команды, чтобы установить зависимости:
+```shell
+pod install --repo-update
+```
+
 ## Интеграция
 
 ### Настройка Info.plist
