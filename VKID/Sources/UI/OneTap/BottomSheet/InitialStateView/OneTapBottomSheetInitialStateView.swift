@@ -38,73 +38,96 @@ internal class OneTapBottomSheetInitialStateView: UIView {
         self.authButton = configuration.authButton
         super.init(frame: .zero)
         self.setupUI()
+        self.apply(config: configuration)
     }
 
     required init(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private lazy var containerStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .vertical
-        stackView.alignment = .center
-        stackView.spacing = 8
-
-        stackView.addArrangedSubview(self.titleLabel)
-        stackView.addArrangedSubview(self.subtitleLabel)
-
-        return stackView
-    }()
-
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.text = self.config.title
-        label.font = self.config.titleFont
-        label.textAlignment = .center
+        label.backgroundColor = .clear
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.minimumLineHeight = 24
+        paragraph.maximumLineHeight = 24
+        paragraph.alignment = .center
+        label.attributedText = NSAttributedString(
+            string: self.config.title,
+            attributes: [
+                .paragraphStyle: paragraph,
+                .font: self.config.titleFont,
+            ]
+        )
         label.numberOfLines = 0
-
+        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 
     private lazy var subtitleLabel: UILabel = {
         let label = UILabel()
-        label.text = self.config.subtitle
-        label.font = self.config.subtitleFont
-        label.textAlignment = .center
+        label.backgroundColor = .clear
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.minimumLineHeight = 20
+        paragraph.maximumLineHeight = 20
+        paragraph.alignment = .center
+        label.attributedText = NSAttributedString(
+            string: self.config.subtitle,
+            attributes: [
+                .paragraphStyle: paragraph,
+                .font: self.config.subtitleFont,
+            ]
+        )
         label.numberOfLines = 0
-
+        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 
     private func setupUI() {
-        self.apply(config: self.config)
+        self.addSubview(self.titleLabel)
+        self.addSubview(self.subtitleLabel)
+        NSLayoutConstraint.activate([
+            self.titleLabel.leadingAnchor.constraint(
+                equalTo: self.leadingAnchor,
+                constant: Constants.textContainerInsets.left
+            ),
+            self.titleLabel.trailingAnchor.constraint(
+                equalTo: self.trailingAnchor,
+                constant: Constants.textContainerInsets.right
+            ),
+            self.titleLabel.topAnchor.constraint(
+                equalTo: self.topAnchor,
+                constant: Constants.textContainerInsets.top
+            ),
+            self.titleLabel.bottomAnchor.constraint(
+                equalTo: self.subtitleLabel.topAnchor,
+                constant: -8
+            ),
+            self.subtitleLabel.leadingAnchor.constraint(
+                equalTo: self.leadingAnchor,
+                constant: Constants.textContainerInsets.left
+            ),
+            self.subtitleLabel.trailingAnchor.constraint(
+                equalTo: self.trailingAnchor,
+                constant: Constants.textContainerInsets.right
+            ),
+        ])
 
         self.addSubview(self.authButton)
         self.authButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            self.authButton.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor),
-            self.authButton.trailingAnchor.constraint(equalTo: safeAreaLayoutGuide.trailingAnchor),
-            self.authButton.bottomAnchor.constraint(equalTo: safeAreaLayoutGuide.bottomAnchor),
-        ])
-
-        self.addSubview(self.containerStackView)
-        self.containerStackView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            self.containerStackView.leadingAnchor.constraint(
-                equalTo: safeAreaLayoutGuide.leadingAnchor,
-                constant: Constants.contentStackViewInsets.left
+            self.authButton.leadingAnchor.constraint(
+                equalTo: self.leadingAnchor
             ),
-            self.containerStackView.trailingAnchor.constraint(
-                equalTo: safeAreaLayoutGuide.trailingAnchor,
-                constant: Constants.contentStackViewInsets.right
+            self.authButton.trailingAnchor.constraint(
+                equalTo: self.trailingAnchor
             ),
-            self.containerStackView.topAnchor.constraint(
-                equalTo: safeAreaLayoutGuide.topAnchor,
-                constant: Constants.contentStackViewInsets.top
+            self.authButton.bottomAnchor.constraint(
+                equalTo: self.bottomAnchor
             ),
-            self.containerStackView.bottomAnchor.constraint(
+            self.subtitleLabel.bottomAnchor.constraint(
                 equalTo: self.authButton.topAnchor,
-                constant: Constants.contentStackViewInsets.bottom
+                constant: Constants.textContainerInsets.bottom
             ),
         ])
     }
@@ -122,8 +145,8 @@ internal class OneTapBottomSheetInitialStateView: UIView {
 
 extension OneTapBottomSheetInitialStateView {
     private enum Constants {
-        static let contentStackViewInsets = UIEdgeInsets(
-            top: 32,
+        static let textContainerInsets = UIEdgeInsets(
+            top: 22,
             left: 32,
             bottom: -36,
             right: -32

@@ -30,11 +30,11 @@ import Foundation
 
 extension String {
     internal var localized: String {
-        if let bundle = Bundle.module.bundle(forResource: Bundle.preferredLocalization(), ofType: "lproj") {
+        if let bundle = Bundle.resources.bundle(forResource: Bundle.preferredLocalization(), ofType: "lproj") {
             return NSLocalizedString(self, bundle: bundle, comment: "")
         }
 
-        return NSLocalizedString(self, bundle: .module, comment: "")
+        return NSLocalizedString(self, bundle: .resources, comment: "")
     }
 
     internal func localizedWithFormat(_ arguments: CVarArg...) -> String {

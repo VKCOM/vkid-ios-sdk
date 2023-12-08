@@ -53,38 +53,32 @@ internal final class OneTapBottomSheetTopBar: UIView {
             action: #selector(self.onCloseClicked(sender:)),
             for: .touchUpInside
         )
-
+        button.translatesAutoresizingMaskIntoConstraints = false
         return button
-    } ()
-
-    private var stackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.alignment = .center
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        return stackView
     } ()
 
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        let paragraphStyle = NSMutableParagraphStyle()
         label.backgroundColor = .clear
         label.textAlignment = .left
-        paragraphStyle.lineHeightMultiple = 1.03
-        label.attributedText = NSMutableAttributedString(
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.lineHeightMultiple = 1.03
+        label.attributedText = NSAttributedString(
             string: " · " + self.configuration.title,
             attributes: [
                 .kern: -0.08,
-                .paragraphStyle: paragraphStyle,
+                .paragraphStyle: paragraph,
                 .font: UIFont.systemFont(ofSize: 13, weight: .regular),
             ]
         )
-
+        label.translatesAutoresizingMaskIntoConstraints = false
         return label
     } ()
 
     private lazy var logoView: UIImageView = {
-        UIImageView(image: self.configuration.logoIcon.value)
+        let view = UIImageView(image: self.configuration.logoIcon.value)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
     } ()
 
     internal init(configuration: Configuration) {
@@ -108,18 +102,46 @@ internal final class OneTapBottomSheetTopBar: UIView {
     }
 
     private func setupUI() {
-        self.stackView.addArrangedSubview(self.logoView)
-        self.stackView.addArrangedSubview(self.titleLabel)
-        self.stackView.addArrangedSubview(self.closeButton)
-        self.addSubview(self.stackView) {
-            $0.pinToEdges()
-        }
+        self.addSubview(self.logoView)
+        self.addSubview(self.titleLabel)
+        self.addSubview(self.closeButton)
+
         self.closeButton.buildConstraint {
             $0.pinSize(.init(width: 48, height: 48))
         }
-        self.logoView.buildConstraint { builder in
-            builder.pinSize(.init(width: 33, height: 16))
+        self.logoView.buildConstraint {
+            $0.pinSize(.init(width: 33, height: 16))
         }
+
+        NSLayoutConstraint.activate([
+            self.heightAnchor.constraint(
+                equalToConstant: 50
+            ),
+            self.logoView.leadingAnchor.constraint(
+                equalTo: self.leadingAnchor,
+                constant: 16
+            ),
+            self.logoView.trailingAnchor.constraint(
+                equalTo: self.titleLabel.leadingAnchor
+            ),
+            self.logoView.centerYAnchor.constraint(
+                equalTo: self.centerYAnchor
+            ),
+            self.titleLabel.trailingAnchor.constraint(
+                equalTo: self.closeButton.leadingAnchor
+            ),
+            self.titleLabel.centerYAnchor.constraint(
+                equalTo: self.centerYAnchor
+            ),
+            self.closeButton.trailingAnchor.constraint(
+                equalTo: self.trailingAnchor,
+                constant: -2
+            ),
+            self.closeButton.centerYAnchor.constraint(
+                equalTo: self.centerYAnchor
+            ),
+        ])
+
         self.backgroundColor = .clear
         self.apply(configuration: self.configuration)
     }

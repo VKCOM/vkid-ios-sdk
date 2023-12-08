@@ -108,15 +108,9 @@ open class BottomSheetViewController: UIViewController, BottomSheetContent {
 
     public override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = .lightGray
         self.view.layer.cornerRadius = self.layoutConfiguration.cornerRadius
         self.view.layer.masksToBounds = true
         self.addContentViewController(self._contentViewController)
-    }
-
-    open override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        self._contentViewController.view.frame = self.view.bounds
     }
 
     public func preferredContentSize(withParentContainerSize parentSize: CGSize) -> CGSize {
@@ -130,7 +124,10 @@ extension BottomSheetViewController {
     ) {
         controller.contentDelegate = self
         self.addChild(controller)
-        self.view.addSubview(controller.view)
+        controller.view.translatesAutoresizingMaskIntoConstraints = false
+        self.view.addSubview(controller.view) {
+            $0.pinToEdges()
+        }
         controller.didMove(toParent: self)
     }
 }

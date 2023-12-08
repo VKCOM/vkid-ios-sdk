@@ -26,23 +26,28 @@
 // THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
 //
 
-import UIKit
+import Foundation
 
-extension UIImage {
-    internal static let logoPrimary = UIImage.moduleNamed("vk_id_logo_primary")
-    internal static let logoSecondary = UIImage.moduleNamed("vk_id_logo_secondary")
-    internal static let closeDark = UIImage.moduleNamed("dismiss_24_dark")
-    internal static let closeLight = UIImage.moduleNamed("dismiss_24_light")
-    internal static let logoLight = UIImage.moduleNamed("logo_vkid_light")
-    internal static let logoDark = UIImage.moduleNamed("logo_vkid_dark")
-}
+private final class BundleFinder {}
 
-extension UIImage {
-    fileprivate static func moduleNamed(_ named: String) -> UIImage {
-        UIImage(
-            named: named,
-            in: .resources,
-            compatibleWith: nil
-        )!
-    }
+extension Bundle {
+    internal static let resources: Bundle = {
+        #if SWIFT_PACKAGE
+        Bundle.module
+        #else
+        let candidates: [URL] = [
+            Bundle(for: BundleFinder.self).resourceURL,
+            Bundle.main.resourceURL,
+            Bundle.main.bundleURL,
+        ].compactMap { $0 }
+        for candidate in candidates {
+            if let bundle = Bundle(
+                url: candidate.appendingPathComponent("VKID-Resources.bundle")
+            ) {
+                return bundle
+            }
+        }
+        fatalError("Unable to find resources bundle for VKID")
+        #endif
+    }()
 }
