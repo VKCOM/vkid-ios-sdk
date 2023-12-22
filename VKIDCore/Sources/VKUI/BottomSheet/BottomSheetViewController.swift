@@ -94,7 +94,9 @@ open class BottomSheetViewController: UIViewController, BottomSheetContent {
         contentViewController: BottomSheetContentViewController,
         layoutConfiguration: BottomSheetLayoutConfiguration
     ) {
-        self._transitioningDelegate = BottomSheetTransitioningDelegate()
+        self._transitioningDelegate = BottomSheetTransitioningDelegate(
+            bottomSheetInsets: layoutConfiguration.edgeInsets
+        )
         self._contentViewController = contentViewController
         self.layoutConfiguration = layoutConfiguration
         super.init(nibName: nil, bundle: nil)

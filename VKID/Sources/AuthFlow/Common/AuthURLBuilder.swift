@@ -38,6 +38,7 @@ internal protocol AuthURLBuilder {
 
     func buildWebViewAuthURL(
         from templateURLString: String,
+        for oAuth: OAuthProvider,
         with secrets: PKCESecrets,
         credentials: AppCredentials,
         appearance: Appearance
@@ -67,15 +68,19 @@ internal final class AuthURLBuilderImpl: AuthURLBuilder {
 
     func buildWebViewAuthURL(
         from templateURLString: String,
+        for provider: OAuthProvider,
         with secrets: PKCESecrets,
         credentials: AppCredentials,
         appearance: Appearance
     ) throws -> URL {
-        try self.buildAuthUrl(
+        var queryItems: [URLQueryItem] = appearance.urlQueryItems
+        queryItems.append(.sdkOauthJson(oAuth: provider))
+
+        return try self.buildAuthUrl(
             from: templateURLString,
             with: secrets,
             credentials: credentials,
-            additionalQueryItems: appearance.urlQueryItems
+            additionalQueryItems: queryItems
         )
     }
 
@@ -97,7 +102,10 @@ internal final class AuthURLBuilderImpl: AuthURLBuilder {
             .queryItems?
             .filter { !$0.isTemplate }
             ?? []
-        queryItems += self.сommonQueryItems(clientId: credentials.clientId, secrets: secrets)
+        queryItems += self.сommonQueryItems(
+            clientId: credentials.clientId,
+            secrets: secrets
+        )
         queryItems += additionalQueryItems
 
         components.queryItems = queryItems
@@ -221,6 +229,33 @@ extension UIUserInterfaceStyle {
 
 extension URLQueryItem {
     internal static let authProviderMethod = Self(name: "vkconnect_auth_provider_method", value: "external_auth")
+
+    internal static func sdkOauthJson(oAuth: OAuthProvider) -> Self {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
+
+        struct SDKOAuth: Encodable {
+            struct OAuth: Encodable {
+                let oauth: String
+            }
+
+            let name: String = "sdk_oauth"
+            let params: OAuth
+
+            init(oauth: String) {
+                self.params = OAuth(oauth: oauth)
+            }
+        }
+
+        return Self(
+            name: "action",
+            value: try? encoder.encode(
+                SDKOAuth(
+                    oauth: oAuth.type.rawValue
+                )
+            ).base64EncodedString()
+        )
+    }
 }
 
 private func preferredLocale() -> Appearance.Locale? {

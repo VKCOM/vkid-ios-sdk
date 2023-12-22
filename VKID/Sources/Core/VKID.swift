@@ -87,19 +87,27 @@ public final class VKID {
     ) {
         dispatchPrecondition(condition: .onQueue(.main))
 
-        if let session = self.currentAuthorizedSession {
-            completion(.success(session))
-            return
-        }
         if self.activeFlow != nil {
-            completion(.failure(.authAlreadyInProgress))
+            let authAlreadyInProgress: AuthResult = .failure(.authAlreadyInProgress)
+            self.observers.notify {
+                $0.vkid(self, didCompleteAuthWith: authAlreadyInProgress, in: authConfig.oAuthProvider)
+            }
+            completion(authAlreadyInProgress)
             return
         }
 
-        self.activeFlow = self.rootContainer.serviceAuthFlow(
-            for: authConfig,
-            appearance: self.appearance
-        )
+        if authConfig.oAuthProvider.type == .vkid {
+            self.activeFlow = self.rootContainer.serviceAuthFlow(
+                for: authConfig,
+                appearance: self.appearance
+            )
+        } else {
+            self.activeFlow = self.rootContainer.webViewAuthFlow(
+                for: authConfig,
+                appearance: self.appearance
+            )
+        }
+
         self.activeFlow?.authorize(with: presenter) { [weak self] result in
             dispatchPrecondition(condition: .onQueue(.main))
 
@@ -107,7 +115,12 @@ public final class VKID {
 
             self.activeFlow = nil
 
-            let userSessionResult = result.map(UserSession.init(accessToken:))
+            let userSessionResult = result.map {
+                UserSession(
+                    oAuthProvider: authConfig.oAuthProvider,
+                    accessToken: $0
+                )
+            }
             self.currentAuthorizedSession = try? userSessionResult.get()
             let authResult = AuthResult(userSessionResult)
             self.observers.notify {
@@ -126,6 +139,12 @@ public final class VKID {
 }
 
 extension VKID: UIFactory {}
+
+extension VKID {
+    internal var isAuthorizing: Bool {
+        self.activeFlow != nil
+    }
+}
 
 extension AuthResult {
     internal init(_ result: Result<UserSession, AuthFlowError>) {

@@ -33,13 +33,21 @@ public struct OAuthProvider {
     /// Провайдер авторизации через VKID
     public static let vkid = Self(type: .vkid)
 
-    internal enum OAuthProviderType: String {
+    /// Провайдер авторизации через Одноклассники
+    public static let ok = Self(type: .ok)
+
+    /// Провайдер авторизации через MailRu
+    public static let mail = Self(type: .mail)
+
+    internal enum _Type: String {
         case vkid = "vkid"
+        case ok = "ok_ru"
+        case mail = "mail_ru"
     }
 
-    internal let type: OAuthProviderType
+    internal let type: _Type
 
-    private init(type: OAuthProviderType) {
+    private init(type: _Type) {
         self.type = type
     }
 }

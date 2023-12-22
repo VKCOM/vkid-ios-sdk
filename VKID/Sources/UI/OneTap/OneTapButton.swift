@@ -34,11 +34,47 @@ public struct OneTapButton: UIViewElement {
     public typealias Factory = VKID
     public typealias OnTapCallback = (ActivityIndicating) -> Void
 
-    internal var appearance: Appearance
-    internal var layout: Layout
-    internal var presenter: UIKitPresenter?
-    internal var onTap: OnTapCallback?
-    internal var onCompleteAuth: AuthResultCompletion?
+    /// Основной провайдер авторизации для кнопки
+    internal let primaryOAuthProvider: OAuthProvider
+
+    /// Список альтернативных OAuth-провайдеров, которые будут отображаться
+    /// в виджете под основной кнопкой.
+    internal let alternativeOAuthProviders: [OAuthProvider]
+
+    /// Внешний вид кнопки.
+    internal let appearance: Appearance
+
+    /// Оформление кнопки.
+    internal let layout: Layout
+
+    /// Объект, отвечающий за отображение экранов авторизации.
+    internal let presenter: UIKitPresenter?
+
+    /// Замыкание, вызывающееся при нажатии на кнопку.
+    internal let onTap: OnTapCallback?
+
+    /// Замыкание, вызывающееся при завершении авторизации.
+    internal let onCompleteAuth: AuthResultCompletion?
+
+    /// Инициализация конфигурации кнопки
+    /// - Parameters:
+    ///   - appearance: Внешний вид кнопки.
+    ///   - layout: Оформление кнопки.
+    ///   - onTap: Замыкание, вызывающееся при нажатии на кнопку.
+    public init(
+        appearance: Appearance = Appearance(),
+        layout: Layout = .regular(),
+        onTap: OnTapCallback?
+    ) {
+        self.init(
+            primaryOAuthProvider: .vkid,
+            appearance: appearance,
+            layout: layout,
+            presenter: nil,
+            onTap: onTap,
+            onCompleteAuth: nil
+        )
+    }
 
     /// Создает конфигурацию для OneTap кнопки
     /// - Parameters:
@@ -52,31 +88,103 @@ public struct OneTapButton: UIViewElement {
         presenter: UIKitPresenter = .newUIWindow,
         onCompleteAuth: AuthResultCompletion?
     ) {
-        self.appearance = appearance
-        self.layout = layout
-        self.presenter = presenter
-        self.onCompleteAuth = onCompleteAuth
-        self.onTap = nil
+        self.init(
+            primaryOAuthProvider: .vkid,
+            appearance: appearance,
+            layout: layout,
+            presenter: presenter,
+            onTap: nil,
+            onCompleteAuth: onCompleteAuth
+        )
+    }
+
+    /// Создает конфигурацию OneTap кнопки с виджетом для дополнительных oauth-провайдеров.
+    /// В данной конфигурации кастомизация OneTap ограничена: можно задать только высоту, радиус закругления углов и цветовую тему.
+    /// Данные параметры будут применены как для основной OneTap кнопки так и для кнопок альтернативных OAuth-провайдеров.
+    /// - Parameters:
+    ///   - height: Детерменированная высота кнопок.
+    ///   - cornerRadius: Радиус закругления углов кнопок.
+    ///   - theme: Цветовая тема кнопок.
+    ///   - alternativeOAuthProviders: Список альтернативных oauth-ов, которые будут отображаться
+    ///   в виджете под основной кнопкой.
+    ///   - presenter: Объект, отвечающий за отображение экранов авторизации.
+    ///   - onCompleteAuth: Колбэк о завершении авторизации.
+    public init(
+        height: Layout.Height = .medium(),
+        cornerRadius: CGFloat = LayoutConstants.defaultCornerRadius,
+        theme: Appearance.Theme = .matchingColorScheme(.current),
+        alternativeOAuthProviders: [OAuthProvider],
+        presenter: UIKitPresenter = .newUIWindow,
+        onCompleteAuth: AuthResultCompletion?
+    ) {
+        self.init(
+            primaryOAuthProvider: .vkid,
+            alternativeOAuthProviders: alternativeOAuthProviders,
+            appearance: .init(
+                style: .primary(),
+                theme: theme
+            ),
+            layout: .regular(
+                height: height,
+                cornerRadius: cornerRadius
+            ),
+            presenter: presenter,
+            onTap: nil,
+            onCompleteAuth: onCompleteAuth
+        )
     }
 
     /// Создает конфигурацию для OneTap кнопки
     /// - Parameters:
-    ///   - appearance: Конфигурация внешнего вида кнопки
-    ///   - layout: Конфигурация лейаут кнопки
-    ///   - onTap: Колбэк для обработки нажатия на кнопку
-    public init(
+    ///   - primaryOAuthProvider: Основной провайдер авторизации.
+    ///   - alternativeOAuthProviders: Список альтернативных oauth-ов,
+    ///   которые будут отображаться в виджете под основной кнопкой.
+    ///   - appearance: Конфигурация внешнего вида кнопки.
+    ///   - layout: Конфигурация лейаут кнопки.
+    ///   - presenter: Источник отображения авторизации, при нажатии на кнопку.
+    ///   - onTap: Колбэк для обработки нажатия на кнопку.
+    ///   - onCompleteAuth: Замыкание, вызывающееся при завершении авторизации.
+    internal init(
+        primaryOAuthProvider: OAuthProvider,
+        alternativeOAuthProviders: [OAuthProvider] = [],
         appearance: Appearance = Appearance(),
         layout: Layout = .regular(),
-        onTap: OnTapCallback?
+        presenter: UIKitPresenter?,
+        onTap: OnTapCallback?,
+        onCompleteAuth: AuthResultCompletion?
     ) {
+        self.primaryOAuthProvider = primaryOAuthProvider
+        self.alternativeOAuthProviders = alternativeOAuthProviders.filter {
+            $0.type != primaryOAuthProvider.type
+        }
         self.appearance = appearance
         self.layout = layout
+        self.presenter = presenter
         self.onTap = onTap
-        self.presenter = nil
-        self.onCompleteAuth = nil
+        self.onCompleteAuth = onCompleteAuth
     }
 
     public func _uiView(factory: Factory) -> UIView {
+        let control = self.makeOneTapControl(using: factory)
+        if self.alternativeOAuthProviders.isEmpty {
+            return control
+        }
+        let oAuthListWidget = self.makeOAuthListWidgetView(using: factory)
+        return OneTapButtonWithOAuthListWidgetView(
+            configuration: .init(
+                title: "vkconnect_auth_via_providers_legal".localized,
+                titleColor: DynamicColor(
+                    light: .textSecondaryLight,
+                    dark: .textSecondaryDark
+                ),
+                titleFont: .systemFont(ofSize: 16),
+                oneTapButton: control,
+                oAuthListWidget: oAuthListWidget
+            )
+        )
+    }
+
+    private func makeOneTapControl(using factory: Factory) -> UIView {
         let control = OneTapControl(configuration: .init(
             appearance: self.appearance,
             layout: self.layout
@@ -86,13 +194,16 @@ public struct OneTapButton: UIViewElement {
             control.onTap = onTap
         } else if let presenter = self.presenter {
             control.onTap = { control in
-                guard !control.isAnimating else {
+                guard !factory.isAuthorizing else {
                     return
                 }
 
                 control.startAnimating()
 
-                factory.authorize(using: presenter) { result in
+                factory.authorize(
+                    with: .init(oAuthProvider: self.primaryOAuthProvider),
+                    using: presenter
+                ) { result in
                     self.onCompleteAuth?(result)
 
                     control.stopAnimating()
@@ -101,6 +212,22 @@ public struct OneTapButton: UIViewElement {
         }
 
         return control
+    }
+
+    private func makeOAuthListWidgetView(using factory: Factory) -> UIView {
+        factory.ui(
+            for: OAuthListWidget(
+                oAuthProviders: self.alternativeOAuthProviders,
+                buttonConfiguration: .init(
+                    height: self.layout.height,
+                    cornerRadius: self.layout.cornerRadius
+                ),
+                theme: .matchingColorScheme(self.appearance.theme.colorScheme),
+                presenter: self.presenter ?? .newUIWindow,
+                onCompleteAuth: self.onCompleteAuth
+            )
+        )
+        .uiView()
     }
 }
 
@@ -160,9 +287,19 @@ extension OneTapButton.Appearance {
             self.brief = brief
         }
 
-        fileprivate static let vkid = Self(
+        internal static let vkid = Self(
             primary: "vkid_button_primary_title".localized,
             brief: "vkid_button_brief_title".localized
+        )
+
+        internal static let ok = Self(
+            primary: "vkconnect_oauth_ok_button_primary_title".localized,
+            brief: "vkconnect_oauth_ok_button_primary_title".localized
+        )
+
+        internal static let mail = Self(
+            primary: "vkconnect_oauth_mail_button_primary_title".localized,
+            brief: "vkconnect_oauth_mail_button_primary_title".localized
         )
     }
 }
@@ -195,7 +332,7 @@ extension OneTapButton.Appearance {
     public struct LogoImage: Equatable {
         internal let image: UIImage
 
-        fileprivate init(image: UIImage) {
+        internal init(image: UIImage) {
             self.image = image
         }
 
@@ -205,6 +342,14 @@ extension OneTapButton.Appearance {
 
         public static let vkidSecondary = Self(
             image: .logoSecondary
+        )
+
+        internal static let okRuSecondary = Self(
+            image: .okRuLogoSecondary
+        )
+
+        internal static let mailRuSecondary = Self(
+            image: .mailRuLogoSecondary
         )
     }
 }
@@ -223,9 +368,14 @@ extension OneTapButton.Appearance {
         }
 
         internal let colors: Colors
+        internal let colorScheme: Appearance.ColorScheme
 
-        fileprivate init(colors: Colors) {
+        fileprivate init(
+            colors: Colors,
+            colorScheme: Appearance.ColorScheme
+        ) {
             self.colors = colors
+            self.colorScheme = colorScheme
         }
 
         public static func matchingColorScheme(_ scheme: Appearance.ColorScheme) -> Self {
@@ -243,21 +393,24 @@ extension OneTapButton.Appearance {
                             light: light.colors.secondary.value,
                             dark: dark.colors.secondary.value
                         )
-                    )
+                    ),
+                    colorScheme: scheme
                 )
             case .light:
                 return .init(
                     colors: .init(
                         primary: UIColor.azure,
                         secondary: UIColor.backgroundDark
-                    )
+                    ),
+                    colorScheme: scheme
                 )
             case .dark:
                 return .init(
                     colors: .init(
                         primary: UIColor.azure,
                         secondary: UIColor.backgroundLight
-                    )
+                    ),
+                    colorScheme: scheme
                 )
             }
         }
@@ -282,7 +435,7 @@ extension OneTapButton {
 
         public static func regular(
             height: Height = .medium(),
-            cornerRadius: CGFloat = 0.0
+            cornerRadius: CGFloat = LayoutConstants.defaultCornerRadius
         ) -> Self {
             self.init(
                 kind: .regular,
@@ -293,7 +446,7 @@ extension OneTapButton {
 
         public static func logoOnly(
             size: Height = .medium(),
-            cornerRadius: CGFloat = 0.0
+            cornerRadius: CGFloat = LayoutConstants.defaultCornerRadius
         ) -> Self {
             self.init(
                 kind: .logoOnly,
@@ -351,6 +504,36 @@ extension OneTapButton {
                     return value.rawValue
                 }
             }
+        }
+    }
+}
+
+/// OAuth providers support
+extension OneTapButton.Appearance {
+    internal static func appearance(
+        for provider: OAuthProvider,
+        colorScheme: Appearance.ColorScheme
+    ) -> OneTapButton.Appearance {
+        let theme = OneTapButton.Appearance.Theme.matchingColorScheme(colorScheme)
+        switch provider.type {
+        case .vkid:
+            return .init(
+                title: .vkid,
+                style: .secondary(logo: .vkidSecondary),
+                theme: theme
+            )
+        case .ok:
+            return .init(
+                title: .ok,
+                style: .secondary(logo: .okRuSecondary),
+                theme: theme
+            )
+        case .mail:
+            return .init(
+                title: .mail,
+                style: .secondary(logo: .mailRuSecondary),
+                theme: theme
+            )
         }
     }
 }

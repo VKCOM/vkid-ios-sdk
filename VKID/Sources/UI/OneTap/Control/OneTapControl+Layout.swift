@@ -268,10 +268,9 @@ extension OneTapControl {
         }
 
         func sizeThatFits(_ size: CGSize) -> CGSize {
-            let squareIconSize = max(size.height, self.buttonSize.height)
-            return .init(
-                width: squareIconSize,
-                height: squareIconSize
+            .init(
+                width: max(size.width, self.buttonSize.width),
+                height: max(size.height, self.buttonSize.height)
             )
         }
     }
@@ -311,10 +310,9 @@ extension OneTapControl {
         }
 
         func sizeThatFits(_ size: CGSize) -> CGSize {
-            let squareIconSize = max(size.height, self.buttonSize.height)
-            return .init(
-                width: squareIconSize,
-                height: squareIconSize
+            .init(
+                width: max(size.width, self.buttonSize.width),
+                height: max(size.height, self.buttonSize.height)
             )
         }
     }
@@ -337,10 +335,9 @@ extension OneTapControl {
             )
 
             if titleSize.width == .zero {
-                let squareIconSize = max(minimalSize.height, size.height)
                 return .init(
-                    width: squareIconSize,
-                    height: squareIconSize
+                    width: max(size.width, minimalSize.width),
+                    height: max(size.height, minimalSize.height)
                 )
             } else {
                 return .init(

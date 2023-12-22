@@ -1,15 +1,21 @@
-"vkid_button_primary_title" = "Se connecter avec VK ID";
-"vkid_button_brief_title" = "VK ID";
-"vkconnect_auth_floatingonetap_btn_unauth_sign_in_to_account" = "Se connecter avec VK ID";
-"vkconnect_auth_floatingonetap_header_sign_in_to_service" = "Connectez-vous au service ou inscrivez-vous";
-"vkconnect_auth_floatingonetap_btn_unauth_sign_in_to_service" = "Se connecter avec VK ID";
-"vkconnect_auth_floatingonetap_description" = "Cela vous permettra d'avoir accès à toutes les fonctionnalités du service. Vos données personnelles seront soigneusement protégées.";
-"vkconnect_auth_floatingonetap_header_sign_in_to_account" = "Connectez-vous à %@";
-"vkconnect_auth_floatingonetap_header_registration_for_event" = "Inscrivez-vous à l'événement";
-"vkconnect_auth_floatingonetap_btn_unauth_registration_for_event" = "Continuer avec VK ID";
-"vkconnect_auth_floatingonetap_header_submit_applications" = "Envoyez une demande avec VK ID";
-"vkconnect_auth_floatingonetap_btn_unauth_submit_applications" = "Continuer avec VK ID";
-"vkconnect_auth_floatingonetap_header_make_order_without_service" = "Passez la commande avec VK ID";
-"vkconnect_auth_floatingonetap_btn_unauth_make_order_without_service" = "Commander avec VK ID";
-"vkconnect_auth_floatingonetap_header_make_order_with_service" = "Passez lacommande sur %@ avec VK ID";
-"vkconnect_auth_floatingonetap_btn_unauth_make_order_with_service" = "Commander avec VK ID";
+"vkid_button_primary_title" = "Se connecter avec VK ID";
+"vkid_button_brief_title" = "VK ID";
+
+"vkconnect_auth_floatingonetap_btn_unauth_sign_in_to_account" = "Se connecter avec VK ID";
+"vkconnect_auth_floatingonetap_header_sign_in_to_service" = "Connectez-vous au service ou inscrivez-vous";
+"vkconnect_auth_floatingonetap_btn_unauth_sign_in_to_service" = "Se connecter avec VK ID";
+"vkconnect_auth_floatingonetap_description" = "Cela vous permettra d'avoir accès à toutes les fonctionnalités du service. Vos données personnelles seront soigneusement protégées.";
+"vkconnect_auth_floatingonetap_header_sign_in_to_account" = "Connectez-vous à %@";
+"vkconnect_auth_floatingonetap_header_registration_for_event" = "Inscrivez-vous à l'événement";
+"vkconnect_auth_floatingonetap_btn_unauth_registration_for_event" = "Continuer avec VK ID";
+"vkconnect_auth_floatingonetap_header_submit_applications" = "Envoyez une demande avec VK ID";
+"vkconnect_auth_floatingonetap_btn_unauth_submit_applications" = "Continuer avec VK ID";
+"vkconnect_auth_floatingonetap_header_make_order_without_service" = "Passez la commande avec VK ID";
+"vkconnect_auth_floatingonetap_btn_unauth_make_order_without_service" = "Commander avec VK ID";
+"vkconnect_auth_floatingonetap_header_make_order_with_service" = "Passez la commande sur %@ avec VK ID";
+"vkconnect_auth_floatingonetap_btn_unauth_make_order_with_service" = "Commander avec VK ID";
+
+"vkconnect_auth_via_providers_legal" = "ou se connecter avec VK ID en utilisant les informations d'un service";
+
+"vkconnect_oauth_ok_button_primary_title" = "Se connecter avec OK";
+"vkconnect_oauth_mail_button_primary_title" = "Se connecter avec Mail.ru";

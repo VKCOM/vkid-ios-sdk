@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name = "VKID"
-  spec.version = "1.0.1"
+  spec.version = "1.1.0"
   spec.summary = "iOS library for VK ID authorization"
   spec.homepage = "https://id.vk.com/business"
   spec.authors = { 'VK ID' => 'devsupport@corp.vk.com' }
@@ -33,7 +33,7 @@ THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
 
   spec.platform = :ios
   spec.ios.deployment_target = "12.0"
-  spec.swift_version = "5.7"
+  spec.swift_version = "5.9"
   spec.source = { :git => "https://github.com/VKCOM/vkid-ios-sdk.git", :tag => "#{spec.version}" }
   spec.cocoapods_version = ">= 1.11.2"
   spec.source_files = "VKID/Sources/**/*.swift"

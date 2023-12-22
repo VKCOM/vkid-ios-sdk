@@ -37,6 +37,17 @@ internal final class BottomSheetPresentationController: UIPresentationController
         return controller
     }
 
+    private var shadowViewFrame: CGRect {
+        let frame = self.frameOfPresentedViewInContainerView
+        let containerBottomInset = containerView?.safeAreaInsets.bottom ?? 0
+        let sheetBottomInset = self.presentedSheetController.layoutConfiguration.edgeInsets.bottom
+
+        return frame.offsetBy(
+            dx: 0,
+            dy: frame.height + containerBottomInset + sheetBottomInset
+        )
+    }
+
     private lazy var dimmingView: UIView = {
         let view = UIView()
         let gestureRecognizer = UITapGestureRecognizer(
@@ -51,13 +62,7 @@ internal final class BottomSheetPresentationController: UIPresentationController
     }()
 
     private lazy var shadowView: BottomSheetShadowView = {
-        let frame = self.frameOfPresentedViewInContainerView
-        let view = BottomSheetShadowView(
-            frame: frame.offsetBy(
-                dx: 0,
-                dy: frame.height
-            )
-        )
+        let view = BottomSheetShadowView(frame: shadowViewFrame)
 
         return view
     }()
@@ -95,11 +100,7 @@ internal final class BottomSheetPresentationController: UIPresentationController
 
             self.dimmingView.alpha = 0
             self.shadowView.alpha = 0
-            let frame = self.frameOfPresentedViewInContainerView
-            self.shadowView.frame = frame.offsetBy(
-                dx: 0,
-                dy: frame.height
-            )
+            self.shadowView.frame = self.shadowViewFrame
         }
     }
 
@@ -158,7 +159,6 @@ internal final class BottomSheetPresentationController: UIPresentationController
     }
 
     /// Touch event handling
-
     @objc
     private func onTapOutsideOfSheet() {
         self.presentedViewController.dismiss(animated: true)

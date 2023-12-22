@@ -15,7 +15,7 @@
 			<string>auth_callback</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>vk51803832</string>
+				<string>vk$(CLIENT_ID)</string>
 			</array>
 		</dict>
 	</array>

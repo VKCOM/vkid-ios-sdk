@@ -48,11 +48,13 @@ final class AuthURLBuilderTests: XCTestCase {
     }
 
     func testBuildProviderAuthURLInvalidURLString() {
+        let templateURLString = "http://example.com:-80/"
+
         let secrets = PKCESecrets(codeVerifier: "", codeChallenge: "", codeChallengeMethod: .sha256)
         let credentials = AppCredentials(clientId: "", clientSecret: "")
         XCTAssertThrowsError(
             try self.builder.buildProviderAuthURL(
-                from: "http://example.com:-80/",
+                from: templateURLString,
                 with: secrets,
                 credentials: credentials
             )
@@ -64,8 +66,10 @@ final class AuthURLBuilderTests: XCTestCase {
 
     func testBuildProviderAuthURLWithValidParameters() {
         do {
+            let templateURLString = "http://example.com/"
+
             let result = try builder.buildProviderAuthURL(
-                from: "http://example.com/",
+                from: templateURLString,
                 with: self.secrets,
                 credentials: self.credentials
             )
@@ -81,11 +85,13 @@ final class AuthURLBuilderTests: XCTestCase {
             ]
             XCTAssertEqual(urlComponents?.queryItems, expectedQueryItems)
 
-            let expectedURL =
-                URL(
-                    string: "http://example.com/?redirect_uri=vk\(credentials.clientId)://vk.com/blank.html&response_type=code&state=\(self.secrets.state)&code_challenge=\(self.secrets.codeChallenge)&code_challenge_method=\(self.secrets.codeChallengeMethod)&vkconnect_auth_provider_method=external_auth&client_id=\(self.credentials.clientId)"
-                )
-            XCTAssertEqual(expectedURL, result)
+            guard var expectedURLComponents = URLComponents(string: templateURLString) else {
+                XCTFail("Failed to form a url string")
+                return
+            }
+            expectedURLComponents.queryItems = expectedQueryItems
+
+            XCTAssertEqual(expectedURLComponents.url, result)
         } catch {
             XCTFail("Error in build URL from valid string: \(error)")
         }
@@ -93,10 +99,17 @@ final class AuthURLBuilderTests: XCTestCase {
 
     func testBuildProviderAuthURLWithEmptyParameters() {
         do {
+            let templateURLString = ""
+
             let secrets = PKCESecrets(codeVerifier: "", codeChallenge: "", codeChallengeMethod: .sha256)
             let credentials = AppCredentials(clientId: "", clientSecret: "")
 
-            let result = try builder.buildProviderAuthURL(from: "", with: secrets, credentials: credentials)
+            let result = try builder.buildProviderAuthURL(
+                from: templateURLString,
+                with: secrets,
+                credentials:
+                credentials
+            )
 
             let urlComponents = URLComponents(url: result, resolvingAgainstBaseURL: true)
             let commonQueryItems = createCommonQueryItems(secrets: secrets, credentials: credentials)
@@ -109,22 +122,26 @@ final class AuthURLBuilderTests: XCTestCase {
             ]
             XCTAssertEqual(urlComponents?.queryItems, expectedQueryItems)
 
-            let expectedURL =
-                URL(
-                    string: "?redirect_uri=vk\(credentials.clientId)://vk.com/blank.html&response_type=code&state=\(secrets.state)&code_challenge=\(secrets.codeChallenge)&code_challenge_method=\(secrets.codeChallengeMethod)&vkconnect_auth_provider_method=external_auth&client_id=\(credentials.clientId)"
-                )
-            XCTAssertEqual(expectedURL, result)
+            guard var expectedURLComponents = URLComponents(string: templateURLString) else {
+                XCTFail("Failed to form a url string")
+                return
+            }
+            expectedURLComponents.queryItems = expectedQueryItems
+
+            XCTAssertEqual(expectedURLComponents.url, result)
         } catch {
             XCTFail("Error in build URL from valid string: \(error)")
         }
     }
 
     func testBuildWebViewAuthURLInvalidURLString() {
+        let oAuth = OAuthProvider.vkid
         let appearance = Appearance()
 
         XCTAssertThrowsError(
             try self.builder.buildWebViewAuthURL(
                 from: "http://example.com:-80/",
+                for: oAuth,
                 with: self.secrets,
                 credentials: self.credentials,
                 appearance: appearance
@@ -137,16 +154,22 @@ final class AuthURLBuilderTests: XCTestCase {
 
     func testBuildWebViewAuthURLWithValidParameters() {
         do {
+            let templateURLString = "http://example.com/"
+
+            let oAuth = OAuthProvider.vkid
             let appearance = Appearance(colorScheme: .dark, locale: .ru)
 
             let result = try builder.buildWebViewAuthURL(
-                from: "http://example.com/",
+                from: templateURLString,
+                for: oAuth,
                 with: self.secrets,
                 credentials: self.credentials,
                 appearance: appearance
             )
 
             let urlComponents = URLComponents(url: result, resolvingAgainstBaseURL: true)
+
+            let sdkOAuthJsonItem = URLQueryItem.sdkOauthJson(oAuth: oAuth)
             let commonQueryItems = createCommonQueryItems(secrets: secrets, credentials: credentials)
             let expectedQueryItems = commonQueryItems + [
                 .init(
@@ -157,14 +180,18 @@ final class AuthURLBuilderTests: XCTestCase {
                     name: "lang_id",
                     value: "0"
                 ),
+                sdkOAuthJsonItem,
             ]
             XCTAssertEqual(urlComponents?.queryItems, expectedQueryItems)
 
-            let expectedURL =
-                URL(
-                    string: "http://example.com/?redirect_uri=vk\(credentials.clientId)://vk.com/blank.html&response_type=code&state=\(self.secrets.state)&code_challenge=\(self.secrets.codeChallenge)&code_challenge_method=\(self.secrets.codeChallengeMethod)&scheme=space_gray&lang_id=0"
-                )
-            XCTAssertEqual(expectedURL, result)
+            guard var expectedURLComponents = URLComponents(string: templateURLString) else {
+                XCTFail("Failed to form a url string")
+                return
+            }
+
+            expectedURLComponents.queryItems = expectedQueryItems
+
+            XCTAssertEqual(expectedURLComponents.url, result)
         } catch {
             XCTFail("Error in build URL from valid string: \(error)")
         }
@@ -172,18 +199,24 @@ final class AuthURLBuilderTests: XCTestCase {
 
     func testBuildWebViewAuthURLEmptyQueryItems() {
         do {
+            let templateURLString = ""
+
+            let oAuth = OAuthProvider.vkid
             let secrets = PKCESecrets(codeVerifier: "", codeChallenge: "", codeChallengeMethod: .sha256)
             let credentials = AppCredentials(clientId: "", clientSecret: "")
             let appearance = Appearance(colorScheme: .light, locale: .en)
 
             let result = try builder.buildWebViewAuthURL(
-                from: "",
+                from: templateURLString,
+                for: oAuth,
                 with: secrets,
                 credentials: credentials,
                 appearance: appearance
             )
 
             let urlComponents = URLComponents(url: result, resolvingAgainstBaseURL: true)
+
+            let sdkOAuthJsonItem = URLQueryItem.sdkOauthJson(oAuth: oAuth)
             let commonQueryItems = createCommonQueryItems(secrets: secrets, credentials: credentials)
             let expectedQueryItems = commonQueryItems + [
                 .init(
@@ -194,14 +227,19 @@ final class AuthURLBuilderTests: XCTestCase {
                     name: "lang_id",
                     value: "3"
                 ),
+                sdkOAuthJsonItem,
             ]
+
             XCTAssertEqual(urlComponents?.queryItems, expectedQueryItems)
 
-            let expectedURL =
-                URL(
-                    string: "?redirect_uri=vk\(credentials.clientId)://vk.com/blank.html&response_type=code&state=\(secrets.state)&code_challenge=\(secrets.codeChallenge)&code_challenge_method=\(secrets.codeChallengeMethod)&scheme=bright_light&lang_id=3"
-                )
-            XCTAssertEqual(expectedURL, result)
+            guard var expectedURLComponents = URLComponents(string: templateURLString) else {
+                XCTFail("Failed to form a url string")
+                return
+            }
+
+            expectedURLComponents.queryItems = expectedQueryItems
+
+            XCTAssertEqual(expectedURLComponents.url, result)
         } catch {
             XCTFail("Error in build URL from valid string: \(error)")
         }

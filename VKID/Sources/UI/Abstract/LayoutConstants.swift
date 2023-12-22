@@ -27,19 +27,7 @@
 //
 
 import Foundation
-import UIKit
 
-internal protocol Layout {
-    func layout(in frame: CGRect)
-    func sizeThatFits(_ size: CGSize) -> CGSize
+public enum LayoutConstants {
+    public static let defaultCornerRadius = 8.0
 }
-
-extension Layout where Self: UIView {
-    func layout(in frame: CGRect) {
-        self.frame = frame
-    }
-}
-
-extension UIImageView: Layout {}
-extension UIActivityIndicatorView: Layout {}
-extension ActivityIndicatorView: Layout {}

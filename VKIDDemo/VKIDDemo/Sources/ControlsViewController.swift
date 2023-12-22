@@ -33,6 +33,7 @@ final class ControlsViewController: VKIDDemoViewController, UITableViewDataSourc
         case oneTapButton = "OneTapButton"
         case oneTapBottomSheet = "OneTapBottomSheet"
         case oAuthListWidget = "OAuthListWidget"
+        case oneTapButtonWithOAuthListWidget = "OneTapButton with OAuthListWidget"
     }
 
     override func viewDidLoad() {
@@ -111,7 +112,27 @@ final class ControlsViewController: VKIDDemoViewController, UITableViewDataSourc
                 animated: true
             )
         case .oAuthListWidget:
-            fatalError()
+            let controller = OAuthListWidgetCustomizationController(
+                title: "Кастомизация",
+                subtitle: "OAuthListWidget",
+                description: "Настройте параметры конфигурации"
+            )
+            controller.vkid = self.vkid
+            self.navigationController?.pushViewController(
+                controller,
+                animated: true
+            )
+        case .oneTapButtonWithOAuthListWidget:
+            let controller = OneTapWithOAuthCustomizationController(
+                title: "Кастомизация",
+                subtitle: "OneTapButton with OAuthListWidget",
+                description: "Настройте параметры конфигурации"
+            )
+            controller.vkid = self.vkid
+            self.navigationController?.pushViewController(
+                controller,
+                animated: true
+            )
         }
     }
 }

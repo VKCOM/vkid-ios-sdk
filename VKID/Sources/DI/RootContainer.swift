@@ -100,6 +100,7 @@ extension RootContainer: AuthFlowBuilder {
                 api: VKAPI<OAuth>(transport: self.mainTransport),
                 appCredentials: self.appCredentials,
                 appearance: appearance,
+                oAuthProvider: authConfig.oAuthProvider,
                 pkceGenerator: PKCESecretsSHA256Generator(),
                 authURLBuilder: self.authURLBuilder,
                 webViewStrategyFactory: WebViewAuthStrategyDefaultFactory(

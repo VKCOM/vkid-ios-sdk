@@ -117,5 +117,5 @@ public struct Appearance {
 
 extension Appearance.ColorScheme {
     /// Цветовая схема, указанная при инициализации VK ID SDK
-    internal static var current: Appearance.ColorScheme = .system
+    public internal(set) static var current: Appearance.ColorScheme = .system
 }

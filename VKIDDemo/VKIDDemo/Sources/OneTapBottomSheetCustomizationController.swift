@@ -189,7 +189,7 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
         return bt
     }()
 
-    lazy var autoDismissSwitcherLabel: UILabel = {
+    private lazy var autoDismissSwitcherLabel: UILabel = {
         let label = UILabel()
         label.text = "Auto dismiss on auth success"
         label.font = .systemFont(ofSize: 16)
@@ -200,6 +200,22 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
     private lazy var autoDismissSwitcher: UISwitch = {
         let switcher = UISwitch()
         switcher.isOn = true
+        switcher.onTintColor = UIColor.azure
+        switcher.translatesAutoresizingMaskIntoConstraints = false
+        return switcher
+    }()
+
+    private lazy var oAuthListWidgetSwitcherLabel: UILabel = {
+        let label = UILabel()
+        label.text = "OAuthListWidget is enabled"
+        label.font = .systemFont(ofSize: 16)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private lazy var oAuthListWidgetSwitcher: UISwitch = {
+        let switcher = UISwitch()
+        switcher.isOn = false
         switcher.onTintColor = UIColor.azure
         switcher.translatesAutoresizingMaskIntoConstraints = false
         return switcher
@@ -270,6 +286,9 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
 
         self.contentView.addSubview(self.autoDismissSwitcherLabel)
         self.contentView.addSubview(self.autoDismissSwitcher)
+
+        self.contentView.addSubview(self.oAuthListWidgetSwitcherLabel)
+        self.contentView.addSubview(self.oAuthListWidgetSwitcher)
 
         NSLayoutConstraint.activate([
             self.heightSegmentControlLabel.topAnchor.constraint(
@@ -399,9 +418,6 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
             self.autoDismissSwitcher.heightAnchor.constraint(
                 equalToConstant: 30
             ),
-            self.autoDismissSwitcher.bottomAnchor.constraint(
-                equalTo: self.contentView.bottomAnchor
-            ),
 
             self.autoDismissSwitcherLabel.trailingAnchor.constraint(
                 equalTo: self.autoDismissSwitcher.leadingAnchor, constant: -16
@@ -411,6 +427,29 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
             ),
             self.autoDismissSwitcherLabel.centerYAnchor.constraint(
                 equalTo: self.autoDismissSwitcher.centerYAnchor
+            ),
+
+            self.oAuthListWidgetSwitcher.topAnchor.constraint(
+                equalTo: self.autoDismissSwitcher.bottomAnchor, constant: 16
+            ),
+            self.oAuthListWidgetSwitcher.trailingAnchor.constraint(
+                equalTo: self.contentView.trailingAnchor, constant: -16
+            ),
+            self.oAuthListWidgetSwitcher.heightAnchor.constraint(
+                equalToConstant: 30
+            ),
+            self.oAuthListWidgetSwitcher.bottomAnchor.constraint(
+                equalTo: self.contentView.bottomAnchor, constant: -16
+            ),
+
+            self.oAuthListWidgetSwitcherLabel.trailingAnchor.constraint(
+                equalTo: self.oAuthListWidgetSwitcher.leadingAnchor, constant: -16
+            ),
+            self.oAuthListWidgetSwitcherLabel.leadingAnchor.constraint(
+                equalTo: self.contentView.leadingAnchor, constant: 16
+            ),
+            self.oAuthListWidgetSwitcherLabel.centerYAnchor.constraint(
+                equalTo: self.oAuthListWidgetSwitcher.centerYAnchor
             ),
         ])
     }
@@ -443,15 +482,7 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
     @objc
     private func onOpenOneTapSheet(sender: AnyObject) {
         let actionText = self.targetActionTexts[self.pickerView.selectedRow(inComponent: 0)]
-        let sheet = OneTapBottomSheet(
-            serviceName: self.serviceName,
-            targetActionText: actionText,
-            oneTapButton: .init(
-                height: self.oneTapButtonHeight,
-                cornerRadius: self.oneTapButtonCornerRadius
-            ),
-            autoDismissOnSuccess: self.autoDismissSwitcher.isOn
-        ) { [weak self] authResult in
+        let onCompleteAuth: AuthResultCompletion = { [weak self] authResult in
             do {
                 let session = try authResult.get()
                 let maskedToken = session.accessToken.value.maskingForLogging()
@@ -464,6 +495,20 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
                 self?.alertPresentationController.showAlert(message: "Ошибка авторизации")
             }
         }
+
+        let sheet = OneTapBottomSheet(
+            serviceName: self.serviceName,
+            targetActionText: actionText,
+            oneTapButton: .init(
+                height: self.oneTapButtonHeight,
+                cornerRadius: self.oneTapButtonCornerRadius
+            ),
+            alternativeOAuthProviders: self.oAuthListWidgetSwitcher.isOn ?
+                [.mail, .ok] : [],
+            autoDismissOnSuccess: self.autoDismissSwitcher.isOn,
+            onCompleteAuth: onCompleteAuth
+        )
+
         let controller = self.vkid?.ui(for: sheet).uiViewController()
         if let controller {
             self.present(controller, animated: true)

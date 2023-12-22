@@ -31,16 +31,21 @@ import UIKit
 
 internal final class BottomSheetAnimationController: NSObject, UIViewControllerAnimatedTransitioning {
     private let isPresenting: Bool
+    private let bottomSheetEdgeInsets: UIEdgeInsets
     private var currentAnimator: UIViewImplicitlyAnimating?
 
-    internal init(presentation: Bool) {
+    internal init(
+        bottomSheetEdgeInsets: UIEdgeInsets,
+        presentation: Bool
+    ) {
+        self.bottomSheetEdgeInsets = bottomSheetEdgeInsets
         self.isPresenting = presentation
     }
 
     func transitionDuration(
         using transitionContext: UIViewControllerContextTransitioning?
     ) -> TimeInterval {
-        0.15
+        0.25
     }
 
     func animateTransition(
@@ -89,7 +94,9 @@ internal final class BottomSheetAnimationController: NSObject, UIViewControllerA
         let toViewController = transitionContext.viewController(forKey: .to)!
         let finalFrame = transitionContext.finalFrame(for: toViewController)
 
-        toView.frame = finalFrame.offsetBy(dx: 0, dy: finalFrame.height)
+        let safeAreaBottomInset = transitionContext.containerView.safeAreaInsets.bottom
+        let dy = finalFrame.height + safeAreaBottomInset + self.bottomSheetEdgeInsets.bottom
+        toView.frame = finalFrame.offsetBy(dx: 0, dy: dy)
         let animator = UIViewPropertyAnimator(
             duration: duration,
             curve: .easeOut
@@ -115,7 +122,9 @@ internal final class BottomSheetAnimationController: NSObject, UIViewControllerA
             duration: duration,
             curve: .easeOut
         ) {
-            fromView.frame = initialFrame.offsetBy(dx: 0, dy: initialFrame.height)
+            let safeAreaBottomInset = transitionContext.containerView.safeAreaInsets.bottom
+            let dy = initialFrame.height + safeAreaBottomInset + self.bottomSheetEdgeInsets.bottom
+            fromView.frame = initialFrame.offsetBy(dx: 0, dy: dy)
         }
         animator.addCompletion { _ in
             transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
