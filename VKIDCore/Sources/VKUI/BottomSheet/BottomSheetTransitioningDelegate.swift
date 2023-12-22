@@ -30,20 +30,31 @@ import Foundation
 import UIKit
 
 internal final class BottomSheetTransitioningDelegate: NSObject, UIViewControllerTransitioningDelegate {
+    private let bottomSheetInsets: UIEdgeInsets
     private let interactiveDismissTransition = BottomSheetInteractiveDismissTransition()
+
+    internal init(bottomSheetInsets: UIEdgeInsets) {
+        self.bottomSheetInsets = bottomSheetInsets
+    }
 
     func animationController(
         forPresented presented: UIViewController,
         presenting: UIViewController,
         source: UIViewController
     ) -> UIViewControllerAnimatedTransitioning? {
-        BottomSheetAnimationController(presentation: true)
+        BottomSheetAnimationController(
+            bottomSheetEdgeInsets: self.bottomSheetInsets,
+            presentation: true
+        )
     }
 
     func animationController(
         forDismissed dismissed: UIViewController
     ) -> UIViewControllerAnimatedTransitioning? {
-        BottomSheetAnimationController(presentation: false)
+        BottomSheetAnimationController(
+            bottomSheetEdgeInsets: self.bottomSheetInsets,
+            presentation: false
+        )
     }
 
     func presentationController(

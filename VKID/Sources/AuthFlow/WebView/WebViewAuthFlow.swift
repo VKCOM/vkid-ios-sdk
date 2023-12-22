@@ -34,6 +34,7 @@ internal final class WebViewAuthFlow: Component, AuthFlow {
         let api: VKAPI<OAuth>
         let appCredentials: AppCredentials
         let appearance: Appearance
+        let oAuthProvider: OAuthProvider
         let pkceGenerator: PKCESecretsGenerator
         let authURLBuilder: AuthURLBuilder
         let webViewStrategyFactory: WebViewAuthStrategyFactory
@@ -66,6 +67,7 @@ internal final class WebViewAuthFlow: Component, AuthFlow {
                     let pkceSecrets = try self.deps.pkceGenerator.generateSecrets()
                     let authURL = try self.deps.authURLBuilder.buildWebViewAuthURL(
                         from: config.userVisibleAuth,
+                        for: self.deps.oAuthProvider,
                         with: pkceSecrets,
                         credentials: self.deps.appCredentials,
                         appearance: self.deps.appearance

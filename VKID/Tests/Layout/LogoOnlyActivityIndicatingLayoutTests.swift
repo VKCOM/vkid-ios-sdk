@@ -111,26 +111,26 @@ final class LogoOnlyActivityIndicatingLayoutTests: XCTestCase {
         self.testLayout.layout(in: frame)
 
         // Constants.buttonSize.height * 2 = 40
-        // width: [ <- 15 -> [10] <- 15 -> ] = 40
+        // width: [ <- 25 -> [10] <- 25 -> ] = 60
         // height: [ <- 15 -> [10] <- 15 -> ] = 40
         XCTAssertEqual(
             frame.size,
-            CGSize(width: 40, height: 40)
+            CGSize(width: 60, height: 40)
         )
         // centered
         XCTAssertEqual(
             self.title.frame,
-            CGRect(x: 20, y: 20, width: 0, height: 0)
+            CGRect(x: 30, y: 20, width: 0, height: 0)
         )
         // centered
         XCTAssertEqual(
             self.logo.frame,
-            CGRect(x: 20, y: 20, width: 0, height: 0)
+            CGRect(x: 30, y: 20, width: 0, height: 0)
         )
         // centered with size
         XCTAssertEqual(
             self.activityIndicator.frame,
-            CGRect(x: 15, y: 15, width: 10, height: 10)
+            CGRect(x: 25, y: 15, width: 10, height: 10)
         )
     }
 
@@ -148,26 +148,26 @@ final class LogoOnlyActivityIndicatingLayoutTests: XCTestCase {
         self.testLayout.layout(in: frame)
 
         // Constants.buttonSize.height * 2 = 40
-        // width: [ <- 15 -> [10] <- 15 -> ] = 40
+        // width: [ <- 5 -> [10] <- 5 -> ] = 20
         // height: [ <- 15 -> [10] <- 15 -> ] = 40
         XCTAssertEqual(
             frame.size,
-            CGSize(width: 40, height: 40)
+            CGSize(width: 20, height: 40)
         )
         // centered
         XCTAssertEqual(
             self.title.frame,
-            CGRect(x: 20, y: 20, width: 0, height: 0)
+            CGRect(x: 10, y: 20, width: 0, height: 0)
         )
         // centered
         XCTAssertEqual(
             self.logo.frame,
-            CGRect(x: 20, y: 20, width: 0, height: 0)
+            CGRect(x: 10, y: 20, width: 0, height: 0)
         )
         // centered with size
         XCTAssertEqual(
             self.activityIndicator.frame,
-            CGRect(x: 15, y: 15, width: 10, height: 10)
+            CGRect(x: 5, y: 15, width: 10, height: 10)
         )
     }
 }

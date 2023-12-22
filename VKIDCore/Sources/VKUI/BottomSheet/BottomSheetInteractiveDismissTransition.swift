@@ -55,9 +55,7 @@ internal final class BottomSheetInteractiveDismissTransition: UIPercentDrivenInt
         case .began:
             self.presentedViewController?.dismiss(animated: true)
         case .changed:
-            self.update(
-                self.percentComplete + self.interactiveDismissPanRecognizer.dismissTranslationPercent
-            )
+            self.update(self.interactiveDismissPanRecognizer.dismissTranslationPercent)
         case .ended, .cancelled:
             if recognizer.isProjectedEndLocationAtTheBottomHalf(percentComplete: self.percentComplete) {
                 self.finish()
@@ -75,7 +73,6 @@ internal final class BottomSheetInteractiveDismissTransition: UIPercentDrivenInt
 extension UIPanGestureRecognizer {
     fileprivate var dismissTranslationPercent: CGFloat {
         let currentTranslation = self.translation(in: self.view).y
-        self.setTranslation(.zero, in: self.view)
         return currentTranslation / self.maxDismissTranslation
     }
 

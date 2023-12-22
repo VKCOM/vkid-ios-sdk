@@ -10,6 +10,7 @@
 		051FD2922AF3C7B90082990B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 051FD2942AF3C7B90082990B /* Localizable.strings */; };
 		057500D12B0E0635008EEB4B /* PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057500D02B0E0635008EEB4B /* PickerView.swift */; };
 		1752AE322AF135890013D976 /* StepSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1752AE302AF135890013D976 /* StepSlider.swift */; };
+		179F905D2B1E46FD00E2D2AA /* OneTapWithOAuthCustomizationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 179F905C2B1E46FD00E2D2AA /* OneTapWithOAuthCustomizationController.swift */; };
 		17CA41892AF1BB93008C81C1 /* VKIDDemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CA41882AF1BB93008C81C1 /* VKIDDemoViewController.swift */; };
 		17CA418C2AF1D755008C81C1 /* MeasureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CA418B2AF1D755008C81C1 /* MeasureView.swift */; };
 		A201B19E2AAB375900E8FA58 /* InfoPlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = A201B19D2AAB375900E8FA58 /* InfoPlist.swift */; };
@@ -25,6 +26,7 @@
 		A26A35FC2B0D005A008A4F99 /* ControlsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26A35FB2B0D005A008A4F99 /* ControlsViewController.swift */; };
 		A26A35FE2B0D0CED008A4F99 /* OneTapButtonCustomizationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26A35FD2B0D0CED008A4F99 /* OneTapButtonCustomizationController.swift */; };
 		A26A36002B0D151E008A4F99 /* OneTapBottomSheetCustomizationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26A35FF2B0D151E008A4F99 /* OneTapBottomSheetCustomizationController.swift */; };
+		A271F71A2B0FD4670015B61C /* OAuthListWidgetCustomizationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A271F7192B0FD4670015B61C /* OAuthListWidgetCustomizationController.swift */; };
 		A27EFD332B185245001CF285 /* DebugSettingsStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A27EFD322B185245001CF285 /* DebugSettingsStorage.swift */; };
 		A2E5F5EE2A55A65D0079DE1F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2E5F5ED2A55A65D0079DE1F /* AppDelegate.swift */; };
 		A2E5F5F22A55A65D0079DE1F /* AuthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2E5F5F12A55A65D0079DE1F /* AuthViewController.swift */; };
@@ -53,6 +55,7 @@
 		051FD29B2AF3CD2E0082990B /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		057500D02B0E0635008EEB4B /* PickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerView.swift; sourceTree = "<group>"; };
 		1752AE302AF135890013D976 /* StepSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepSlider.swift; sourceTree = "<group>"; };
+		179F905C2B1E46FD00E2D2AA /* OneTapWithOAuthCustomizationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneTapWithOAuthCustomizationController.swift; sourceTree = "<group>"; };
 		17CA41882AF1BB93008C81C1 /* VKIDDemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VKIDDemoViewController.swift; sourceTree = "<group>"; };
 		17CA418B2AF1D755008C81C1 /* MeasureView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeasureView.swift; sourceTree = "<group>"; };
 		A200588C2A7A2F580053864D /* VKIDDemo.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VKIDDemo.entitlements; sourceTree = "<group>"; };
@@ -71,6 +74,7 @@
 		A26A35FB2B0D005A008A4F99 /* ControlsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlsViewController.swift; sourceTree = "<group>"; };
 		A26A35FD2B0D0CED008A4F99 /* OneTapButtonCustomizationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OneTapButtonCustomizationController.swift; sourceTree = "<group>"; };
 		A26A35FF2B0D151E008A4F99 /* OneTapBottomSheetCustomizationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneTapBottomSheetCustomizationController.swift; sourceTree = "<group>"; };
+		A271F7192B0FD4670015B61C /* OAuthListWidgetCustomizationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OAuthListWidgetCustomizationController.swift; sourceTree = "<group>"; };
 		A27EFD322B185245001CF285 /* DebugSettingsStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugSettingsStorage.swift; sourceTree = "<group>"; };
 		A2E370692ACDBE1900715703 /* MRPipeline.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = MRPipeline.xctestplan; sourceTree = "<group>"; };
 		A2E5F5EA2A55A65D0079DE1F /* VKIDDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VKIDDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -155,6 +159,8 @@
 				A26A35FB2B0D005A008A4F99 /* ControlsViewController.swift */,
 				A26A35FD2B0D0CED008A4F99 /* OneTapButtonCustomizationController.swift */,
 				A26A35FF2B0D151E008A4F99 /* OneTapBottomSheetCustomizationController.swift */,
+				A271F7192B0FD4670015B61C /* OAuthListWidgetCustomizationController.swift */,
+				179F905C2B1E46FD00E2D2AA /* OneTapWithOAuthCustomizationController.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -357,6 +363,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A2E5F5F22A55A65D0079DE1F /* AuthViewController.swift in Sources */,
+				A271F71A2B0FD4670015B61C /* OAuthListWidgetCustomizationController.swift in Sources */,
 				A24B64612A9E407B00E45F3B /* AuthViewController+DebugSettings.swift in Sources */,
 				A27EFD332B185245001CF285 /* DebugSettingsStorage.swift in Sources */,
 				A26A35FC2B0D005A008A4F99 /* ControlsViewController.swift in Sources */,
@@ -369,6 +376,7 @@
 				A26A35FE2B0D0CED008A4F99 /* OneTapButtonCustomizationController.swift in Sources */,
 				17CA41892AF1BB93008C81C1 /* VKIDDemoViewController.swift in Sources */,
 				A26A36002B0D151E008A4F99 /* OneTapBottomSheetCustomizationController.swift in Sources */,
+				179F905D2B1E46FD00E2D2AA /* OneTapWithOAuthCustomizationController.swift in Sources */,
 				A24B64C42AA1FD6B00E45F3B /* UIColot+Palette.swift in Sources */,
 				057500D12B0E0635008EEB4B /* PickerView.swift in Sources */,
 				A201B19E2AAB375900E8FA58 /* InfoPlist.swift in Sources */,

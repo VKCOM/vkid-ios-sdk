@@ -231,12 +231,8 @@ final class OneTapButtonCustomizationController: VKIDDemoViewController {
     func kindSegmentControlChanged() {
         switch self.kindSegmentControl.selectedSegmentIndex {
         case 0:
-            self.widthSlider.alpha = 1.0
-            self.widthSlider.isUserInteractionEnabled = true
             self.config.oneTapButtonKind = .regular
         case 1:
-            self.widthSlider.alpha = 0.4
-            self.widthSlider.isUserInteractionEnabled = false
             self.config.oneTapButtonKind = .logoOnly
         default:
             break

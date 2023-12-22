@@ -34,88 +34,87 @@ import VKIDCore
 public struct OneTapBottomSheet: UIViewControllerElement {
     public typealias Factory = VKID
 
-    /// Название сервиса в заголовке шторки
-    public let serviceName: String
+    /// Название сервиса в заголовке шторки.
+    internal let serviceName: String
 
-    /// Текстовки для целевого действия в шторке
-    public let targetActionText: TargetActionText
+    /// Текстовки для целевого действия в шторке.
+    internal let targetActionText: TargetActionText
 
-    /// Коллбэк о завершении авторизации
-    private let onCompleteAuth: AuthResultCompletion?
+    /// Конфигурация для OneTap.
+    internal let oneTapButton: AuthButton
 
-    /// Конфигурация для OneTap
-    public let oneTapButton: AuthButton
+    /// Список альтернативных OAuth-провайдеров, которые будут отображаться
+    /// в виджете под основной кнопкой.
+    internal let alternativeOAuthProviders: [OAuthProvider]
 
-    /// Цветовая тема шторки
-    public let theme: Theme
+    /// Цветовая тема шторки.
+    internal let theme: Theme
 
     /// Нужно ли скрывать шторку автоматически в случае успешной авторизации
-    public let autoDismissOnSuccess: Bool
+    internal let autoDismissOnSuccess: Bool
 
-    /// Создает конфигурацию для шторки авторизации
+    /// Коллбэк о завершении авторизации.
+    internal let onCompleteAuth: AuthResultCompletion?
+
+    /// Инициализация конфигурации модальной шторки авторизации с кнопкой, виджетом и темой.
     /// - Parameters:
-    ///   - serviceName: Название сервиса в заголовке шторки
-    ///   - targetActionText: Текстовки для целевого действия в шторке
-    ///   - oneTapButton: Конфигурация для OneTap
-    ///   - theme: Цветовая тема шторки
+    ///   - serviceName: Название сервиса в заголовке шторки.
+    ///   - targetActionText: Текстовки для целевого действия в шторке.
+    ///   - oneTapButton: Конфигурация для OneTap.
+    ///   - alternativeOAuthProviders: Список альтернативных OAuth-провайдеров, которые будут отображаться
+    ///   в виджете под основной кнопкой.
+    ///   - theme: Цветовая тема шторки.
     ///   - autoDismissOnSuccess:
     ///   Нужно ли скрывать шторку автоматически в случае успешной авторизации.
-    ///   По умолчанию значение равно `true`
-    ///   - onCompleteAuth: Коллбэк о завершении авторизации
+    ///   По умолчанию значение равно `true`.
+    ///   - onCompleteAuth: Коллбэк о завершении авторизации.
     public init(
         serviceName: String,
         targetActionText: TargetActionText,
         oneTapButton: AuthButton,
-        theme: Theme,
+        alternativeOAuthProviders: [OAuthProvider] = [],
+        theme: Theme = .matchingColorScheme(.current),
         autoDismissOnSuccess: Bool = true,
         onCompleteAuth: AuthResultCompletion?
     ) {
         self.serviceName = serviceName
         self.targetActionText = targetActionText
         self.oneTapButton = oneTapButton
+        self.alternativeOAuthProviders = alternativeOAuthProviders.filter {
+            $0.type != .vkid
+        }
         self.theme = theme
         self.autoDismissOnSuccess = autoDismissOnSuccess
         self.onCompleteAuth = onCompleteAuth
     }
 
-    public init(
-        serviceName: String,
-        targetActionText: TargetActionText,
-        oneTapButton: AuthButton,
-        autoDismissOnSuccess: Bool = true,
-        onCompleteAuth: AuthResultCompletion?
-    ) {
-        self.init(
-            serviceName: serviceName,
-            targetActionText: targetActionText,
-            oneTapButton: oneTapButton,
-            theme: .matchingColorScheme(.current),
-            autoDismissOnSuccess: autoDismissOnSuccess,
-            onCompleteAuth: onCompleteAuth
-        )
-    }
-
     public func _uiViewController(factory: VKID) -> UIViewController {
-        let oneTap = OneTapButton(
-            appearance: .init(
-                title: .init(
-                    primary: self.targetActionText.oneTapButtonTitle,
-                    brief: self.targetActionText.oneTapButtonTitle
+        let oneTap = factory.ui(
+            for: OneTapButton(
+                primaryOAuthProvider: .vkid,
+                alternativeOAuthProviders: self.alternativeOAuthProviders,
+                appearance: .init(
+                    title: .init(
+                        primary: self.targetActionText.oneTapButtonTitle,
+                        brief: self.targetActionText.oneTapButtonTitle
+                    ),
+                    style: .primary(),
+                    theme: .matchingColorScheme(self.theme.colorScheme)
                 ),
-                style: .primary(),
-                theme: .matchingColorScheme(self.theme.colorScheme)
-            ),
-            layout: .regular(
-                height: self.oneTapButton.height,
-                cornerRadius: self.oneTapButton.cornerRadius
-            ),
-            onCompleteAuth: nil
+                layout: .regular(
+                    height: self.oneTapButton.height,
+                    cornerRadius: self.oneTapButton.cornerRadius
+                ),
+                presenter: .newUIWindow,
+                onTap: nil,
+                onCompleteAuth: self.onCompleteAuth
+            )
         )
-        let button = factory.ui(for: oneTap).uiView()
+        .uiView()
         let contentController = OneTapBottomSheetContentViewController(
             vkid: factory,
             theme: self.theme,
-            oneTapButton: button,
+            oneTapButton: oneTap,
             serviceName: self.serviceName,
             targetActionText: self.targetActionText,
             autoDismissOnSuccess: self.autoDismissOnSuccess,

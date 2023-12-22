@@ -31,7 +31,7 @@ import Foundation
 public struct AuthConfiguration {
     let oAuthProvider: OAuthProvider
 
-    public init () {
-        self.oAuthProvider = .vkid
+    public init (oAuthProvider: OAuthProvider = .vkid) {
+        self.oAuthProvider = oAuthProvider
     }
 }

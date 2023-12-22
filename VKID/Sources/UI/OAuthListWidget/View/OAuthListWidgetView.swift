@@ -26,20 +26,41 @@
 // THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
 //
 
-import Foundation
 import UIKit
+import VKIDCore
 
-internal protocol Layout {
-    func layout(in frame: CGRect)
-    func sizeThatFits(_ size: CGSize) -> CGSize
-}
+internal final class OAuthListWidgetView: UIView {
+    private let oAuthButtons: [UIView]
 
-extension Layout where Self: UIView {
-    func layout(in frame: CGRect) {
-        self.frame = frame
+    private lazy var buttonStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.axis = .horizontal
+        stack.spacing = 12
+        stack.distribution = .fillEqually
+        stack.isLayoutMarginsRelativeArrangement = true
+        stack.layoutMargins = .zero
+        return stack
+    }()
+
+    internal init(
+        oAuthButtons: [UIView]
+    ) {
+        self.oAuthButtons = oAuthButtons
+        super.init(frame: .zero)
+        self.backgroundColor = .clear
+        self.setupButtonStackView()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func setupButtonStackView() {
+        self.addSubview(self.buttonStackView) {
+            $0.pinToEdges()
+        }
+        self.oAuthButtons.reversed().forEach { bt in
+            self.buttonStackView.insertArrangedSubview(bt, at: 0)
+        }
     }
 }
-
-extension UIImageView: Layout {}
-extension UIActivityIndicatorView: Layout {}
-extension ActivityIndicatorView: Layout {}

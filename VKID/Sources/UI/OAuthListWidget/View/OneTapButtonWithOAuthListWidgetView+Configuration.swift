@@ -26,20 +26,15 @@
 // THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
 //
 
-import Foundation
 import UIKit
+import VKIDCore
 
-internal protocol Layout {
-    func layout(in frame: CGRect)
-    func sizeThatFits(_ size: CGSize) -> CGSize
-}
-
-extension Layout where Self: UIView {
-    func layout(in frame: CGRect) {
-        self.frame = frame
+extension OneTapButtonWithOAuthListWidgetView {
+    internal struct Configuration {
+        var title: String
+        var titleColor: any Color
+        var titleFont: UIFont
+        var oneTapButton: UIView
+        var oAuthListWidget: UIView
     }
 }
-
-extension UIImageView: Layout {}
-extension UIActivityIndicatorView: Layout {}
-extension ActivityIndicatorView: Layout {}

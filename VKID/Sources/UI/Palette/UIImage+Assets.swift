@@ -31,6 +31,8 @@ import UIKit
 extension UIImage {
     internal static let logoPrimary = UIImage.moduleNamed("vk_id_logo_primary")
     internal static let logoSecondary = UIImage.moduleNamed("vk_id_logo_secondary")
+    internal static let okRuLogoSecondary = UIImage.moduleNamed("ok_ru_logo_secondary")
+    internal static let mailRuLogoSecondary = UIImage.moduleNamed("mail_ru_logo_secondary")
     internal static let closeDark = UIImage.moduleNamed("dismiss_24_dark")
     internal static let closeLight = UIImage.moduleNamed("dismiss_24_light")
     internal static let logoLight = UIImage.moduleNamed("logo_vkid_light")
