@@ -32,6 +32,7 @@ import VKIDCore
 /// Конфигурация OneTapButton
 public struct OneTapButton: UIViewElement {
     public typealias Factory = VKID
+    /// Определяет замыкание, вызывающееся при нажатии на кнопку
     public typealias OnTapCallback = (ActivityIndicating) -> Void
 
     /// Основной провайдер авторизации для кнопки
@@ -418,11 +419,17 @@ extension OneTapButton.Appearance {
 }
 
 extension OneTapButton {
+    /// Лейаута кнопки
     public struct Layout {
         public let kind: Kind
         public let height: Height
         public let cornerRadius: CGFloat
 
+        /// Инициализация конфигурации лейаута для OneTap кнопки
+        /// - Parameters:
+        ///   - kind: тип лейаута
+        ///   - height: высота кнопки
+        ///   - cornerRadius: радиус углов кнопки
         public init(
             kind: Kind,
             height: Height = .medium(),
@@ -433,6 +440,7 @@ extension OneTapButton {
             self.cornerRadius = cornerRadius
         }
 
+        /// Создает лейаут обычной кнопки c лого VK ID и текстом
         public static func regular(
             height: Height = .medium(),
             cornerRadius: CGFloat = LayoutConstants.defaultCornerRadius
@@ -444,6 +452,7 @@ extension OneTapButton {
             )
         }
 
+        /// Создает лейаут квадратной кнопки с лого VK ID
         public static func logoOnly(
             size: Height = .medium(),
             cornerRadius: CGFloat = LayoutConstants.defaultCornerRadius

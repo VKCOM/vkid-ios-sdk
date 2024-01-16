@@ -140,9 +140,8 @@ extension AuthViewController: VKIDObserver {
     func vkid(_ vkid: VKID, didCompleteAuthWith result: AuthResult, in oAuth: OAuthProvider) {
         do {
             let session = try result.get()
-            let maskedToken = session.accessToken.value.maskingForLogging()
-            print("Auth succeeded with token: \(maskedToken)")
-            self.showAlert(message: maskedToken)
+            print("Auth succeeded with\n\(session)")
+            self.showAlert(message: session.debugDescription)
         } catch AuthError.cancelled {
             print("Auth cancelled by user")
         } catch {

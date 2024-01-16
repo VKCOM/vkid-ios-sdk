@@ -43,7 +43,7 @@ internal final class ServiceAuthFlow: Component, AuthFlow {
 
     func authorize(
         with presenter: UIKitPresenter,
-        completion: @escaping (Result<AccessToken, AuthFlowError>) -> Void
+        completion: @escaping AuthFlowResultCompletion
     ) {
         self.deps.authByProviderFlow.authorize(with: presenter) { result in
             switch result {

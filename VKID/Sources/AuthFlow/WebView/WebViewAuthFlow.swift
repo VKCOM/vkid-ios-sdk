@@ -51,7 +51,7 @@ internal final class WebViewAuthFlow: Component, AuthFlow {
 
     func authorize(
         with presenter: UIKitPresenter,
-        completion: @escaping (Result<AccessToken, AuthFlowError>) -> Void
+        completion: @escaping AuthFlowResultCompletion
     ) {
         self.deps
             .api
@@ -90,7 +90,7 @@ internal final class WebViewAuthFlow: Component, AuthFlow {
         authURL: URL,
         redirectURL: URL,
         pkceSecrets: PKCESecrets,
-        completion: @escaping (Result<AccessToken, AuthFlowError>) -> Void
+        completion: @escaping AuthFlowResultCompletion
     ) {
         self.deps.logger.info("Opening webView at: \(authURL), redirect: \(redirectURL)")
 
@@ -105,7 +105,7 @@ internal final class WebViewAuthFlow: Component, AuthFlow {
             }
             switch result {
             case .success(let authCodeResponse):
-                guard authCodeResponse.state == pkceSecrets.state else {
+                guard authCodeResponse.oauth.state == pkceSecrets.state else {
                     completion(.failure(.authCodeResponseStateMismatch))
                     return
                 }
@@ -114,14 +114,19 @@ internal final class WebViewAuthFlow: Component, AuthFlow {
                     .exchangeAuthCode
                     .execute(
                         with: .init(
-                            code: authCodeResponse.code,
+                            code: authCodeResponse.oauth.code,
                             codeVerifier: pkceSecrets.codeVerifier,
                             redirectUri: redirectURL.absoluteString
                         )
                     ) { result in
                         completion(
                             result
-                                .map(AccessToken.init(from:))
+                                .map {
+                                    .init(
+                                        accessToken: .init(from: $0),
+                                        user: .init(from: authCodeResponse.user, response: $0)
+                                    )
+                                }
                                 .mapError { AuthFlowError.authCodeExchangingFailed($0) }
                         )
                     }

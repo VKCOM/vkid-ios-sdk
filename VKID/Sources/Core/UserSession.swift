@@ -28,6 +28,7 @@
 
 import Foundation
 
+/// Авторизованная сессия пользователя
 public final class UserSession {
     /// Провайдер авторизации.
     public let oAuthProvider: OAuthProvider
@@ -35,12 +36,16 @@ public final class UserSession {
     /// Токен доступа.
     public let accessToken: AccessToken
 
+    /// Данные о пользователе
+    public let user: User
+
     /// Инициализациия сессии пользователя
     /// - Parameters:
     ///   - oAuthProvider: Провайдер авторизации
-    ///   - accessToken: Докен доступа.
-    public init(oAuthProvider: OAuthProvider = .vkid, accessToken: AccessToken) {
+    ///   - accessToken: Токен доступа
+    internal init(oAuthProvider: OAuthProvider = .vkid, accessToken: AccessToken, user: User) {
         self.oAuthProvider = oAuthProvider
         self.accessToken = accessToken
+        self.user = user
     }
 }

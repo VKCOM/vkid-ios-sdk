@@ -29,8 +29,18 @@
 import Foundation
 import VKIDCore
 
+/// Отслеживание статуса авторизации
 public protocol VKIDObserver: AnyObject {
+    /// Сообщает о старте флоу авторизации через VKID
+    /// - Parameters:
+    ///   - vkid: объект взаимодействия с VKID
+    ///   - oAuth: провайдер авторизации
     func vkid(_ vkid: VKID, didStartAuthUsing oAuth: OAuthProvider)
+    /// Сообщает о завершении флоу авторизации через VKID
+    /// - Parameters:
+    ///   - vkid: объект взаимодействия с VKID
+    ///   - result: результат авторизации
+    ///   - oAuth: провайдер авторизации
     func vkid(_ vkid: VKID, didCompleteAuthWith result: AuthResult, in oAuth: OAuthProvider)
 }
 
@@ -118,7 +128,8 @@ public final class VKID {
             let userSessionResult = result.map {
                 UserSession(
                     oAuthProvider: authConfig.oAuthProvider,
-                    accessToken: $0
+                    accessToken: $0.accessToken,
+                    user: $0.user
                 )
             }
             self.currentAuthorizedSession = try? userSessionResult.get()
@@ -133,6 +144,11 @@ public final class VKID {
         }
     }
 
+    /// Открытие ресурса в VKID
+    ///
+    /// Необходим для открытия ссылки при возврате после прыжка в провайдер(приложение).
+    /// - Parameters:
+    ///   - url: ссылка ресурса
     public func open(url: URL) -> Bool {
         self.rootContainer.appInteropHandler.open(url: url)
     }

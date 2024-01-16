@@ -28,7 +28,7 @@
 
 import UIKit
 
-// Конфигурация виджета OAuthListWidget
+/// Конфигурация виджета списка OAuth-ов
 public struct OAuthListWidget: UIViewElement {
     public typealias Factory = VKID
 
@@ -112,6 +112,7 @@ public struct OAuthListWidget: UIViewElement {
 }
 
 extension OAuthListWidget {
+    /// Тема, определяющая внешний вид OAuth виджета
     public struct Theme {
         internal let colorScheme: Appearance.ColorScheme
 
@@ -122,10 +123,10 @@ extension OAuthListWidget {
 }
 
 extension OAuthListWidget {
+    /// Конфигурацция кнопки OAuth виджета
     public struct ButtonConfiguration {
         public let height: OneTapButton.Layout.Height
         public let cornerRadius: CGFloat
-
         public init(
             height: OneTapButton.Layout.Height,
             cornerRadius: CGFloat
