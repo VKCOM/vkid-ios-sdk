@@ -32,7 +32,7 @@ import VKIDCore
 internal protocol AuthFlow {
     func authorize(
         with presenter: UIKitPresenter,
-        completion: @escaping (Result<AccessToken, AuthFlowError>) -> Void
+        completion: @escaping AuthFlowResultCompletion
     )
 }
 
@@ -49,20 +49,4 @@ internal protocol AuthFlowBuilder {
         for authConfig: AuthConfiguration,
         appearance: Appearance
     ) -> AuthFlow
-}
-
-/// Ошибки внутреннего флоу авторизации
-internal enum AuthFlowError: Error {
-    case invalidRedirectURL(URL)
-    case invalidAuthCallbackURL
-    case invalidAuthCodePayloadJSON
-    case invalidAuthConfigTemplateURL
-    case webViewAuthSessionFailedToStart
-    case webViewAuthFailed(Error)
-    case noAvailableProviders
-    case providersFetchingFailed(Error)
-    case authByProviderFailed(Error)
-    case authCancelledByUser
-    case authCodeResponseStateMismatch
-    case authCodeExchangingFailed(Error)
 }

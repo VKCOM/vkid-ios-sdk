@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2023 - present, LLC “V Kontakte”
+// Copyright (c) 2024 - present, LLC “V Kontakte”
 //
 // 1. Permission is hereby granted to any person obtaining a copy of this Software to
 // use the Software without charge.
@@ -28,11 +28,23 @@
 
 import Foundation
 
-/// Конфигурация авторизации через провайдер
-public struct AuthConfiguration {
-    let oAuthProvider: OAuthProvider
+/// Сущность, содержащая информацию о пользователе
+public struct User: Equatable, Hashable {
+    /// Идентификатор пользователя
+    public let id: UserID
 
-    public init (oAuthProvider: OAuthProvider = .vkid) {
-        self.oAuthProvider = oAuthProvider
-    }
+    /// Имя
+    public let firstName: String
+
+    /// Фамилия
+    public let lastName: String
+
+    /// Электронная почта
+    public let email: String?
+
+    /// Номер мобильного телефона
+    public let phone: String?
+
+    /// Ссылка на аватар
+    public let avatarURL: URL?
 }

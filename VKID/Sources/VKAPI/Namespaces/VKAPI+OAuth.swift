@@ -56,7 +56,6 @@ internal struct OAuth: VKAPINamespace {
             let expiresIn: TimeInterval
             let userId: Int
             let email: String?
-            let phone: String?
         }
 
         struct Parameters: VKAPIDictionaryRepresentable {

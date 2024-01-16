@@ -41,14 +41,11 @@ final class AuthCodeResponseParserTests: XCTestCase {
     }
 
     func testParseAuthCodeResponseWithValidURL() {
-        let expectedRequest = AuthCodeResponse(
-            code: UUID().uuidString,
-            state: UUID().uuidString
-        )
-        let validUrl = makeURLforAuthCodeResponse(request: expectedRequest)
+        let expectedResponse = makeRandomResponse()
+        let validUrl = makeURLforAuthCodeResponse(response: expectedResponse)
         do {
             let actualResponse = try parser.parseAuthCodeResponse(from: validUrl)
-            XCTAssertEqual(expectedRequest, actualResponse)
+            XCTAssertEqual(expectedResponse, actualResponse)
         } catch {
             XCTFail("Error in parsing: \(error)")
         }
@@ -131,27 +128,61 @@ final class AuthCodeResponseParserTests: XCTestCase {
 }
 
 extension AuthCodeResponseParserTests {
-    private func makeURLforAuthCodeResponse(request: AuthCodeResponse) -> URL {
-        let payload =
-            #"{"type":"oauth","auth":1,"user":{"id":251774609,"first_name":"Test","last_name":"T.","avatar":"url?size=20x20&quality=95&crop=10,3,7,7&ava=1","avatar_base":null,"phone":"+392"},"ttl":600,"uuid":"","hash":"n0ELHFXiJeet4po7uGuojqJzFWRW6pFhg9P95hV2qcw","loadExternalUsers":false,"#
-        let oauth = "\"oauth\":{\"code\":\"\(request.code)\",\"state\":\"\(request.state)\"}}"
-        var urlComponents = URLComponents(string: "vk523633://vk.com/blank.html")
-        urlComponents?.queryItems = [
-            .init(name: "payload", value: payload + oauth),
-        ]
+    private func makeURLforAuthCodeResponse(response: AuthCodeResponse) -> URL {
+        let payloadJson = try! JSONEncoder().encode(response)
+        let payload = String(data: payloadJson, encoding: .utf8)
 
-        return urlComponents!.url!
+        let urlComponents = self.makeURLComponents(with: payload)
+
+        return urlComponents.url!
     }
 
     private func makeURLforCallbackMethod(typeAuthProvider: String) -> URL {
-        let payload =
-            #"{"type":"oauth","auth":1,"user":{"id":251774609,"first_name":%Test","last_name":"T.","avatar":"https://sfls.is.com/s/v1/ig2/3oiMnJG61wCZZ4snVSDqbPYsFKkBS0gnlnipLM-z-s_6bt48ecxDYWuh4ctZqdOYy3FT-6oIVYgqldLGiPDs.jpg?size=200x200&quality=95&crop=1014,573,785,785&ava=1","avatar_base":null,"phone":"+7 *** *** ** 13"=,"ttl":600,"uuid":"304D9898-05EB-4C12-A160-4E1494C83A20","hash":"n0ELHFXiJeet4pa7uGuajqJzFWRW6pFpg9P95hV2qcw","oauth":{"code":"e729b21b5e245b2e2b","state":"BCAD162B-45C5-4F59-B12A-59B0C4EF801E"}}&state=BCAD162B-45C5-4F59-B12A-59B0C4EF801E"#
-        let authProviderQueryItem = URLQueryItem(name: "vkconnect_auth_provider_method", value: typeAuthProvider)
-        var urlComponents = URLComponents(string: "vk523633://")
-        urlComponents?.queryItems = [
-            .init(name: "payload", value: payload),
-            authProviderQueryItem,
+        let payloadJson = try! JSONEncoder().encode(
+            self.makeRandomResponse()
+        )
+        let payload = String(data: payloadJson, encoding: .utf8)
+
+        var urlComponents = self.makeURLComponents(with: payload)
+        urlComponents.queryItems?.append(
+            URLQueryItem(
+                name: "vkconnect_auth_provider_method",
+                value: typeAuthProvider
+            )
+        )
+
+        return urlComponents.url!
+    }
+
+    private func makeURLComponents(with payload: String?) -> URLComponents {
+        var urlComponents = URLComponents()
+        urlComponents.scheme = "vk\(Int.random)"
+        urlComponents.host = "vk.com"
+        urlComponents.path = "/blank.html"
+        urlComponents.queryItems = [
+            URLQueryItem(
+                name: "payload",
+                value: payload
+            ),
         ]
-        return urlComponents!.url!
+
+        return urlComponents
+    }
+
+    private func makeRandomResponse() -> AuthCodeResponse {
+        AuthCodeResponse(
+            oauth: .init(
+                code: UUID().uuidString,
+                state: UUID().uuidString
+            ),
+            user: .init(
+                id: Int.random,
+                firstName: UUID().uuidString,
+                lastName: UUID().uuidString,
+                email: UUID().uuidString,
+                phone: UUID().uuidString,
+                avatar: URL.random
+            )
+        )
     }
 }

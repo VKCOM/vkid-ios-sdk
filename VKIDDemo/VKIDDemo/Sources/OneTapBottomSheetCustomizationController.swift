@@ -482,12 +482,11 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
     @objc
     private func onOpenOneTapSheet(sender: AnyObject) {
         let actionText = self.targetActionTexts[self.pickerView.selectedRow(inComponent: 0)]
-        let onCompleteAuth: AuthResultCompletion = { [weak self] authResult in
+        let onCompleteAuth: AuthResultCompletion = { [weak self] result in
             do {
-                let session = try authResult.get()
-                let maskedToken = session.accessToken.value.maskingForLogging()
-                print("Auth succeeded with token: \(maskedToken)")
-                self?.alertPresentationController.showAlert(message: maskedToken)
+                let session = try result.get()
+                print("Auth succeeded with\n\(session)")
+                self?.alertPresentationController.showAlert(message: session.debugDescription)
             } catch AuthError.cancelled {
                 print("Auth cancelled by user")
             } catch {

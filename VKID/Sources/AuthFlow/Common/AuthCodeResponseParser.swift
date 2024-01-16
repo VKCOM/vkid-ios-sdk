@@ -28,9 +28,23 @@
 
 import Foundation
 
-internal struct AuthCodeResponse: Decodable, Equatable {
-    internal var code: String
-    internal var state: String
+internal struct AuthCodeResponse: Codable, Equatable {
+    let oauth: OAuthResponse
+    let user: UserData
+
+    struct UserData: Codable, Equatable {
+        let id: Int
+        let firstName: String
+        let lastName: String
+        let email: String?
+        let phone: String?
+        let avatar: URL?
+    }
+
+    struct OAuthResponse: Codable, Equatable {
+        internal let code: String
+        internal let state: String
+    }
 }
 
 internal protocol AuthCodeResponseParser {
@@ -39,9 +53,11 @@ internal protocol AuthCodeResponseParser {
 }
 
 internal final class AuthCodeResponseParserImpl: AuthCodeResponseParser {
-    private struct AuthCodeResponsePayload: Decodable {
-        var oauth: AuthCodeResponse
-    }
+    private let jsonDecoder: JSONDecoder = {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        return decoder
+    }()
 
     func parseAuthCodeResponse(from url: URL) throws -> AuthCodeResponse {
         guard
@@ -57,11 +73,10 @@ internal final class AuthCodeResponseParserImpl: AuthCodeResponseParser {
         }
 
         do {
-            let response = try JSONDecoder().decode(
-                AuthCodeResponsePayload.self,
+            return try self.jsonDecoder.decode(
+                AuthCodeResponse.self,
                 from: payloadData
             )
-            return response.oauth
         } catch {
             throw AuthFlowError.invalidAuthCodePayloadJSON
         }

@@ -28,6 +28,7 @@
 
 import Foundation
 
+/// Управление анимацией прогресса задачи
 public protocol ActivityIndicating {
     var isAnimating: Bool { get }
 

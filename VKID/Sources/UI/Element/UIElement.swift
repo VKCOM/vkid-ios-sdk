@@ -43,7 +43,7 @@ public protocol UIElement {
 /// позволяет получить SwiftUI.View, UIView или UIViewController,
 /// в зависимости от поддерживаемого типа ``UIElement``-ом
 public protocol UIFactory {
-    /// Получения UI трамплина
+    /// Получение UI трамплина
     /// - Parameters:
     ///  - element: UI элемент, отображение которого необходимо получить
     /// - Returns: ``UITrampoline``

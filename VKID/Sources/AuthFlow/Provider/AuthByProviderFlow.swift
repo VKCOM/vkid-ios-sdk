@@ -60,7 +60,7 @@ internal final class AuthByProviderFlow: Component, AuthFlow {
 
     func authorize(
         with presenter: UIKitPresenter,
-        completion: @escaping (Result<AccessToken, AuthFlowError>) -> Void
+        completion: @escaping AuthFlowResultCompletion
     ) {
         self.deps.authProvidersFetcher.fetch { [weak self] result in
             guard let self else {
@@ -87,7 +87,7 @@ internal final class AuthByProviderFlow: Component, AuthFlow {
     private func authorize(
         using providers: [AuthProvider],
         pkceSecrets: PKCESecrets,
-        completion: @escaping (Result<AccessToken, AuthFlowError>) -> Void
+        completion: @escaping AuthFlowResultCompletion
     ) {
         guard let provider = providers.first else {
             self.deps.logger.warning("Can't open any provider")
@@ -103,12 +103,12 @@ internal final class AuthByProviderFlow: Component, AuthFlow {
             }
             switch response {
             case.success(let response):
-                guard response.state == pkceSecrets.state else {
+                guard response.oauth.state == pkceSecrets.state else {
                     completion(.failure(.authCodeResponseStateMismatch))
                     return
                 }
                 self.exchangeAuthCode(
-                    codeResponse: response,
+                    authCodeResponse: response,
                     pkceSecrets: pkceSecrets,
                     completion: completion
                 )
@@ -175,23 +175,28 @@ internal final class AuthByProviderFlow: Component, AuthFlow {
     }
 
     private func exchangeAuthCode(
-        codeResponse: AuthCodeResponse,
+        authCodeResponse: AuthCodeResponse,
         pkceSecrets: PKCESecrets,
-        completion: @escaping (Result<AccessToken, AuthFlowError>) -> Void
+        completion: @escaping AuthFlowResultCompletion
     ) {
         self.deps
             .api
             .exchangeAuthCode
             .execute(
                 with: .init(
-                    code: codeResponse.code,
+                    code: authCodeResponse.oauth.code,
                     codeVerifier: pkceSecrets.codeVerifier,
                     redirectUri: redirectURL(for: self.deps.appCredentials.clientId).absoluteString
                 )
             ) { result in
                 completion(
                     result
-                        .map(AccessToken.init(from:))
+                        .map {
+                            .init(
+                                accessToken: .init(from: $0),
+                                user: .init(from: authCodeResponse.user, response: $0)
+                            )
+                        }
                         .mapError { .authCodeExchangingFailed($0) }
                 )
             }

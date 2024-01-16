@@ -28,11 +28,30 @@
 
 import Foundation
 
-/// Конфигурация авторизации через провайдер
-public struct AuthConfiguration {
-    let oAuthProvider: OAuthProvider
+internal typealias AuthFlowResult = Result<AuthFlowData, AuthFlowError>
+internal typealias AuthFlowResultCompletion = (AuthFlowResult) -> Void
 
-    public init (oAuthProvider: OAuthProvider = .vkid) {
-        self.oAuthProvider = oAuthProvider
-    }
+/// Данные внутреннего флоу авторизации
+internal struct AuthFlowData {
+    /// Токен доступа
+    let accessToken: AccessToken
+
+    /// Информация о пользователе
+    let user: User
+}
+
+/// Ошибки внутреннего флоу авторизации
+internal enum AuthFlowError: Error {
+    case invalidRedirectURL(URL)
+    case invalidAuthCallbackURL
+    case invalidAuthCodePayloadJSON
+    case invalidAuthConfigTemplateURL
+    case webViewAuthSessionFailedToStart
+    case webViewAuthFailed(Error)
+    case noAvailableProviders
+    case providersFetchingFailed(Error)
+    case authByProviderFailed(Error)
+    case authCancelledByUser
+    case authCodeResponseStateMismatch
+    case authCodeExchangingFailed(Error)
 }

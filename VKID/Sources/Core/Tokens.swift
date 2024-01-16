@@ -45,6 +45,12 @@ extension Expiring {
     }
 }
 
+/// Токен авторизации запросов
+///
+///  Данный токен необходим для вызова методов API после того, как пользователь авторизовался с помощью VK ID в вашем сервисе.
+///  [Access token](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/tokens/access-token)
+///  — это подпись пользователя в вашем приложении.Он сообщает серверу, от имени какого пользователя осуществляются запросы
+///  и какие права доступа пользователь выдал вашему приложению.
 public struct AccessToken: Expiring, Codable {
     public let userId: UserID
     public let value: String
@@ -57,6 +63,7 @@ public struct AccessToken: Expiring, Codable {
     }
 }
 
+/// Уникальный идентификатор пользователя VKID
 public struct UserID: Equatable, Hashable, Codable {
     public let value: Int
 
@@ -65,6 +72,7 @@ public struct UserID: Equatable, Hashable, Codable {
     }
 }
 
+/// Анонимный токен для запросов в неавторизованной зоне
 public struct AnonymousToken: Expiring, Codable {
     public let value: String
     public let expirationDate: Date

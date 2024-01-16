@@ -43,10 +43,10 @@ public protocol UIKitPresenting {
 ///
 /// Для показа экранов VK ID SDK, есть 3 готовых механизма показа экранов
 ///
-/// 1.``newUIWindow`` - показывает экран на новом UIWindow
-/// 2.``uiWindow(_:)`` - показывает экран на заданном UIWindow
-/// 3.``uiViewController(_:)`` - показывает экран на заданном UIViewController
-/// 4.``custom(_:)`` - показывает экран при помощи кастомной логики
+/// 1. ``newUIWindow`` - показывает экран на новом UIWindow
+/// 2. ``uiWindow(_:)`` - показывает экран на заданном UIWindow
+/// 3. ``uiViewController(_:)`` - показывает экран на заданном UIViewController
+/// 4. ``custom(_:)`` - показывает экран при помощи кастомной логики
 public struct UIKitPresenter: UIKitPresenting {
     private let presenting: UIKitPresenting
 
@@ -70,11 +70,8 @@ public struct UIKitPresenter: UIKitPresenting {
 }
 
 extension UIKitPresenter {
-    /// Показ на новом UIWindow
     public static let newUIWindow: Self = .init(NewUIWindowPresenter())
 
-    /// Показ на определенном UIWindow
-    /// @param window -
     public static func uiWindow(_ window: UIWindow) -> Self {
         .init(UIWindowPresenter(window))
     }

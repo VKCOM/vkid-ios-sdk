@@ -28,11 +28,18 @@
 
 import Foundation
 
-/// Конфигурация авторизации через провайдер
-public struct AuthConfiguration {
-    let oAuthProvider: OAuthProvider
-
-    public init (oAuthProvider: OAuthProvider = .vkid) {
-        self.oAuthProvider = oAuthProvider
+extension User {
+    internal init(
+        from user: AuthCodeResponse.UserData,
+        response: OAuth.ExchangeAuthCode.Response
+    ) {
+        self.init(
+            id: UserID(value: user.id),
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: response.email,
+            phone: user.phone,
+            avatarURL: user.avatar
+        )
     }
 }
