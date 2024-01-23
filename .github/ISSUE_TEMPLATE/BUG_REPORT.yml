@@ -1,0 +1,63 @@
+name: 🐞 Bug Report
+description: Сообщите нам, если что то работает не так как вы ожидаете.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Перед заведением баг репорта ознакомьтесь, пожалуйста, со списком уже созданных [issues](https://github.com/VKCOM/vkid-ios-sdk/issues). Возможно, с вашей проблемой кто-то уже обращался.
+  - type: textarea
+    attributes:
+      label: Описание проблемы
+      description: |
+        Кратко опишите, какое поведение вы ожидаете, и что происходит на самом деле.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Шаги для воспроизведения
+      description: |
+        Опишите последовательность действия для воспроизведения проблемы. Например:
+        1. Перейти на '...'
+        2. Нажать на '....'
+        3. Прокрутить к '....'
+        4. Увидеть ошибку
+    validations:
+      required: false
+  - type: input
+    attributes:
+      label: Версия VK ID SDK
+      description: В какой версии VK ID SDK вы наблюдаете проблему?
+      placeholder: "1.2.0"
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: Способ установки
+      description: Как вы интегрируете VK ID SDK в ваш проект?
+      options:
+        - Swift Package Manager
+        - CocoaPods
+        - Other/Manually
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Версия Xcode
+      description: C какой версией Xcode вы собираете VK ID SDK?
+      placeholder: "15.0"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Версия iOS
+      description: На какой версии iOS вы наблюдате проблему?
+      placeholder: "17.0"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Приложите логи, если необходимо
+    validations:
+      required: false
