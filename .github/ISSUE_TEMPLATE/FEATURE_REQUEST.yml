@@ -1,0 +1,18 @@
+name: 🛠️ Feature Request
+description: Предложите как улучшить VK ID SDK
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+      attributes:
+        label: Цели
+        description: "Какую пользу будет приносить данное улучшение?"
+      validations:
+        required: true
+  - type: textarea
+      attributes:
+        label: Описание/Детали реализации
+        description: "Подробности реализации предложенного вами улучшения"
+      validations:
+        required: true
+        
