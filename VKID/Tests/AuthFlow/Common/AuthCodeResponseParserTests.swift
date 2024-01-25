@@ -180,7 +180,6 @@ extension AuthCodeResponseParserTests {
                 firstName: UUID().uuidString,
                 lastName: UUID().uuidString,
                 email: UUID().uuidString,
-                phone: UUID().uuidString,
                 avatar: URL.random
             )
         )

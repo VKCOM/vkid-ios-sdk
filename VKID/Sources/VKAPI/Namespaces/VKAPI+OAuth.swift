@@ -55,6 +55,7 @@ internal struct OAuth: VKAPINamespace {
             let accessToken: String
             let expiresIn: TimeInterval
             let userId: Int
+            let phone: String?
             let email: String?
         }
 

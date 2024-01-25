@@ -135,15 +135,15 @@ func scene(
 Данные [User](VKID/Sources/Core/User.swift) находятся в объекте [UserSession](VKID/Sources/Core/UserSession.swift), который приходит как результат авторизации.
 
 ```swift
-    let session = try result.get()
-    let token = session.token
-    let user = session.user
+let session = try result.get()
+let token = session.token
+let user = session.user
 ```
 
 Так же [UserSession](VKID/Sources/Core/UserSession.swift), можно получить воспользовавшись объектом VKID.
 
 ```swift
-    let session = vkid.currentAuthorizedSession
+let session = vkid.currentAuthorizedSession
 ```
 
 Для того, чтобы в [User](VKID/Sources/Core/User.swift) была информация о почте, перейдите в сервис авторизации VK ID, выберите ваше приложение и в разделе **Доступы** укажите опцию с почтой.
