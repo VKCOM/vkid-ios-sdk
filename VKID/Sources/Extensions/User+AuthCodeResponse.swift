@@ -38,7 +38,7 @@ extension User {
             firstName: user.firstName,
             lastName: user.lastName,
             email: response.email,
-            phone: user.phone,
+            phone: response.phone,
             avatarURL: user.avatar
         )
     }
