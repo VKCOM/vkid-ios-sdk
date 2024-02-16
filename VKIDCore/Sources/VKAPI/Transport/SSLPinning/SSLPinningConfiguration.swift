@@ -30,13 +30,19 @@ import Foundation
 
 public struct SSLPinnedDomain {
     public let domain: String
+    public let pins: Set<Data>
 
-    /// HEX encoded format
-    public let pins: Set<String>
-
+    /// Создает SSLPinnedDomain с указанными `domain` и `pins`
+    /// - Parameters:
+    ///   - domain: домен для пининга
+    ///   - pins: base64-encoded SHA-256 хеши публичных ключей сертификатов
     public init(domain: String, pins: Set<String>) {
         self.domain = domain
-        self.pins = pins
+        self.pins = Set(
+            pins.compactMap {
+                Data(base64Encoded: $0, options: .ignoreUnknownCharacters)
+            }
+        )
     }
 }
 
@@ -61,7 +67,7 @@ public struct SSLPinningConfiguration {
         return false
     }
 
-    public func isValidPin(_ pin: String, for domain: String) -> Bool {
+    public func isValidPin(_ pin: Data, for domain: String) -> Bool {
         if let pinned = self.domains[domain] {
             return pinned.pins.contains(pin)
         }
