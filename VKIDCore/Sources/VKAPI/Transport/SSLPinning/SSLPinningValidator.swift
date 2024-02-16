@@ -51,38 +51,41 @@ internal final class SSLPinningValidator: SSLPinningValidating {
         guard self.configuration.isDomainPinned(challenge.protectionSpace.host) else {
             return .domainNotPinned
         }
-        guard
-            let serverTrust = challenge.protectionSpace.serverTrust,
-            let publicKey = self.extractServerCertificatePublicKey(from: serverTrust),
-            let asn1Header = self.asn1HeaderMatching(
-                keyType: publicKey.type,
-                keySize: publicKey.size
-            )
-        else {
+        guard let serverTrust = challenge.protectionSpace.serverTrust else {
             return .failedToProcessServerCertificate
         }
-        let pin = self.sha256(
-            data: publicKey.data,
-            header: asn1Header
-        ).hexString
-        if self.configuration.isValidPin(
-            pin,
-            for: challenge.protectionSpace.host
-        ) {
-            return .trustedDomain(serverTrust)
+
+        // Check each certificate in the server's certificate chain (the trust object); start with the CA all the way down to the leaf
+        let certificateChainLength = SecTrustGetCertificateCount(serverTrust)
+        for idx in (0..<certificateChainLength).reversed() {
+            guard
+                let cert = SecTrustGetCertificateAtIndex(serverTrust, idx),
+                let publicKey = self.extractServerCertificatePublicKey(from: cert),
+                let asn1Header = self.asn1HeaderMatching(
+                    keyType: publicKey.type,
+                    keySize: publicKey.size
+                )
+            else {
+                continue
+            }
+            let pin = self.sha256(
+                data: publicKey.data,
+                header: asn1Header
+            )
+            if self.configuration.isValidPin(
+                pin,
+                for: challenge.protectionSpace.host
+            ) {
+                return .trustedDomain(serverTrust)
+            }
         }
         return .noMatchingPins
     }
 
     private func extractServerCertificatePublicKey(
-        from serverTrust: SecTrust
+        from cert: SecCertificate
     ) -> ServerCertificatePublicKey? {
         guard
-            // Receiving the certificate from the server response. 0 index = leaf certificate.
-            let cert = SecTrustGetCertificateAtIndex(
-                serverTrust,
-                0
-            ),
             // Transforming public key to Data and getting attributes.
             let publicKey = SecCertificateCopyKey(cert),
             let publicKeyData = SecKeyCopyExternalRepresentation(

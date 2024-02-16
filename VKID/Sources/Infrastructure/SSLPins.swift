@@ -32,8 +32,18 @@ import VKIDCore
 extension SSLPinnedDomain {
     internal static let vkcom = Self(
         domain: Env.apiHost,
-        pins: [
-            "a7e96a4d9d4b1f7c7c9b242ecaaed3a52e40726e43925b83142141d579ea73fe",
-        ]
+        pins: Set(Bundle.resources.sslPins)
     )
+}
+
+extension Bundle {
+    fileprivate var sslPins: [String] {
+        guard
+            let path = self.path(forResource: "sslpins", ofType: "txt"),
+            let pinsFile = try? String(contentsOfFile: path)
+        else {
+            return []
+        }
+        return pinsFile.components(separatedBy: .newlines)
+    }
 }
