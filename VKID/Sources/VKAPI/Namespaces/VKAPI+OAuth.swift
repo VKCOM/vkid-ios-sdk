@@ -27,7 +27,7 @@
 //
 
 import Foundation
-import VKIDCore
+@_implementationOnly import VKIDCore
 
 internal struct OAuth: VKAPINamespace {
     struct GetAuthConfig: VKAPIMethod {

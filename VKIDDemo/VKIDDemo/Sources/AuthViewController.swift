@@ -89,10 +89,16 @@ final class AuthViewController: VKIDDemoViewController {
         NSLayoutConstraint.activate([
             self.termsOfAgreementLabel.bottomAnchor.constraint(
                 equalTo: self.view.safeAreaLayoutGuide.bottomAnchor,
-                constant: -32
+                constant: -16
             ),
-            self.termsOfAgreementLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 16),
-            self.termsOfAgreementLabel.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -16),
+            self.termsOfAgreementLabel.leadingAnchor.constraint(
+                equalTo: self.view.safeAreaLayoutGuide.leadingAnchor,
+                constant: 16
+            ),
+            self.termsOfAgreementLabel.trailingAnchor.constraint(
+                equalTo: self.view.safeAreaLayoutGuide.trailingAnchor,
+                constant: -16
+            ),
         ])
     }
 
@@ -101,9 +107,16 @@ final class AuthViewController: VKIDDemoViewController {
         self.authButton.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            self.authButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 16),
-            self.authButton.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -16),
-            self.authButton.bottomAnchor.constraint(equalTo: self.termsOfAgreementLabel.topAnchor, constant: -32),
+            self.authButton.leadingAnchor.constraint(
+                equalTo: self.view.safeAreaLayoutGuide.leadingAnchor,
+                constant: 16
+            ),
+            self.authButton.trailingAnchor.constraint(
+                equalTo: self.view.safeAreaLayoutGuide.trailingAnchor,
+                constant: -16
+            ),
+            self.authButton.bottomAnchor.constraint(equalTo: self.termsOfAgreementLabel.topAnchor, constant: -8),
+            self.authButton.topAnchor.constraint(greaterThanOrEqualTo: self.descriptionLabel.bottomAnchor),
         ])
     }
 
@@ -135,6 +148,8 @@ final class AuthViewController: VKIDDemoViewController {
 }
 
 extension AuthViewController: VKIDObserver {
+    func vkid(_ vkid: VKID, didLogoutFrom session: UserSession, with result: LogoutResult) {}
+
     func vkid(_ vkid: VKID, didStartAuthUsing oAuth: OAuthProvider) {}
 
     func vkid(_ vkid: VKID, didCompleteAuthWith result: AuthResult, in oAuth: OAuthProvider) {

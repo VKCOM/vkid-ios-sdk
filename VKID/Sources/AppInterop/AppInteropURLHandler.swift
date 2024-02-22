@@ -28,7 +28,7 @@
 
 import Foundation
 import UIKit
-import VKIDCore
+@_implementationOnly import VKIDCore
 
 internal protocol AppInteropURLHandler: AnyObject {
     func open(url: URL) -> Bool

@@ -30,9 +30,19 @@ import Foundation
 
 public enum KeychainError: Error {
     case unknown
+    case itemNotFound
     case itemEncodingFailed(Error)
     case itemDecodingFailed(Error)
     case generic(OSStatus)
+
+    internal init(with status: OSStatus) {
+        switch status {
+        case errSecItemNotFound:
+            self = .itemNotFound
+        default:
+            self = .generic(status)
+        }
+    }
 }
 
 public final class Keychain {
@@ -80,7 +90,7 @@ public final class Keychain {
             try self.withCheckingStatus(SecItemUpdate(rawQuery, attributesToUpdate))
         } catch let e as EncodingError {
             throw KeychainError.itemEncodingFailed(e)
-        } catch KeychainError.generic(let status) where status == errSecItemNotFound && addIfNotFound {
+        } catch KeychainError.itemNotFound where addIfNotFound {
             try self.add(item, query: query, overwriteIfAlreadyExists: false)
         } catch let e as KeychainError {
             throw e
@@ -93,9 +103,38 @@ public final class Keychain {
         let rawQuery = query.dictionaryRepresentation as CFDictionary
         var dataRef: AnyObject?
         try self.withCheckingStatus(SecItemCopyMatching(rawQuery, &dataRef))
+
         guard let data = dataRef as? Data else {
             return nil
         }
+
+        return try self.decode(from: data)
+    }
+
+    public func fetchMany<T: Decodable>(query: Keychain.Query) throws -> [T]? {
+        let rawQuery = query.dictionaryRepresentation as CFDictionary
+        var dataRef: AnyObject?
+        try self.withCheckingStatus(SecItemCopyMatching(rawQuery, &dataRef))
+
+        guard let data = dataRef as? [Data] else {
+            return nil
+        }
+
+        var result: [T] = []
+
+        for item in data {
+            result.append(
+                try self.decode(from: item)
+            )
+        }
+        return result
+    }
+
+    public func delete(query: Keychain.Query) throws {
+        try self.withCheckingStatus(SecItemDelete(query.dictionaryRepresentation as CFDictionary))
+    }
+
+    private func decode<T: Decodable>(from data: Data) throws -> T {
         do {
             let item = try self.decoder.decode(T.self, from: data)
             return item
@@ -104,14 +143,10 @@ public final class Keychain {
         }
     }
 
-    public func delete(query: Keychain.Query) throws {
-        try self.withCheckingStatus(SecItemDelete(query.dictionaryRepresentation as CFDictionary))
-    }
-
     private func withCheckingStatus(_ op: @autoclosure () -> OSStatus) throws {
         let status = op()
         if status != errSecSuccess {
-            throw KeychainError.generic(status)
+            throw KeychainError(with: status)
         }
     }
 }

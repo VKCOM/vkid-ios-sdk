@@ -27,7 +27,7 @@
 //
 
 import Foundation
-import VKIDCore
+@_implementationOnly import VKIDCore
 
 internal final class ExpiredAnonymousTokenInterceptor: VKAPIResponseInterceptor {
     private let anonymousTokenService: AnonymousTokenService

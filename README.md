@@ -13,6 +13,23 @@
 
 ---
 
+- [Предварительно](#предварительно)
+- [Требования к приложению](#требования-к-приложению)
+- [Установка](#установка)
+    - [Swift Package Manager](#swift-package-manager)
+    - [CocoaPods](#cocoapods)
+- [Интеграция](#интеграция)
+    - [Настройка Info.plist](#настройка-infoplist)
+    - [Поддержка Universal Links](#поддержка-universal-links)
+    - [Инициализация VK ID SDK](#инициализация-vk-id-sdk)
+    - [Базовая авторизация](#базовая-авторизация)
+    - [Авторизация по кнопке OneTap](#авторизация-по-кнопке-onetap)
+    - [Шторка авторизации](#шторка-авторизации)
+    - [Пользовательские сессии](#пользовательские-сессии)
+    - [Выход из аккаунта](#выход-из-аккаунта)
+- [Демонстрация](#демонстрация)
+- [Документация](https://vkcom.github.io/vkid-ios-sdk/documentation/vkid/)
+
 ## Предварительно
 
 Общий план интеграции и в целом что такое VK ID можно прочитать [здесь](https://id.vk.com/business/go/docs/ru/vkid/latest/vk-id/intro/plan).
@@ -136,17 +153,41 @@ func scene(
 
 ```swift
 let session = try result.get()
-let token = session.token
+let token = session.accessToken
 let user = session.user
 ```
 
-Так же [UserSession](VKID/Sources/Core/UserSession.swift), можно получить воспользовавшись объектом VKID.
+Для того, чтобы в [User](VKID/Sources/Core/User.swift) была информация о почте, перейдите в сервис авторизации VK ID, выберите ваше приложение и в разделе **Доступы** укажите опцию с почтой.
+
+**Отслеживание основных событий авторизации**
+
+Объект `VKID` позволяет отслеживать основные этапы авторизации.
+
+Для этого, реализуйте методы протокола `VKIDObserver` и подпишитесь на события объекта `VKID`.
 
 ```swift
-let session = vkid.currentAuthorizedSession
-```
+vkid.add(observer: authStateObserver)
 
-Для того, чтобы в [User](VKID/Sources/Core/User.swift) была информация о почте, перейдите в сервис авторизации VK ID, выберите ваше приложение и в разделе **Доступы** укажите опцию с почтой.
+extension AuthStateObserver: VKIDObserver {
+
+    // ... другие методы протокола VKIDObserver.
+
+    func vkid(_ vkid: VKID, didStartAuthUsing oAuth: OAuthProvider) { 
+        print("Did start auth using oAuth provider: \(oAuth)")
+    }
+
+    func vkid(_ vkid: VKID, didCompleteAuthWith result: AuthResult, in oAuth: OAuthProvider) {
+        do {
+            let session = try result.get()
+            print("Auth succeeded with\n\(session)")
+        } catch AuthError.cancelled {
+            print("Auth cancelled by user")
+        } catch {
+            print("Auth failed with error: \(error)")\
+        }
+    }
+}
+```
 
 ### Авторизация по кнопке OneTap
 `OneTapButton` - конфигурация стилизованной кнопки авторизации. Чтобы использовать кнопку OneTap на своих экранах, сконфигурируйте `OneTapButton` и получите `UIView` для нее:
@@ -205,12 +246,58 @@ present(sheetViewController, animated: true)
 ```
 Детальная кастомизация `OneTapBottomSheet` доступна на экране [OneTapBottomSheetCustomizationController](VKIDDemo/VKIDDemo/Sources/OneTapBottomSheetCustomizationController.swift) в демо-приложении.
 
+### Пользовательские сессии
+
+[UserSession](VKID/Sources/Core/UserSession.swift) — это объект, который содержит данные об авторизации пользователя, а также логику для обновления токена и его удаления. 
+
+Чтобы получить сессию с помощью `VKID`, необходимо успешно пройти процесс авторизации в сервисе.
+
+Если на устройстве уже выполнена авторизация, сессию можно получить из хранилища внутри `VKID` с помощью полей `authorizedSessions` и `currentAuthorizedSession`.
+
+**Пример получения сессии из хранилища**
+
+```swift
+let sessions: [UserSession] = vkid.authorizedSessions
+
+let currentSession: UserSession? = vkid.currentAuthorizedSession
+```
+
+`currentAuthorizedSession` содержит последнюю авторизованную сессию. После выхода из аккаунта поле возвращает предыдущую созданную сессию или nil, если больше сессий нет.
+
+`authorizedSessions` включает все сохраненные авторизованные сессии.
+
+### Выход из аккаунта
+
+Для удаления локально сохраненных токенов и выхода из аккаунта пользователя используйте метод `logout()` сессии.
+
+```swift
+session.logout { result in
+    print("Did logout from \(session) with \(result)")
+}
+```
+
+В результате работы метода, эта сессия будет удалена из хранилища VKIDSDK. 
+`Access token` сессии перестанет быть действующим.
+
+**Отслеживание событий логаута сессии**
+
+Объект `VKID` позволяет отслеживать выполнение выхода из аккаунта для каждой сессии. 
+
+Чтобы начать наблюдение, реализуйте методы протокола `VKIDObserver` и подпишитесь наблюдателем на события объекта `VKID`.
+
+```swift
+vkid.add(observer: logoutStateObserver)
+
+extension LogoutStateObserver: VKIDObserver {
+
+    // ... другие методы протокола VKIDObserver.
+
+    func vkid(_ vkid: VKID, didLogoutFrom session: UserSession, with result: LogoutResult) { 
+        print("Did logout from \(session) with \(result)")
+    }
+}
+```
+
 ## Демонстрация
 
 SDK поставляется с демо-приложением [VKIDDemo](VKIDDemo), где можно посмотреть работу авторизации и как кастомизируются предоставляемые визуальные компоненты. Для корректной работы демо-приложения укажите параметры `CLIENT_ID` и `CLIENT_SECRET` вашего приложения VKID в файле [Info.plist](VKIDDemo/VKIDDemo/Resources/Info.plist).
-
-## Документация
-
-- [Что такое VK ID](https://id.vk.com/business/go/docs/ru/vkid/latest/vk-id/intro/plan)
-- [Создание приложения](https://id.vk.com/business/go/docs/ru/vkid/latest/vk-id/connection/create-application)
-- [Требования к дизайну](https://id.vk.com/business/go/docs/ru/vkid/archive/1.60/vk-id/guidelines/design-rules )

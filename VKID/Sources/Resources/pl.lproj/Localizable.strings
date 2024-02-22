@@ -19,3 +19,8 @@
 
 "vkconnect_oauth_ok_button_primary_title" = "Wejdź z OK";
 "vkconnect_oauth_mail_button_primary_title" = "Wejdź z Mail.ru";
+
+"vkid_sheet_state_auth_in_progress" = "Autoryzacja...";
+"vkid_sheet_state_auth_success" = "Pomyślnie";
+"vkid_sheet_state_auth_failed_retry" = "Powtórz próbę";
+"vkid_sheet_state_auth_failed" = "Nieudana autoryzacja";

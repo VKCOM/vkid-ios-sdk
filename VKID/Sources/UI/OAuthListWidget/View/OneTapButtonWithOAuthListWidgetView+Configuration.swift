@@ -27,7 +27,7 @@
 //
 
 import UIKit
-import VKIDCore
+@_implementationOnly import VKIDCore
 
 extension OneTapButtonWithOAuthListWidgetView {
     internal struct Configuration {

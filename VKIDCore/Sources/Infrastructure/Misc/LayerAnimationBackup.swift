@@ -51,12 +51,12 @@ internal final class LayerAnimationBackup {
     }
 
     @objc
-    func appWillEnterForeground() {
+    private func appDidBecomeActive() {
         self.restoreAnimations()
     }
 
     @objc
-    func appDidEnterBackground() {
+    private func appWillResignActive() {
         self.backupAnimations()
     }
 
@@ -99,14 +99,14 @@ internal final class LayerAnimationBackup {
     private func setupNotifications() {
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(self.appWillEnterForeground),
-            name: UIApplication.willEnterForegroundNotification,
+            selector: #selector(self.appDidBecomeActive),
+            name: UIApplication.didBecomeActiveNotification,
             object: nil
         )
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(self.appDidEnterBackground),
-            name: UIApplication.didEnterBackgroundNotification,
+            selector: #selector(self.appWillResignActive),
+            name: UIApplication.willResignActiveNotification,
             object: nil
         )
     }

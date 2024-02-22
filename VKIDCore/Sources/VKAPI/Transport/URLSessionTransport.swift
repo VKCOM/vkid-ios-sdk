@@ -33,6 +33,7 @@ public final class URLSessionTransport: NSObject, VKAPITransport {
     private let requestInterceptors: [VKAPIRequestInterceptor]
     private let responseInterceptors: [VKAPIResponseInterceptor]
     private let genericParameters: VKAPIGenericParameters
+    private let defaultHeaders: VKAPIRequest.Headers
     private let sslPinningValidator: SSLPinningValidating
     private let logger: Logging
     private let processingQueue: DispatchQueue
@@ -59,6 +60,7 @@ public final class URLSessionTransport: NSObject, VKAPITransport {
         requestInterceptors: [VKAPIRequestInterceptor] = [],
         responseInterceptors: [VKAPIResponseInterceptor] = [],
         genericParameters: VKAPIGenericParameters,
+        defaultHeaders: [String: String],
         sslPinningConfiguration: SSLPinningConfiguration,
         logger: Logging = Logger(subsystem: "VKAPI")
     ) {
@@ -66,6 +68,7 @@ public final class URLSessionTransport: NSObject, VKAPITransport {
         self.requestInterceptors = requestInterceptors
         self.responseInterceptors = responseInterceptors
         self.genericParameters = genericParameters
+        self.defaultHeaders = defaultHeaders
         self.sslPinningValidator = SSLPinningValidator(configuration: sslPinningConfiguration)
         self.logger = logger
         self.processingQueue = DispatchQueue(label: "com.vkid.core.transport.processingQueue")
@@ -85,7 +88,7 @@ public final class URLSessionTransport: NSObject, VKAPITransport {
         self.processingQueue.async {
             var mutableRequest = request
             mutableRequest.add(parameters: self.genericParameters.dictionaryRepresentation)
-
+            mutableRequest.add(headers: self.defaultHeaders, overwriteIfAlreadyExists: false)
             self.requestInterceptors.intercept(
                 request: mutableRequest
             ) { [weak self] result in

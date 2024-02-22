@@ -40,8 +40,10 @@ internal enum APIHostResponse<T: VKAPIResponse >: Decodable {
         var apiError: VKAPIError {
             if self.errorCode == 1114 {
                 return .anonymousTokenExpired
+            } else if self.errorCode == 5 {
+                return .invalidAccessToken
             }
-            fatalError("Not yet implemented")
+            return .unknown
         }
     }
 

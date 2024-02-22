@@ -27,7 +27,7 @@
 //
 
 import UIKit
-import VKIDCore
+@_implementationOnly import VKIDCore
 
 /// Конфигурация OneTapButton
 public struct OneTapButton: UIViewElement {

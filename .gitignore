@@ -16,3 +16,6 @@ DerivedData/
 
 ### VKIDDemo
 VKIDDemo/VKIDDemo/Configurations/VKIDAppCredentials.xcconfig
+
+### Localhost for documentation
+.tmp_server_build/

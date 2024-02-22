@@ -51,7 +51,7 @@ extension Expiring {
 ///  [Access token](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/tokens/access-token)
 ///  — это подпись пользователя в вашем приложении.Он сообщает серверу, от имени какого пользователя осуществляются запросы
 ///  и какие права доступа пользователь выдал вашему приложению.
-public struct AccessToken: Expiring, Codable {
+public struct AccessToken: Expiring, Equatable, Codable {
     public let userId: UserID
     public let value: String
     public let expirationDate: Date

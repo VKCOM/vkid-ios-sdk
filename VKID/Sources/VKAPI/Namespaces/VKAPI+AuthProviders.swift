@@ -27,9 +27,9 @@
 //
 
 import Foundation
-import VKIDCore
+@_implementationOnly import VKIDCore
 
-internal struct AuthProviders: VKAPINamespace {
+internal struct Auth: VKAPINamespace {
     struct GetAuthProviders: VKAPIMethod {
         struct Response: VKAPIResponse {
             let items: [Provider]
@@ -57,5 +57,25 @@ internal struct AuthProviders: VKAPINamespace {
         }
     }
 
+    struct Logout: VKAPIMethod {
+        typealias Response = SingleValueContainer<Int>
+
+        struct Parameters: VKAPIDictionaryRepresentable {
+            let clientId: String
+            let accessToken: String
+        }
+
+        static func request(with parameters: Parameters) -> VKAPIRequest {
+            VKAPIRequest(
+                host: .api,
+                path: "/method/auth.logout",
+                httpMethod: .post,
+                parameters: parameters.dictionaryRepresentation,
+                authorization: .accessToken
+            )
+        }
+    }
+
     var getAuthProviders: GetAuthProviders { Never() }
+    var logout: Logout { Never() }
 }

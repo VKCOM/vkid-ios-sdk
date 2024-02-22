@@ -61,11 +61,7 @@ internal final class BottomSheetPresentationController: UIPresentationController
         return view
     }()
 
-    private lazy var shadowView: BottomSheetShadowView = {
-        let view = BottomSheetShadowView(frame: shadowViewFrame)
-
-        return view
-    }()
+    private lazy var shadowView = BottomSheetShadowView(frame: self.shadowViewFrame)
 
     override func presentationTransitionWillBegin() {
         super.presentationTransitionWillBegin()
@@ -130,7 +126,7 @@ internal final class BottomSheetPresentationController: UIPresentationController
         if let frame = self.containerView?.frame {
             self.dimmingView.frame = frame
         }
-        self.shadowView.frame = self.frameOfPresentedViewInContainerView
+        self.shadowView.frame = self.shadowViewFrame
     }
 
     override var frameOfPresentedViewInContainerView: CGRect {

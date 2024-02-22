@@ -9,7 +9,14 @@
 /* Begin PBXBuildFile section */
 		051FD2922AF3C7B90082990B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 051FD2942AF3C7B90082990B /* Localizable.strings */; };
 		057500D12B0E0635008EEB4B /* PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057500D02B0E0635008EEB4B /* PickerView.swift */; };
+		0CCD7A792B5005BC00846B7C /* Collection+Safe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CCD7A782B5005BC00846B7C /* Collection+Safe.swift */; };
 		1752AE322AF135890013D976 /* StepSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1752AE302AF135890013D976 /* StepSlider.swift */; };
+		175364E02B7D1BD4008AB285 /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175364DF2B7D1BD4008AB285 /* ImageLoader.swift */; };
+		175364E32B7D2366008AB285 /* UIImageView+LoadImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175364E22B7D2366008AB285 /* UIImageView+LoadImage.swift */; };
+		175364E52B7D7F1D008AB285 /* Int+Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175364E42B7D7F1D008AB285 /* Int+Random.swift */; };
+		175365582B7E6E7B008AB285 /* UserSessionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175365572B7E6E7B008AB285 /* UserSessionsViewController.swift */; };
+		1753655A2B7F3D67008AB285 /* UserSessionTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175365592B7F3D67008AB285 /* UserSessionTableViewCell.swift */; };
+		1787BD962B727A620019E991 /* UserSessionDataStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1787BD952B727A620019E991 /* UserSessionDataStorageTests.swift */; };
 		179F905D2B1E46FD00E2D2AA /* OneTapWithOAuthCustomizationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 179F905C2B1E46FD00E2D2AA /* OneTapWithOAuthCustomizationController.swift */; };
 		17CA41892AF1BB93008C81C1 /* VKIDDemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CA41882AF1BB93008C81C1 /* VKIDDemoViewController.swift */; };
 		17CA418C2AF1D755008C81C1 /* MeasureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CA418B2AF1D755008C81C1 /* MeasureView.swift */; };
@@ -54,7 +61,14 @@
 		051FD29A2AF3CD210082990B /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		051FD29B2AF3CD2E0082990B /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		057500D02B0E0635008EEB4B /* PickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerView.swift; sourceTree = "<group>"; };
+		0CCD7A782B5005BC00846B7C /* Collection+Safe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Safe.swift"; sourceTree = "<group>"; };
 		1752AE302AF135890013D976 /* StepSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepSlider.swift; sourceTree = "<group>"; };
+		175364DF2B7D1BD4008AB285 /* ImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
+		175364E22B7D2366008AB285 /* UIImageView+LoadImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+LoadImage.swift"; sourceTree = "<group>"; };
+		175364E42B7D7F1D008AB285 /* Int+Random.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Int+Random.swift"; sourceTree = "<group>"; };
+		175365572B7E6E7B008AB285 /* UserSessionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionsViewController.swift; sourceTree = "<group>"; };
+		175365592B7F3D67008AB285 /* UserSessionTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionTableViewCell.swift; sourceTree = "<group>"; };
+		1787BD952B727A620019E991 /* UserSessionDataStorageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserSessionDataStorageTests.swift; sourceTree = "<group>"; };
 		179F905C2B1E46FD00E2D2AA /* OneTapWithOAuthCustomizationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneTapWithOAuthCustomizationController.swift; sourceTree = "<group>"; };
 		17CA41882AF1BB93008C81C1 /* VKIDDemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VKIDDemoViewController.swift; sourceTree = "<group>"; };
 		17CA418B2AF1D755008C81C1 /* MeasureView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeasureView.swift; sourceTree = "<group>"; };
@@ -106,6 +120,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		175364E12B7D1BDB008AB285 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				175364DF2B7D1BD4008AB285 /* ImageLoader.swift */,
+			);
+			path = Network;
+			sourceTree = "<group>";
+		};
 		17CA418A2AF1D1F9008C81C1 /* UI */ = {
 			isa = PBXGroup;
 			children = (
@@ -113,6 +135,7 @@
 				17CA418B2AF1D755008C81C1 /* MeasureView.swift */,
 				1752AE302AF135890013D976 /* StepSlider.swift */,
 				057500D02B0E0635008EEB4B /* PickerView.swift */,
+				175365592B7F3D67008AB285 /* UserSessionTableViewCell.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -148,6 +171,7 @@
 		A24B645A2A9E25BB00E45F3B /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				175364E12B7D1BDB008AB285 /* Network */,
 				17CA418A2AF1D1F9008C81C1 /* UI */,
 				A201B19C2AAB374800E8FA58 /* Misc */,
 				A24B64C22AA1FD4600E45F3B /* Extensions */,
@@ -155,8 +179,9 @@
 				A2E5F5ED2A55A65D0079DE1F /* AppDelegate.swift */,
 				A2E5F5F12A55A65D0079DE1F /* AuthViewController.swift */,
 				A24B64602A9E407B00E45F3B /* AuthViewController+DebugSettings.swift */,
-				17CA41882AF1BB93008C81C1 /* VKIDDemoViewController.swift */,
+				175365572B7E6E7B008AB285 /* UserSessionsViewController.swift */,
 				A26A35FB2B0D005A008A4F99 /* ControlsViewController.swift */,
+				17CA41882AF1BB93008C81C1 /* VKIDDemoViewController.swift */,
 				A26A35FD2B0D0CED008A4F99 /* OneTapButtonCustomizationController.swift */,
 				A26A35FF2B0D151E008A4F99 /* OneTapBottomSheetCustomizationController.swift */,
 				A271F7192B0FD4670015B61C /* OAuthListWidgetCustomizationController.swift */,
@@ -178,7 +203,9 @@
 		A24B64C22AA1FD4600E45F3B /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				0CCD7A782B5005BC00846B7C /* Collection+Safe.swift */,
 				A24B64C32AA1FD6B00E45F3B /* UIColot+Palette.swift */,
+				175364E22B7D2366008AB285 /* UIImageView+LoadImage.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -195,6 +222,8 @@
 		A2628D032ACE8E7500E61A0E /* VKIDKeychainTests */ = {
 			isa = PBXGroup;
 			children = (
+				175364E42B7D7F1D008AB285 /* Int+Random.swift */,
+				1787BD952B727A620019E991 /* UserSessionDataStorageTests.swift */,
 				A2628D042ACE8E9C00E61A0E /* KeychainTests.swift */,
 			);
 			path = VKIDKeychainTests;
@@ -355,6 +384,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				A2628D052ACE8E9C00E61A0E /* KeychainTests.swift in Sources */,
+				175364E52B7D7F1D008AB285 /* Int+Random.swift in Sources */,
+				1787BD962B727A620019E991 /* UserSessionDataStorageTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -370,14 +401,19 @@
 				1752AE322AF135890013D976 /* StepSlider.swift in Sources */,
 				A24B645D2A9E2C4400E45F3B /* DebugSettingsViewController.swift in Sources */,
 				17CA418C2AF1D755008C81C1 /* MeasureView.swift in Sources */,
+				175365582B7E6E7B008AB285 /* UserSessionsViewController.swift in Sources */,
 				A24B645F2A9E2DD500E45F3B /* DebugSettings.swift in Sources */,
 				A257BEFF2B162C390060F9A2 /* AlertPresentable.swift in Sources */,
 				A2E5F5EE2A55A65D0079DE1F /* AppDelegate.swift in Sources */,
+				0CCD7A792B5005BC00846B7C /* Collection+Safe.swift in Sources */,
 				A26A35FE2B0D0CED008A4F99 /* OneTapButtonCustomizationController.swift in Sources */,
 				17CA41892AF1BB93008C81C1 /* VKIDDemoViewController.swift in Sources */,
+				1753655A2B7F3D67008AB285 /* UserSessionTableViewCell.swift in Sources */,
 				A26A36002B0D151E008A4F99 /* OneTapBottomSheetCustomizationController.swift in Sources */,
+				175364E02B7D1BD4008AB285 /* ImageLoader.swift in Sources */,
 				179F905D2B1E46FD00E2D2AA /* OneTapWithOAuthCustomizationController.swift in Sources */,
 				A24B64C42AA1FD6B00E45F3B /* UIColot+Palette.swift in Sources */,
+				175364E32B7D2366008AB285 /* UIImageView+LoadImage.swift in Sources */,
 				057500D12B0E0635008EEB4B /* PickerView.swift in Sources */,
 				A201B19E2AAB375900E8FA58 /* InfoPlist.swift in Sources */,
 			);

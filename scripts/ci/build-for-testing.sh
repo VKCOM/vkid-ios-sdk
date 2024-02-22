@@ -37,7 +37,8 @@ test_without_building() {
     xcodebuild test-without-building \
     -project ${1} \
     -scheme ${2} \
-    -destination "platform=iOS Simulator,id=${3},OS=17.0"
+    -destination "platform=iOS Simulator,id=${3},OS=17.0" \
+    -resultBundlePath ${4}
 }
 
 SIM_ID=""
@@ -47,6 +48,7 @@ main() {
     local project_path=$src_root/VKIDDemo/VKIDDemo.xcodeproj
     local scheme="VKIDDemo"
     local sim_name="VKIDTestSimulator"
+    local xcresult_path=$src_root/build-artifacts/VKID.xcresult
 
     local sim_id=$(find_simulator $sim_name)
     if [ ! -n "$sim_id" ]; then
@@ -56,7 +58,7 @@ main() {
     SIM_ID=$sim_id
     boot_simulator $sim_id
     build_for_testing $project_path $scheme
-    test_without_building $project_path $scheme $sim_id
+    test_without_building $project_path $scheme $sim_id $xcresult_path
     shutdown_simulator $sim_id
     delete_simulator $sim_id
     SIM_ID=""

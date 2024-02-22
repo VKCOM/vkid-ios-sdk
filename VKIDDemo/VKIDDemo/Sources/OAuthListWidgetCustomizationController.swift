@@ -57,9 +57,16 @@ final class OAuthListWidgetCustomizationController: VKIDDemoViewController {
             widgetView.translatesAutoresizingMaskIntoConstraints = false
             self.view.addSubview(widgetView)
             NSLayoutConstraint.activate([
-                widgetView.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
-                widgetView.centerYAnchor.constraint(equalTo: self.view.centerYAnchor),
-                widgetView.widthAnchor.constraint(equalTo: self.view.widthAnchor, constant: -32),
+                widgetView.topAnchor.constraint(greaterThanOrEqualTo: self.descriptionLabel.bottomAnchor, constant: 32),
+                widgetView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+                widgetView.trailingAnchor.constraint(
+                    equalTo: self.view.safeAreaLayoutGuide.trailingAnchor,
+                    constant: -16
+                ),
+                widgetView.bottomAnchor.constraint(
+                    lessThanOrEqualTo: self.view.safeAreaLayoutGuide.bottomAnchor,
+                    constant: -48
+                ),
             ])
         }
     }

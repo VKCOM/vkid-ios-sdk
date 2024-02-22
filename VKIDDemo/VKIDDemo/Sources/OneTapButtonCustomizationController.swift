@@ -31,6 +31,8 @@ import UIKit
 import VKID
 
 final class OneTapButtonCustomizationController: VKIDDemoViewController {
+    override var supportsScreenSplitting: Bool { true }
+
     var config: OneTapButtonConfiguration = .init(
         oneTapButtonStyle: .primary(),
         oneTapButtonTheme: .matchingColorScheme(.system),
@@ -168,7 +170,7 @@ final class OneTapButtonCustomizationController: VKIDDemoViewController {
         let slider = UISlider()
         slider.addTarget(self, action: #selector(self.widthSliderChanged), for: .allEvents)
         slider.minimumValue = 32
-        slider.maximumValue = Float(self.view.frame.width) - 32
+        slider.maximumValue = Float(self.view.frame.width) - Constants.widthSliderMaxValueOffset
         slider.value = 300
         slider.translatesAutoresizingMaskIntoConstraints = false
         return slider
@@ -195,19 +197,25 @@ final class OneTapButtonCustomizationController: VKIDDemoViewController {
         return slider
     }()
 
-    var measureView: MeasureView = {
+    lazy var buttonContainerView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
+    lazy var measureView: MeasureView = {
         let debugView = MeasureView()
         debugView.translatesAutoresizingMaskIntoConstraints = false
         return debugView
     }()
 
-    var scrollView: UIScrollView = {
+    lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         return scrollView
     }()
 
-    var contentView: UIView = {
+    lazy var contentView: UIView = {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -215,7 +223,7 @@ final class OneTapButtonCustomizationController: VKIDDemoViewController {
 
     public override func viewDidLoad() {
         super.viewDidLoad()
-
+        self.setupConstraints()
         self.setupSettings()
         self.updateOneTapButton()
 
@@ -344,11 +352,11 @@ final class OneTapButtonCustomizationController: VKIDDemoViewController {
         self.currentButton = oneTapButton
         oneTapButton.translatesAutoresizingMaskIntoConstraints = false
 
-        self.view.addSubview(oneTapButton)
+        self.buttonContainerView.addSubview(oneTapButton)
 
         NSLayoutConstraint.activate([
-            oneTapButton.topAnchor.constraint(equalTo: self.descriptionLabel.bottomAnchor, constant: 64),
-            oneTapButton.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
+            oneTapButton.centerYAnchor.constraint(equalTo: self.buttonContainerView.centerYAnchor),
+            oneTapButton.centerXAnchor.constraint(equalTo: self.buttonContainerView.centerXAnchor),
             oneTapButton.widthAnchor.constraint(equalToConstant: CGFloat(self.widthSlider.value)),
         ])
 
@@ -357,11 +365,46 @@ final class OneTapButtonCustomizationController: VKIDDemoViewController {
         self.measureView.targetView = oneTapButton
     }
 
+    private func setupConstraints() {
+        self.twoColumnLayoutConstraints = [
+            self.scrollView.topAnchor.constraint(
+                equalTo: self.rightSideContentView.safeAreaLayoutGuide.topAnchor
+            ),
+            self.scrollView.leadingAnchor.constraint(
+                equalTo: self.rightSideContentView.leadingAnchor
+            ),
+            self.scrollView.trailingAnchor.constraint(
+                equalTo: self.rightSideContentView.safeAreaLayoutGuide.trailingAnchor
+            ),
+            self.scrollView.bottomAnchor.constraint(
+                equalTo: self.rightSideContentView.safeAreaLayoutGuide.bottomAnchor
+            ),
+
+            self.buttonContainerView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor),
+        ]
+        self.oneColumnLayoutConstraints = [
+            self.scrollView.topAnchor.constraint(
+                equalTo: self.descriptionLabel.bottomAnchor, constant: 164
+            ),
+            self.scrollView.leadingAnchor.constraint(
+                equalTo: self.view.leadingAnchor
+            ),
+            self.scrollView.trailingAnchor.constraint(
+                equalTo: self.view.trailingAnchor
+            ),
+            self.scrollView.bottomAnchor.constraint(
+                equalTo: self.view.safeAreaLayoutGuide.bottomAnchor
+            ),
+
+            self.buttonContainerView.bottomAnchor.constraint(equalTo: self.scrollView.topAnchor),
+        ]
+    }
+
     private func setupSettings() {
-        self.heightSegmentControlChanged()
+        self.view.addSubview(self.buttonContainerView)
 
         self.view.addSubview(self.scrollView)
-        self.view.addSubview(self.measureView)
+        self.buttonContainerView.addSubview(self.measureView)
 
         self.scrollView.addSubview(self.contentView)
 
@@ -388,18 +431,9 @@ final class OneTapButtonCustomizationController: VKIDDemoViewController {
         self.contentView.addSubview(self.cornerRadiusSlider)
 
         NSLayoutConstraint.activate([
-            self.scrollView.topAnchor.constraint(
-                equalTo: self.descriptionLabel.bottomAnchor, constant: 164
-            ),
-            self.scrollView.leadingAnchor.constraint(
-                equalTo: self.view.leadingAnchor
-            ),
-            self.scrollView.trailingAnchor.constraint(
-                equalTo: self.view.trailingAnchor
-            ),
-            self.scrollView.bottomAnchor.constraint(
-                equalTo: self.view.safeAreaLayoutGuide.bottomAnchor
-            ),
+            self.buttonContainerView.topAnchor.constraint(equalTo: self.descriptionLabel.bottomAnchor),
+            self.buttonContainerView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
+            self.buttonContainerView.trailingAnchor.constraint(equalTo: self.rightSideContentView.leadingAnchor),
 
             self.contentView.topAnchor.constraint(
                 equalTo: self.scrollView.topAnchor
@@ -618,6 +652,30 @@ final class OneTapButtonCustomizationController: VKIDDemoViewController {
                 equalTo: self.contentView.bottomAnchor, constant: -16
             ),
         ])
+
+        self.heightSegmentControlChanged()
+    }
+
+    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        coordinator.animate(alongsideTransition: nil) { _ in
+            self.updateSliderValueIfNeeded()
+        }
+    }
+
+    private func updateSliderValueIfNeeded() {
+        let maxValue = Float(self.buttonContainerView.frame.width) - Constants.widthSliderMaxValueOffset
+        if self.widthSlider.value > maxValue {
+            self.widthSlider.value = maxValue
+        }
+        self.widthSlider.maximumValue = maxValue
+        self.widthSliderChanged()
+    }
+}
+
+extension OneTapButtonCustomizationController {
+    private enum Constants {
+        static let widthSliderMaxValueOffset: Float = 32
     }
 }
 

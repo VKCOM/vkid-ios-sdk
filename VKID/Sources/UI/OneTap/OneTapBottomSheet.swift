@@ -28,7 +28,7 @@
 
 import Foundation
 import UIKit
-import VKIDCore
+@_implementationOnly import VKIDCore
 
 /// Конфигурация для модальной шторки авторизации
 public struct OneTapBottomSheet: UIViewControllerElement {
@@ -107,7 +107,7 @@ public struct OneTapBottomSheet: UIViewControllerElement {
                 ),
                 presenter: .newUIWindow,
                 onTap: nil,
-                onCompleteAuth: self.onCompleteAuth
+                onCompleteAuth: nil
             )
         )
         .uiView()
@@ -120,6 +120,7 @@ public struct OneTapBottomSheet: UIViewControllerElement {
             autoDismissOnSuccess: self.autoDismissOnSuccess,
             onCompleteAuth: self.onCompleteAuth
         )
+
         let sheet = BottomSheetViewController(
             contentViewController: contentController,
             layoutConfiguration: .init(
@@ -132,6 +133,7 @@ public struct OneTapBottomSheet: UIViewControllerElement {
                 )
             )
         )
+
         return sheet
     }
 }
@@ -241,6 +243,8 @@ extension OneTapBottomSheet {
             internal var subtitle: any Color
             internal var topBarTitle: any Color
             internal var topBarLogo: any Color
+            internal var retryButtonBackground: any Color
+            internal var retryButtonTitle: any Color
         }
 
         internal struct Images {
@@ -281,6 +285,14 @@ extension OneTapBottomSheet {
                         topBarLogo: DynamicColor(
                             light: light.colors.topBarLogo.value,
                             dark: dark.colors.topBarLogo.value
+                        ),
+                        retryButtonBackground: DynamicColor(
+                            light: light.colors.retryButtonBackground.value,
+                            dark: dark.colors.retryButtonBackground.value
+                        ),
+                        retryButtonTitle: DynamicColor(
+                            light: light.colors.retryButtonTitle.value,
+                            dark: dark.colors.retryButtonTitle.value
                         )
                     ),
                     images: .init(
@@ -302,7 +314,9 @@ extension OneTapBottomSheet {
                         title: UIColor.textPrimaryLight,
                         subtitle: UIColor.textSecondaryLight,
                         topBarTitle: UIColor.textSecondaryLight,
-                        topBarLogo: UIColor.textPrimaryLight
+                        topBarLogo: UIColor.textPrimaryLight,
+                        retryButtonBackground: UIColor.backgroundSecondaryAlphaLight,
+                        retryButtonTitle: UIColor.textAccentThemed
                     ),
                     images: .init(
                         topBarLogo: UIImage.logoLight,
@@ -317,7 +331,9 @@ extension OneTapBottomSheet {
                         title: UIColor.textPrimaryDark,
                         subtitle: UIColor.textSecondaryDark,
                         topBarTitle: UIColor.textSecondaryDark,
-                        topBarLogo: UIColor.textPrimaryDark
+                        topBarLogo: UIColor.textPrimaryDark,
+                        retryButtonBackground: UIColor.backgroundSecondaryAlphaDark,
+                        retryButtonTitle: UIColor.white
                     ),
                     images: .init(
                         topBarLogo: UIImage.logoDark,

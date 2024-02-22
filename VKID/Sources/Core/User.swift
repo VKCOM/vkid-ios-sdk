@@ -29,22 +29,17 @@
 import Foundation
 
 /// Сущность, содержащая информацию о пользователе
-public struct User: Equatable, Hashable {
+public struct User: Equatable, Hashable, Codable {
     /// Идентификатор пользователя
     public let id: UserID
-
     /// Имя
     public let firstName: String
-
     /// Фамилия
     public let lastName: String
-
     /// Электронная почта
     public let email: String?
-
     /// Номер мобильного телефона
     public let phone: String?
-
     /// Ссылка на аватар
     public let avatarURL: URL?
 }

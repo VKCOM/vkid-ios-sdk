@@ -28,17 +28,38 @@
 
 import Foundation
 
-public typealias AuthResult = Result<UserSession, AuthError>
-public typealias AuthResultCompletion = (AuthResult) -> Void
+extension FileManager {
+    public func sizeOfDirectoryInBytes(at path: URL) throws -> Int {
+        var total = 0
+        var dirsToIterate: [URL] = [path]
+        let propsKeys: [URLResourceKey] = [
+            .fileSizeKey,
+            .isRegularFileKey,
+        ]
 
-/// Основные ошибки авторизации
-public enum AuthError: Error {
-    /// Причина неизвестна
-    case unknown
+        while !dirsToIterate.isEmpty {
+            let dir = dirsToIterate.removeFirst()
+            guard let enumerator = self.enumerator(
+                at: dir,
+                includingPropertiesForKeys: propsKeys,
+                options: [
+                    .skipsSubdirectoryDescendants,
+                    .skipsPackageDescendants,
+                ]
+            ) else {
+                continue
+            }
 
-    /// Пользователь прервал/отменил авторизацию
-    case cancelled
+            while let item = enumerator.nextObject() as? URL {
+                let attrs = try item.resourceValues(forKeys: Set(propsKeys))
+                if attrs.isRegularFile == true {
+                    total += attrs.fileSize ?? 0
+                } else {
+                    dirsToIterate.append(item)
+                }
+            }
+        }
 
-    /// Процесс авторизации уже начат. Попытка повторного запуска флоу авторизации
-    case authAlreadyInProgress
+        return total
+    }
 }

@@ -27,7 +27,7 @@
 //
 
 import UIKit
-import VKIDCore
+@_implementationOnly import VKIDCore
 
 internal final class OneTapButtonWithOAuthListWidgetView: UIView {
     private enum Constants {

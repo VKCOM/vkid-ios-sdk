@@ -37,4 +37,5 @@ public enum VKAPIError: Swift.Error {
     case failedToGetAnonymousToken(Error)
     case noResponseDataProvided
     case anonymousTokenExpired
+    case invalidAccessToken
 }

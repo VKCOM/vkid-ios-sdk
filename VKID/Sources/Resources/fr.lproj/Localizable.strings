@@ -19,3 +19,8 @@
 
 "vkconnect_oauth_ok_button_primary_title" = "Se connecter avec OK";
 "vkconnect_oauth_mail_button_primary_title" = "Se connecter avec Mail.ru";
+
+"vkid_sheet_state_auth_in_progress" = "Connexion...";
+"vkid_sheet_state_auth_success" = "Succès";
+"vkid_sheet_state_auth_failed_retry" = "Réessayer";
+"vkid_sheet_state_auth_failed" = "Impossible de se connecter";
