@@ -29,7 +29,7 @@
 import Foundation
 
 /// Провайдер авторизации
-public struct OAuthProvider {
+public struct OAuthProvider: Equatable, Codable {
     /// Провайдер авторизации через VKID
     public static let vkid = Self(type: .vkid)
 
@@ -39,7 +39,7 @@ public struct OAuthProvider {
     /// Провайдер авторизации через MailRu
     public static let mail = Self(type: .mail)
 
-    internal enum _Type: String {
+    internal enum _Type: String, Equatable, Codable {
         case vkid = "vkid"
         case ok = "ok_ru"
         case mail = "mail_ru"

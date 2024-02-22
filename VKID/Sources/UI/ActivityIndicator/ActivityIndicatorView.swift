@@ -27,9 +27,12 @@
 //
 
 import UIKit
-import VKIDCore
+@_implementationOnly import VKIDCore
 
 internal final class ActivityIndicatorView: UIView {
+    private let lineWidth: CGFloat
+    private var _isAnimating = false
+
     override var layer: CAShapeLayer {
         super.layer as! CAShapeLayer
     }
@@ -42,7 +45,8 @@ internal final class ActivityIndicatorView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override init(frame: CGRect) {
+    init(frame: CGRect, lineWidth: CGFloat = 2.0) {
+        self.lineWidth = lineWidth
         super.init(frame: frame)
         self.setupLayer()
         self.updateLayerStrokeColor()
@@ -77,7 +81,7 @@ internal final class ActivityIndicatorView: UIView {
     }
 
     private func setupLayer() {
-        self.layer.lineWidth = 2.0
+        self.layer.lineWidth = self.lineWidth
         self.layer.lineCap = .round
         self.layer.strokeColor = self.tintColor.cgColor
         self.layer.fillColor = nil
@@ -122,13 +126,14 @@ extension ActivityIndicatorView: ActivityIndicating {
     }
 
     var isAnimating: Bool {
-        self.layer.animation(forKey: AnimationKeys.spin.rawValue) != nil
+        self._isAnimating
     }
 
     func startAnimating() {
         guard !self.isAnimating else {
             return
         }
+        self._isAnimating = true
         self.addSpinAnimation()
     }
 
@@ -137,6 +142,7 @@ extension ActivityIndicatorView: ActivityIndicating {
             return
         }
         self.removeSpinAnimation()
+        self._isAnimating = false
     }
 
     private func addSpinAnimation() {
@@ -151,7 +157,7 @@ extension ActivityIndicatorView: ActivityIndicating {
         self.layer.transform = CATransform3DIdentity
         self.layer.add(animation, forKey: AnimationKeys.spin.rawValue)
 
-        self.layer.shouldRestoreAnimationsOnEnterForeground(
+        self.layer.shouldRestoreAnimationsOnBecomeActive(
             true,
             for: [AnimationKeys.spin.rawValue]
         )
@@ -165,7 +171,7 @@ extension ActivityIndicatorView: ActivityIndicating {
 
         self.layer.removeAnimation(forKey: AnimationKeys.spin.rawValue)
 
-        self.layer.shouldRestoreAnimationsOnEnterForeground(
+        self.layer.shouldRestoreAnimationsOnBecomeActive(
             false,
             for: [AnimationKeys.spin.rawValue]
         )

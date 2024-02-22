@@ -71,6 +71,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         tabBarController.viewControllers = [
             self.makeAuthViewController(),
             self.makeCustomizationViewController(),
+            self.makeAccountViewController(),
         ]
 
         self.window = UIWindow(frame: UIScreen.main.bounds)
@@ -89,10 +90,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     private func makeAuthViewController() -> UIViewController {
+        let bundleVersion = Bundle.main.infoDictionary?[kCFBundleVersionKey as String] ?? ""
         let authViewController = AuthViewController(
-            title: "Авторизация",
+            title: "Авторизация VKID",
             subtitle: "Вход с помощью OneTapButton",
-            description: "Нажмите на кнопку, чтобы начать авторизацию"
+            description: "Нажмите на кнопку, чтобы начать авторизацию",
+            navigationTitle: "VKID Version: \(VKID.sdkVersion)\nBuild: \(bundleVersion)"
         )
         authViewController.tabBarItem = UITabBarItem(
             title: "Авторизация",
@@ -121,6 +124,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         )
         return UINavigationController(
             rootViewController: customizationViewController
+        )
+    }
+
+    private func makeAccountViewController() -> UIViewController {
+        let userSessionsViewController = UserSessionsViewController(
+            title: "Сессии",
+            subtitle: "Данные о сессиях",
+            description: """
+                Здесь отображается список сохраненных
+                авторизованных сессий.
+                """
+        )
+        userSessionsViewController.vkid = self.vkid
+        userSessionsViewController.tabBarItem = UITabBarItem(
+            title: "Сессии",
+            image: UIImage(resource: .personCropCircleFill),
+            tag: 2
+        )
+        return UINavigationController(
+            rootViewController: userSessionsViewController
         )
     }
 }

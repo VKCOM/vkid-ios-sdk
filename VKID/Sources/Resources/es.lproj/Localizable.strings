@@ -19,3 +19,8 @@
 
 "vkconnect_oauth_ok_button_primary_title" = "Iniciar sesión con OK";
 "vkconnect_oauth_mail_button_primary_title" = "Iniciar sesión con Mail.ru";
+
+"vkid_sheet_state_auth_in_progress" = "Iniciar sesión...";
+"vkid_sheet_state_auth_success" = "Éxito!";
+"vkid_sheet_state_auth_failed_retry" = "Probar de nuevo";
+"vkid_sheet_state_auth_failed" = "Error al iniciar sesión";

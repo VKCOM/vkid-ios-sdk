@@ -19,3 +19,8 @@
 
 "vkconnect_oauth_ok_button_primary_title" = "Увійти з OK";
 "vkconnect_oauth_mail_button_primary_title" = "Увійти з Mail.ru";
+
+"vkid_sheet_state_auth_in_progress" = "Авторизація...";
+"vkid_sheet_state_auth_success" = "Успішно";
+"vkid_sheet_state_auth_failed_retry" = "Повторити спробу";
+"vkid_sheet_state_auth_failed" = "Не вдалося авторизуватися";

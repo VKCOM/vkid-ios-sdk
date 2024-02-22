@@ -27,11 +27,12 @@
 //
 
 import Foundation
-import VKIDCore
+@_implementationOnly import VKIDCore
 
 internal final class RootContainer {
     private let appCredentials: AppCredentials
     private let networkConfiguration: NetworkConfiguration
+    private let defaultHeaders: VKAPIRequest.Headers
 
     internal init(
         appCredentials: AppCredentials,
@@ -39,6 +40,7 @@ internal final class RootContainer {
     ) {
         self.appCredentials = appCredentials
         self.networkConfiguration = networkConfiguration
+        self.defaultHeaders = ["User-Agent": "\(UserAgent.default) VKID/\(Env.VKIDVersion)"]
     }
 
     internal var anonymousTokenTransport: URLSessionTransport {
@@ -50,6 +52,7 @@ internal final class RootContainer {
                 apiVersion: Env.VKAPIVersion,
                 vkidVersion: Env.VKIDVersion
             ),
+            defaultHeaders: self.defaultHeaders,
             sslPinningConfiguration: self.sslPinningConfiguration
         )
     }
@@ -75,6 +78,7 @@ internal final class RootContainer {
                 apiVersion: Env.VKAPIVersion,
                 vkidVersion: Env.VKIDVersion
             ),
+            defaultHeaders: self.defaultHeaders,
             sslPinningConfiguration: self.sslPinningConfiguration
         )
     }()
@@ -84,10 +88,30 @@ internal final class RootContainer {
             ? .init(domains: [.vkcom]) : .pinningDisabled
     }
 
+    internal lazy var keychain = Keychain()
     internal lazy var appInteropHandler = AppInteropCompositeHandler()
     internal lazy var responseParser = AuthCodeResponseParserImpl()
     internal lazy var authURLBuilder = AuthURLBuilderImpl()
     internal lazy var logger: Logging = Logger(subsystem: "VKID")
+    internal lazy var userSessionManager: UserSessionManager = UserSessionManagerImpl(
+        deps: .init(
+            logoutService: self.logoutService,
+            userSessionDataStorage: self.userSessionDataStorage,
+            logger: self.logger
+        )
+    )
+    internal lazy var userSessionDataStorage: UserSessionDataStorage = UserSessionDataStorageImpl(
+        deps: .init(
+            keychain: self.keychain,
+            appCredentials: self.appCredentials
+        )
+    )
+    internal lazy var logoutService = LogoutServiceImpl(
+        deps: .init(
+            api: VKAPI<Auth>(transport: self.mainTransport),
+            appCredentials: self.appCredentials
+        )
+    )
 }
 
 extension RootContainer: AuthFlowBuilder {
@@ -121,7 +145,7 @@ extension RootContainer: AuthFlowBuilder {
                 appInteropHandler: self.appInteropHandler,
                 authProvidersFetcher: AuthProviderFetcherImpl(
                     deps: .init(
-                        api: VKAPI<AuthProviders>(transport: self.mainTransport)
+                        api: VKAPI<Auth>(transport: self.mainTransport)
                     )
                 ),
                 appCredentials: self.appCredentials,

@@ -27,7 +27,7 @@
 //
 
 import Foundation
-import VKIDCore
+@_implementationOnly import VKIDCore
 
 /// Отслеживание статуса авторизации
 public protocol VKIDObserver: AnyObject {
@@ -42,16 +42,34 @@ public protocol VKIDObserver: AnyObject {
     ///   - result: результат авторизации
     ///   - oAuth: провайдер авторизации
     func vkid(_ vkid: VKID, didCompleteAuthWith result: AuthResult, in oAuth: OAuthProvider)
+    /// Сообщает о завершении логаута сессии через VKID
+    /// - Parameters:
+    ///   - vkid: объект взаимодействия с VKID
+    ///   - session: сессия, из которой был выполнен логаут
+    ///   - result: результат логаута
+    func vkid(_ vkid: VKID, didLogoutFrom session: UserSession, with result: LogoutResult)
 }
 
 /// Объект, через который идет все взаимодействие с VKID
 public final class VKID {
     private var config: Configuration
-
     private var observers = WeakObservers<VKIDObserver>()
-    private let rootContainer: RootContainer
     private var activeFlow: AuthFlow?
-    public private(set) var currentAuthorizedSession: UserSession?
+
+    private let rootContainer: RootContainer
+
+    /// Сохраненные авторизованные сессии
+    public var authorizedSessions: [UserSession] {
+        self.rootContainer.userSessionManager.userSessions
+    }
+
+    /// Самая новая сессия из всех сохраненных.
+    /// Это свойство вычисляемое, и будет возвращать всегда либо самую новую сессию, либо nil.
+    public var currentAuthorizedSession: UserSession? {
+        self.authorizedSessions
+            .sorted { $0.data.creationDate > $1.data.creationDate }
+            .first
+    }
 
     public var appearance: Appearance {
         get {
@@ -66,12 +84,14 @@ public final class VKID {
     /// Создает объект VKID с указанной конфигурацией
     /// - Parameter config: объект конфигурация VKID
     public init(config: Configuration) throws {
-        self.config = config
         Appearance.ColorScheme.current = config.appearance.colorScheme
+
+        self.config = config
         self.rootContainer = RootContainer(
             appCredentials: config.appCredentials,
             networkConfiguration: config.network
         )
+        self.rootContainer.userSessionManager.delegate = self
     }
 
     public func add(observer: VKIDObserver) {
@@ -126,13 +146,17 @@ public final class VKID {
             self.activeFlow = nil
 
             let userSessionResult = result.map {
-                UserSession(
-                    oAuthProvider: authConfig.oAuthProvider,
-                    accessToken: $0.accessToken,
-                    user: $0.user
-                )
+                self.rootContainer
+                    .userSessionManager
+                    .makeUserSession(
+                        with: UserSessionData(
+                            oAuthProvider: authConfig.oAuthProvider,
+                            accessToken: $0.accessToken,
+                            user: $0.user
+                        )
+                    )
             }
-            self.currentAuthorizedSession = try? userSessionResult.get()
+
             let authResult = AuthResult(userSessionResult)
             self.observers.notify {
                 $0.vkid(self, didCompleteAuthWith: authResult, in: authConfig.oAuthProvider)
@@ -154,9 +178,24 @@ public final class VKID {
     }
 }
 
+extension VKID: UserSessionManagerDelegate {
+    internal func userSessionManager(
+        _ manager: UserSessionManager,
+        didLogoutFrom session: UserSession,
+        with result: LogoutResult
+    ) {
+        self.observers.notify {
+            $0.vkid(self, didLogoutFrom: session, with: result)
+        }
+    }
+}
+
 extension VKID: UIFactory {}
 
 extension VKID {
+    /// VKID version
+    public static var sdkVersion: String { VKID_VERSION }
+
     internal var isAuthorizing: Bool {
         self.activeFlow != nil
     }

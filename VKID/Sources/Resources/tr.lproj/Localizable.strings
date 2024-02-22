@@ -19,3 +19,8 @@
 
 "vkconnect_oauth_ok_button_primary_title" = "OK'den gir";
 "vkconnect_oauth_mail_button_primary_title" = "Mail.ru'den gir";
+
+"vkid_sheet_state_auth_in_progress" = "Giriş yapılıyor...";
+"vkid_sheet_state_auth_success" = "Başarılı";
+"vkid_sheet_state_auth_failed_retry" = "Tekrar dene";
+"vkid_sheet_state_auth_failed" = "Üye girişi yapılamadı";

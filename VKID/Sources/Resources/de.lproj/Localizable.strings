@@ -19,3 +19,8 @@
 
 "vkconnect_oauth_ok_button_primary_title" = "Mit OK anmelden";
 "vkconnect_oauth_mail_button_primary_title" = "Mit Mail.ru anmelden";
+
+"vkid_sheet_state_auth_in_progress" = "Anmeldung";
+"vkid_sheet_state_auth_success" = "Gelungen!";
+"vkid_sheet_state_auth_failed_retry" = "Erneut versuchen";
+"vkid_sheet_state_auth_failed" = "Anmeldung fehlgeschlagen";

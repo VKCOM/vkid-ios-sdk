@@ -35,6 +35,8 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
 {
     internal typealias TargetActionText = OneTapBottomSheet.TargetActionText
 
+    override var supportsScreenSplitting: Bool { true }
+
     private var oneTapButtonHeight: OneTapButton.Layout.Height = .medium()
     private var oneTapButtonCornerRadius: CGFloat {
         CGFloat(
@@ -235,36 +237,67 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
             name: UIResponder.keyboardWillHideNotification,
             object: nil
         )
-        self.addPresentBottomSheetButton()
-        self.addContentView()
+        self.view.addSubview(self.presentButton)
+        self.view.addSubview(self.scrollView)
+        self.scrollView.addSubview(self.contentView)
+
+        self.setupConstraints()
+
         self.addSettingsControls()
     }
 
-    private func addPresentBottomSheetButton() {
-        self.view.addSubview(self.presentButton)
-        NSLayoutConstraint.activate([
-            self.presentButton.centerXAnchor.constraint(equalTo: self.view.centerXAnchor),
-            self.presentButton.topAnchor.constraint(equalTo: self.descriptionLabel.bottomAnchor, constant: 32),
-        ])
-    }
+    private func setupConstraints() {
+        self.twoColumnLayoutConstraints = [
+            self.presentButton.topAnchor.constraint(
+                greaterThanOrEqualTo: self.descriptionLabel.bottomAnchor,
+                constant: 32
+            ),
+            self.presentButton.bottomAnchor.constraint(
+                equalTo: self.view.safeAreaLayoutGuide.bottomAnchor,
+                constant: -32
+            ),
+            self.presentButton.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
+            self.presentButton.trailingAnchor.constraint(equalTo: self.rightSideContentView.leadingAnchor),
 
-    private func addContentView() {
-        self.view.addSubview(self.scrollView)
-        NSLayoutConstraint.activate([
+            self.scrollView.topAnchor.constraint(equalTo: self.rightSideContentView.safeAreaLayoutGuide.topAnchor),
+            self.scrollView.leadingAnchor.constraint(equalTo: self.rightSideContentView.leadingAnchor),
+            self.scrollView.trailingAnchor.constraint(equalTo: self.rightSideContentView.trailingAnchor),
+            self.scrollView.bottomAnchor
+                .constraint(equalTo: self.rightSideContentView.safeAreaLayoutGuide.bottomAnchor),
+
+            self.contentView.widthAnchor.constraint(equalTo: self.rightSideContentView.widthAnchor),
+        ]
+        self.oneColumnLayoutConstraints = [
+            self.presentButton.topAnchor.constraint(equalTo: self.descriptionLabel.bottomAnchor, constant: 32),
+            self.presentButton.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
+            self.presentButton.trailingAnchor.constraint(equalTo: self.rightSideContentView.leadingAnchor),
+
             self.scrollView.topAnchor.constraint(equalTo: self.presentButton.bottomAnchor, constant: 32),
             self.scrollView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
             self.scrollView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor),
             self.scrollView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor),
-        ])
 
-        self.scrollView.addSubview(self.contentView)
+            self.contentView.widthAnchor.constraint(equalTo: self.view.widthAnchor),
+        ]
+
         NSLayoutConstraint.activate([
             self.contentView.leadingAnchor.constraint(equalTo: self.scrollView.leadingAnchor),
             self.contentView.trailingAnchor.constraint(equalTo: self.scrollView.trailingAnchor),
             self.contentView.topAnchor.constraint(equalTo: self.scrollView.topAnchor),
             self.contentView.bottomAnchor.constraint(equalTo: self.scrollView.bottomAnchor),
-            self.contentView.widthAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.widthAnchor),
         ])
+    }
+
+    override func updateViewConstraints() {
+        switch self.layoutType {
+        case .oneColumn:
+            NSLayoutConstraint.deactivate(self.twoColumnLayoutConstraints)
+            NSLayoutConstraint.activate(self.oneColumnLayoutConstraints)
+        case .twoColumn:
+            NSLayoutConstraint.deactivate(self.oneColumnLayoutConstraints)
+            NSLayoutConstraint.activate(self.twoColumnLayoutConstraints)
+        }
+        super.updateViewConstraints()
     }
 
     private func addSettingsControls() {
@@ -491,7 +524,6 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
                 print("Auth cancelled by user")
             } catch {
                 print("Auth failed with error: \(error)")
-                self?.alertPresentationController.showAlert(message: "Ошибка авторизации")
             }
         }
 

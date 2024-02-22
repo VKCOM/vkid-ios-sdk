@@ -27,17 +27,29 @@
 //
 
 import UIKit
-import VKIDCore
+@_implementationOnly import VKIDCore
 
 internal final class OneTapBottomSheetContentViewController: UIViewController, BottomSheetContent {
     public weak var contentDelegate: BottomSheetContentDelegate?
 
+    private let vkid: VKID
     private let oneTapButton: UIView
     private let serviceName: String
     private let targetActionText: OneTapBottomSheet.TargetActionText
     private let theme: OneTapBottomSheet.Theme
     private let autoDismissOnSuccess: Bool
     private let onCompleteAuth: AuthResultCompletion?
+
+    private var currentOAuthProivder: OAuthProvider?
+
+    private var authState: AuthState = .idle {
+        didSet {
+            guard oldValue != self.authState else {
+                return
+            }
+            self.render(authState: self.authState)
+        }
+    }
 
     internal init(
         vkid: VKID,
@@ -49,6 +61,7 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
         onCompleteAuth: AuthResultCompletion?,
         contentDelegate: BottomSheetContentDelegate? = nil
     ) {
+        self.vkid = vkid
         self.theme = theme
         self.oneTapButton = oneTapButton
         self.serviceName = serviceName
@@ -64,12 +77,16 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
         fatalError("init(coder:) has not been implemented")
     }
 
+    deinit {
+        self.vkid.remove(observer: self)
+    }
+
     private lazy var initialStateView: OneTapBottomSheetInitialStateView = {
         let view = OneTapBottomSheetInitialStateView(
             configuration:
             .init(
-                authButton: oneTapButton,
-                title: targetActionText.title,
+                authButton: self.oneTapButton,
+                title: self.targetActionText.title,
                 titleColor: self.theme.colors.title,
                 titleFont: .systemFont(ofSize: 20, weight: .medium),
                 subtitle: self.targetActionText.subtitle,
@@ -78,6 +95,31 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
             )
         )
         view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+
+    private lazy var authStateView: OneTapBottomSheetAuthStateView = {
+        let view = OneTapBottomSheetAuthStateView(
+            configuration:
+            .init(
+                titleColor: self.theme.colors.subtitle,
+                titleFont: .systemFont(ofSize: 16, weight: .regular),
+                successImage: .checkCircleOutline,
+                failedImage: .errorOutline,
+                failedButtonColor: self.theme.colors.retryButtonBackground,
+                failedButtonTitleColor: self.theme.colors.retryButtonTitle,
+                failedButtonTitleFont: .systemFont(ofSize: 14, weight: .medium),
+                failedButtonCornerRadius: 10,
+                texts: .init(
+                    loadingText: "vkid_sheet_state_auth_in_progress".localized,
+                    successText: "vkid_sheet_state_auth_success".localized,
+                    failedText: "vkid_sheet_state_auth_failed".localized,
+                    failedButtonText: "vkid_sheet_state_auth_failed_retry".localized
+                )
+            )
+        )
+        view.delegate = self
+
         return view
     }()
 
@@ -173,9 +215,78 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
     private func apply(theme: OneTapBottomSheet.Theme) {
         self.view.backgroundColor = theme.colors.background.value
     }
+
+    private func render(authState: AuthState) {
+        switch authState {
+        case .idle:
+            UIView.transition(
+                with: self.contentPlaceholderView,
+                duration: 0.25,
+                options: [
+                    .layoutSubviews,
+                    .curveEaseInOut,
+                    .transitionCrossDissolve,
+                ]
+            ) {
+                self.authStateView.removeFromSuperview()
+                self.contentPlaceholderView.addSubview(self.initialStateView) {
+                    $0.pinToEdges()
+                }
+                self.contentDelegate?.bottomSheetContentDidInvalidateContentSize(self)
+            }
+        case .inProgress:
+            do { // Actualize layout before animation start to avoid glitches
+                self.contentPlaceholderView.addSubview(self.authStateView) {
+                    $0.pinToEdges()
+                }
+                self.contentPlaceholderView.sendSubviewToBack(self.authStateView)
+                self.contentPlaceholderView.layoutIfNeeded()
+            }
+
+            UIView.transition(
+                with: self.contentPlaceholderView,
+                duration: 0.25,
+                options: [
+                    .layoutSubviews,
+                    .curveEaseInOut,
+                    .transitionCrossDissolve,
+                ]
+            ) {
+                self.initialStateView.removeFromSuperview()
+                self.authStateView.render(authState: .inProgress)
+                self.contentDelegate?.bottomSheetContentDidInvalidateContentSize(self)
+            }
+        case .success, .failure:
+            UIView.transition(
+                with: self.initialStateView,
+                duration: 0.25,
+                options: [
+                    .layoutSubviews,
+                    .curveEaseInOut,
+                ]
+            ) {
+                self.authStateView.render(authState: authState)
+                self.contentDelegate?.bottomSheetContentDidInvalidateContentSize(self)
+            } completion: { completed in
+                if completed {
+                    let generator = UINotificationFeedbackGenerator()
+                    generator.notificationOccurred(
+                        authState == .success ? .success : .error
+                    )
+                }
+            }
+        }
+    }
 }
 
 extension OneTapBottomSheetContentViewController {
+    enum AuthState {
+        case idle
+        case inProgress
+        case success
+        case failure
+    }
+
     enum Constants {
         static let contentPlaceholderInsets = UIEdgeInsets(
             top: 16,
@@ -186,12 +297,32 @@ extension OneTapBottomSheetContentViewController {
     }
 }
 
+extension OneTapBottomSheetContentViewController: OneTapBottomSheetAuthStateViewDelegate {
+    func authStateViewDidTapOnRetryButton(_ view: OneTapBottomSheetAuthStateView) {
+        guard let oAuth = self.currentOAuthProivder, !vkid.isAuthorizing else { return }
+
+        self.vkid.authorize(
+            with: .init(oAuthProvider: oAuth),
+            using: .newUIWindow,
+            completion: { [onCompleteAuth = self.onCompleteAuth] result in
+                onCompleteAuth?(result)
+            }
+        )
+    }
+}
+
 extension OneTapBottomSheetContentViewController: VKIDObserver {
-    func vkid(_ vkid: VKID, didStartAuthUsing oAuth: OAuthProvider) {}
+    func vkid(_ vkid: VKID, didLogoutFrom session: UserSession, with result: LogoutResult) {}
+
+    func vkid(_ vkid: VKID, didStartAuthUsing oAuth: OAuthProvider) {
+        self.authState = .inProgress
+        self.currentOAuthProivder = oAuth
+    }
 
     func vkid(_ vkid: VKID, didCompleteAuthWith result: AuthResult, in oAuth: OAuthProvider) {
         switch result {
         case .success:
+            self.authState = .success
             guard self.autoDismissOnSuccess else {
                 self.onCompleteAuth?(result)
                 return
@@ -207,7 +338,12 @@ extension OneTapBottomSheetContentViewController: VKIDObserver {
                         onComplete?(result)
                     }
                 }
-        case .failure:
+        case .failure(let error):
+            switch error {
+            case .cancelled: self.authState = .idle
+            case .unknown: self.authState = .failure
+            case .authAlreadyInProgress: break
+            }
             self.onCompleteAuth?(result)
         }
     }

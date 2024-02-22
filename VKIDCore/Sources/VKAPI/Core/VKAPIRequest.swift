@@ -82,10 +82,10 @@ extension VKAPIRequest {
         )
     }
 
-    public mutating func add(headers: Headers) {
+    public mutating func add(headers: Headers, overwriteIfAlreadyExists: Bool = true) {
         self.headers = self.headers.merging(
             headers,
-            uniquingKeysWith: { $1 }
+            uniquingKeysWith: { overwriteIfAlreadyExists ? $1 : $0 }
         )
     }
 }

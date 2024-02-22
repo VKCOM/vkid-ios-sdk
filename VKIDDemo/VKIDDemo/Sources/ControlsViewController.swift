@@ -36,12 +36,9 @@ final class ControlsViewController: VKIDDemoViewController, UITableViewDataSourc
         case oneTapButtonWithOAuthListWidget = "OneTapButton with OAuthListWidget"
     }
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        self.addTableView()
-    }
+    override var supportsScreenSplitting: Bool { true }
 
-    private func addTableView() {
+    private lazy var controlsTableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.delegate = self
         tableView.dataSource = self
@@ -52,16 +49,47 @@ final class ControlsViewController: VKIDDemoViewController, UITableViewDataSourc
         tableView.backgroundColor = .clear
 
         tableView.translatesAutoresizingMaskIntoConstraints = false
-        self.view.addSubview(tableView)
-        NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(
+
+        return tableView
+    }()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.view.addSubview(self.controlsTableView)
+        self.setupConstraints()
+    }
+
+    private func setupConstraints() {
+        self.twoColumnLayoutConstraints = [
+            self.controlsTableView.topAnchor.constraint(equalTo: self.rightSideContentView.topAnchor),
+            self.controlsTableView.leadingAnchor
+                .constraint(equalTo: self.rightSideContentView.leadingAnchor),
+            self.controlsTableView.trailingAnchor
+                .constraint(equalTo: self.rightSideContentView.trailingAnchor),
+            self.controlsTableView.bottomAnchor
+                .constraint(equalTo: self.rightSideContentView.bottomAnchor),
+        ]
+        self.oneColumnLayoutConstraints = [
+            self.controlsTableView.topAnchor.constraint(
                 equalTo: self.descriptionLabel.bottomAnchor,
                 constant: 8
             ),
-            tableView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor),
-        ])
+            self.controlsTableView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
+            self.controlsTableView.trailingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.trailingAnchor),
+            self.controlsTableView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor),
+        ]
+    }
+
+    override func updateViewConstraints() {
+        switch self.layoutType {
+        case .oneColumn:
+            NSLayoutConstraint.deactivate(self.twoColumnLayoutConstraints)
+            NSLayoutConstraint.activate(self.oneColumnLayoutConstraints)
+        case .twoColumn:
+            NSLayoutConstraint.deactivate(self.oneColumnLayoutConstraints)
+            NSLayoutConstraint.activate(self.twoColumnLayoutConstraints)
+        }
+        super.updateViewConstraints()
     }
 
     // MARK: - Table view data source

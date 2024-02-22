@@ -37,6 +37,8 @@ extension UIImage {
     internal static let closeLight = UIImage.moduleNamed("dismiss_24_light")
     internal static let logoLight = UIImage.moduleNamed("logo_vkid_light")
     internal static let logoDark = UIImage.moduleNamed("logo_vkid_dark")
+    internal static let errorOutline = UIImage.moduleNamed("error_outline_56")
+    internal static let checkCircleOutline = UIImage.moduleNamed("check_circle_outline_56")
 }
 
 extension UIImage {

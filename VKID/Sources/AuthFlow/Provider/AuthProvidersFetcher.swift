@@ -27,7 +27,7 @@
 //
 
 import Foundation
-import VKIDCore
+@_implementationOnly import VKIDCore
 
 internal struct AuthProvider: Equatable {
     let universalLink: URL
@@ -40,7 +40,7 @@ internal protocol AuthProviderFetcher {
 
 internal final class AuthProviderFetcherImpl: AuthProviderFetcher, Component {
     struct Dependencies: Dependency {
-        let api: VKAPI<AuthProviders>
+        let api: VKAPI<Auth>
     }
 
     let deps: Dependencies

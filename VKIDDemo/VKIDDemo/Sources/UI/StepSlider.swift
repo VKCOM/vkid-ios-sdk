@@ -30,7 +30,7 @@ import UIKit
 
 class StepSlider: UISlider {
     public var actualValue: Float {
-        self.values[Int(value)]
+        self.values[safe: Int(value)] ?? 0.0
     }
 
     public var values: [Float] {
