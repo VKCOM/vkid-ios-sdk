@@ -380,7 +380,12 @@ final class OneTapButtonCustomizationController: VKIDDemoViewController {
                 equalTo: self.rightSideContentView.safeAreaLayoutGuide.bottomAnchor
             ),
 
-            self.buttonContainerView.bottomAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.bottomAnchor),
+            self.buttonContainerView.bottomAnchor.constraint(
+                equalTo: self.view.safeAreaLayoutGuide.bottomAnchor
+            ),
+            self.buttonContainerView.trailingAnchor.constraint(
+                equalTo: self.rightSideContentView.leadingAnchor
+            ),
         ]
         self.oneColumnLayoutConstraints = [
             self.scrollView.topAnchor.constraint(
@@ -396,7 +401,12 @@ final class OneTapButtonCustomizationController: VKIDDemoViewController {
                 equalTo: self.view.safeAreaLayoutGuide.bottomAnchor
             ),
 
-            self.buttonContainerView.bottomAnchor.constraint(equalTo: self.scrollView.topAnchor),
+            self.buttonContainerView.bottomAnchor.constraint(
+                equalTo: self.scrollView.topAnchor
+            ),
+            self.buttonContainerView.trailingAnchor.constraint(
+                equalTo: self.view.trailingAnchor
+            ),
         ]
     }
 
@@ -431,9 +441,12 @@ final class OneTapButtonCustomizationController: VKIDDemoViewController {
         self.contentView.addSubview(self.cornerRadiusSlider)
 
         NSLayoutConstraint.activate([
-            self.buttonContainerView.topAnchor.constraint(equalTo: self.descriptionLabel.bottomAnchor),
-            self.buttonContainerView.leadingAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.leadingAnchor),
-            self.buttonContainerView.trailingAnchor.constraint(equalTo: self.rightSideContentView.leadingAnchor),
+            self.buttonContainerView.topAnchor.constraint(
+                equalTo: self.descriptionLabel.bottomAnchor
+            ),
+            self.buttonContainerView.leadingAnchor.constraint(
+                equalTo: self.view.safeAreaLayoutGuide.leadingAnchor
+            ),
 
             self.contentView.topAnchor.constraint(
                 equalTo: self.scrollView.topAnchor

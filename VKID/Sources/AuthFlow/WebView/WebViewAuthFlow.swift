@@ -31,14 +31,18 @@ import Foundation
 
 internal final class WebViewAuthFlow: Component, AuthFlow {
     struct Dependencies: Dependency {
-        let api: VKAPI<OAuth>
+        let api: VKAPI<OAuth2>
         let appCredentials: AppCredentials
         let appearance: Appearance
+        let authConfig: ExtendedAuthConfiguration
+        let authContext: AuthContext
         let oAuthProvider: OAuthProvider
         let pkceGenerator: PKCESecretsGenerator
         let authURLBuilder: AuthURLBuilder
         let webViewStrategyFactory: WebViewAuthStrategyFactory
         let logger: Logging
+        let deviceId: DeviceId
+        let authConfigTemplateURL: URL?
     }
 
     let deps: Dependencies
@@ -53,43 +57,42 @@ internal final class WebViewAuthFlow: Component, AuthFlow {
         with presenter: UIKitPresenter,
         completion: @escaping AuthFlowResultCompletion
     ) {
-        self.deps
-            .api
-            .getAuthConfig
-            .execute(
-                with: .init(appId: self.deps.appCredentials.clientId)
-            ) { [weak self] result in
-                guard let self else {
-                    return
-                }
-                do {
-                    let config = try result.get()
-                    let pkceSecrets = try self.deps.pkceGenerator.generateSecrets()
-                    let authURL = try self.deps.authURLBuilder.buildWebViewAuthURL(
-                        from: config.userVisibleAuth,
-                        for: self.deps.oAuthProvider,
-                        with: pkceSecrets,
-                        credentials: self.deps.appCredentials,
-                        appearance: self.deps.appearance
-                    )
-                    self.authInWebView(
-                        with: presenter,
-                        authURL: authURL,
-                        redirectURL: redirectURL(for: self.deps.appCredentials.clientId),
-                        pkceSecrets: pkceSecrets,
-                        completion: completion
-                    )
-                } catch {
-                    completion(.failure(.webViewAuthFailed(error)))
-                }
-            }
+        guard let baseUrl = self.deps.authConfigTemplateURL else {
+            completion(.failure(.invalidAuthConfigTemplateURL))
+            return
+        }
+        do {
+            let authURL = try self.deps.authURLBuilder.buildWebViewAuthURL(
+                baseURL: baseUrl,
+                oAuthProvider: self.deps.authConfig.oAuthProvider,
+                authContext: self.deps.authContext,
+                secrets: self.deps.authConfig.pkceSecrets,
+                credentials: self.deps.appCredentials,
+                scope: self.deps.authConfig.scope,
+                deviceId: self.deps.deviceId.description,
+                appearance: self.deps.appearance
+            )
+            self.authInWebView(
+                with: presenter,
+                authURL: authURL,
+                redirectURL: redirectURL(
+                    for: self.deps.appCredentials.clientId
+                ),
+                pkceSecrets: self.deps.authConfig.pkceSecrets,
+                completion: completion
+            )
+        } catch let e as AuthFlowError {
+            completion(.failure(e))
+        } catch {
+            completion(.failure(.webViewAuthFailed(error)))
+        }
     }
 
     private func authInWebView(
         with presenter: UIKitPresenter,
         authURL: URL,
         redirectURL: URL,
-        pkceSecrets: PKCESecrets,
+        pkceSecrets: PKCESecretsWallet,
         completion: @escaping AuthFlowResultCompletion
     ) {
         self.deps.logger.info("Opening webView at: \(authURL), redirect: \(redirectURL)")
@@ -105,31 +108,14 @@ internal final class WebViewAuthFlow: Component, AuthFlow {
             }
             switch result {
             case .success(let authCodeResponse):
-                guard authCodeResponse.oauth.state == pkceSecrets.state else {
-                    completion(.failure(.authCodeResponseStateMismatch))
-                    return
-                }
-                self.deps
-                    .api
-                    .exchangeAuthCode
-                    .execute(
-                        with: .init(
-                            code: authCodeResponse.oauth.code,
-                            codeVerifier: pkceSecrets.codeVerifier,
-                            redirectUri: redirectURL.absoluteString
-                        )
-                    ) { result in
-                        completion(
-                            result
-                                .map {
-                                    .init(
-                                        accessToken: .init(from: $0),
-                                        user: .init(from: authCodeResponse.user, response: $0)
-                                    )
-                                }
-                                .mapError { AuthFlowError.authCodeExchangingFailed($0) }
-                        )
-                    }
+
+                self.exchangeCode(
+                    using: self.deps.authConfig.codeExchanger,
+                    authCodeResponse: authCodeResponse,
+                    redirectURI: redirectURL.absoluteString,
+                    pkceSecrets: pkceSecrets,
+                    completion: completion
+                )
             case .failure(let err):
                 completion(.failure(err))
             }

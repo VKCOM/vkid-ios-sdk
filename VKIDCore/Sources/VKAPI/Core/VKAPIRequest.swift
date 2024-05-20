@@ -39,13 +39,15 @@ public struct VKAPIRequest {
 
     /// Хост, на который будет отправлен запрос
     public enum Host: String {
-        case id, api, oauth
+        case id
+        case api
+        case oauth
     }
 
     public enum Authorization {
         case none
         case anonymousToken
-        case accessToken
+        case accessToken(userId: Int? = nil)
     }
 
     public let id: UUID = .init()
@@ -78,7 +80,7 @@ extension VKAPIRequest {
     public mutating func add(parameters: Parameters) {
         self.parameters = self.parameters.merging(
             parameters,
-            uniquingKeysWith: { $1 }
+            uniquingKeysWith: { current, _ in current }
         )
     }
 

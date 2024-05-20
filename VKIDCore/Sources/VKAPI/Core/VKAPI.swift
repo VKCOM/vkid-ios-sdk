@@ -58,10 +58,11 @@ public struct VKAPICallingContext<T: VKAPIMethod> {
 
     public func execute(
         with parameters: @autoclosure () -> T.Parameters,
+        for userId: Int? = nil,
         callbackOn callbackQueue: DispatchQueue = .main,
         completion: @escaping (Result<T.Response, VKAPIError>) -> Void
     ) {
-        let request = T.request(with: parameters())
+        let request = T.request(with: parameters(), for: userId)
         self.transport.execute(
             request: request,
             callbackQueue: callbackQueue,
@@ -72,9 +73,10 @@ public struct VKAPICallingContext<T: VKAPIMethod> {
 
 public extension VKAPICallingContext where T.Parameters == Empty {
     func execute(
+        for userId: Int? = nil,
         completion: @escaping (Result<T.Response, VKAPIError>) -> Void
     ) {
-        let request = T.request(with: Empty())
+        let request = T.request(with: Empty(), for: userId)
         self.transport.execute(request: request, completion: completion)
     }
 }

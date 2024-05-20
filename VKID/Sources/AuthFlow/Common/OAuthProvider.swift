@@ -29,7 +29,11 @@
 import Foundation
 
 /// Провайдер авторизации
-public struct OAuthProvider: Equatable, Codable {
+public struct OAuthProvider: Equatable, Codable, CaseIterable {
+    /// Все доступные провайдеры
+    public static var allCases: [OAuthProvider] = [
+        .vkid, .ok, .mail,
+    ]
     /// Провайдер авторизации через VKID
     public static let vkid = Self(type: .vkid)
 
@@ -40,14 +44,60 @@ public struct OAuthProvider: Equatable, Codable {
     public static let mail = Self(type: .mail)
 
     internal enum _Type: String, Equatable, Codable {
-        case vkid = "vkid"
-        case ok = "ok_ru"
-        case mail = "mail_ru"
+        case vkid
+        case ok
+        case mail
+
+        var clearName: String {
+            switch self {
+            case .vkid:
+                self.rawValue.replacingOccurrences(of: "id", with: "")
+            case .ok, .mail:
+                self.rawValue
+            }
+        }
+
+        var endingWithRuIfNeeded: String {
+            switch self {
+            case .vkid:
+                self.rawValue
+            case .ok, .mail:
+                self.rawValue + "_ru"
+            }
+        }
     }
 
     internal let type: _Type
 
     private init(type: _Type) {
         self.type = type
+    }
+}
+
+/// Описывает конфигурацию OAuth провайдеров для авторизации
+public struct OAuthProviderConfiguration {
+    /// Основной провайдер авторизации. На данный момент таким провайдером может быть только vkid.
+    public let primaryProvider: OAuthProvider
+
+    /// Альтернативные провайдеры авторизации
+    public var alternativeProviders: [OAuthProvider]
+
+    public init(alternativeProviders: [OAuthProvider] = []) {
+        self.init(
+            primaryProvider: .vkid,
+            alternativeProviders: alternativeProviders
+        )
+    }
+
+    internal init(
+        primaryProvider: OAuthProvider,
+        alternativeProviders: [OAuthProvider] = []
+    ) {
+        self.primaryProvider = primaryProvider
+        // Исключаем основной провайдер из списка альтернативных, чтобы не было дублирования
+        self.alternativeProviders =
+            alternativeProviders.filter { [primary = primaryProvider] provider in
+                provider.type != primary.type
+            }
     }
 }

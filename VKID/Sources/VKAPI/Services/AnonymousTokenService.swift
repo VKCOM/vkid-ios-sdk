@@ -45,22 +45,23 @@ extension AnonymousTokenService {
 }
 
 internal final class AnonymousTokenServiceImpl: AnonymousTokenService {
-    private let keychain: Keychain
-    private let api: VKAPI<OAuth>
-    private let credentials: AppCredentials
+    struct Dependencies: Dependency {
+        let keychain: Keychain
+        let api: VKAPI<Auth>
+        let credentials: AppCredentials
+    }
+
+    /// Зависимости сервиса
+    private let deps: Dependencies
+
+    /// Инициализация сервиса логаута сессии.
+    /// - Parameter deps: Зависимости.
+    init(deps: Dependencies) {
+        self.deps = deps
+    }
 
     @Synchronized
     private var _cachedToken: AnonymousToken?
-
-    internal init(
-        keychain: Keychain,
-        api: VKAPI<OAuth>,
-        credentials: AppCredentials
-    ) {
-        self.keychain = keychain
-        self.api = api
-        self.credentials = credentials
-    }
 
     func getFreshToken(
         forceRefresh: Bool,
@@ -74,13 +75,14 @@ internal final class AnonymousTokenServiceImpl: AnonymousTokenService {
             completion(.success(token))
             return
         }
-        self.api
+        self.deps
+            .api
             .getAnonymousToken
             .execute(
                 with: .init(
                     anonymousToken: try? self.cachedToken?.value,
-                    clientId: self.credentials.clientId,
-                    clientSecret: self.credentials.clientSecret
+                    clientId: self.deps.credentials.clientId,
+                    clientSecret: self.deps.credentials.clientSecret
                 )
             ) { result in
                 switch result {
@@ -101,8 +103,8 @@ internal final class AnonymousTokenServiceImpl: AnonymousTokenService {
         get throws {
             try self.__cachedToken.mutate {
                 if $0 == nil {
-                    $0 = try self.keychain.fetch(
-                        query: .anonymousTokenRead(for: self.credentials.clientId)
+                    $0 = try self.deps.keychain.fetch(
+                        query: .anonymousTokenRead(for: self.deps.credentials.clientId)
                     )
                 }
                 return $0
@@ -114,14 +116,14 @@ internal final class AnonymousTokenServiceImpl: AnonymousTokenService {
         try self.__cachedToken.mutate {
             $0 = token
             if let token {
-                try self.keychain.update(
+                try self.deps.keychain.update(
                     token,
-                    query: .anonymousTokenWrite(for: self.credentials.clientId),
+                    query: .anonymousTokenWrite(for: self.deps.credentials.clientId),
                     addIfNotFound: true
                 )
             } else {
-                try self.keychain.delete(
-                    query: .anonymousTokenRead(for: self.credentials.clientId)
+                try self.deps.keychain.delete(
+                    query: .anonymousTokenRead(for: self.deps.credentials.clientId)
                 )
             }
         }

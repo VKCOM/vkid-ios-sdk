@@ -27,15 +27,18 @@
 //
 
 import Foundation
+import UIKit
 @_implementationOnly import VKIDCore
 
 internal final class ServiceAuthFlow: Component, AuthFlow {
     struct Dependencies: Dependency {
         var webViewAuthFlow: AuthFlow
         var authByProviderFlow: AuthFlow
+        var appStateProvider: AppStateProvider
     }
 
     let deps: Dependencies
+    private var appStateObserver: AnyObject?
 
     init(deps: Dependencies) {
         self.deps = deps
@@ -50,11 +53,51 @@ internal final class ServiceAuthFlow: Component, AuthFlow {
             case .success(let success):
                 completion(.success(success))
             case .failure:
-                self.deps.webViewAuthFlow.authorize(
-                    with: presenter,
-                    completion: completion
-                )
+                switch self.deps.appStateProvider.state {
+                case .active:
+                    self.deps.webViewAuthFlow.authorize(
+                        with: presenter,
+                        completion: completion
+                    )
+                default:
+                    self.startWebViewAuthOnAppActivated(
+                        with: presenter,
+                        completion: completion
+                    )
+                }
             }
         }
+    }
+
+    private func startWebViewAuthOnAppActivated(
+        with presenter: UIKitPresenter,
+        completion: @escaping AuthFlowResultCompletion
+    ) {
+        self.appStateObserver = NotificationCenter.default.addObserver(
+            forName: UIApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            DispatchQueue
+                .main
+                .asyncAfter(
+                    deadline: .now() + 0.5
+                ) {
+                    guard let self else {
+                        completion(.failure(.authorizationFailed))
+                        return
+                    }
+                    self.appStateObserver.map(NotificationCenter.default.removeObserver)
+                    self.appStateObserver = nil
+                    self.deps.webViewAuthFlow.authorize(
+                        with: presenter,
+                        completion: completion
+                    )
+                }
+        }
+    }
+
+    deinit {
+        self.appStateObserver.map(NotificationCenter.default.removeObserver)
     }
 }

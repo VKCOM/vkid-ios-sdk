@@ -38,6 +38,11 @@ public struct XCArchive {
     }
 }
 
+public enum XcodeSDK: String {
+    case iphoneos
+    case iphonesimulator
+}
+
 public final class XcodeBuild {
     public init() {}
 
@@ -59,5 +64,43 @@ public final class XcodeBuild {
                 ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES=NO
             """)
         return XCArchive(path: archivePath)
+    }
+
+    public func build(
+        project: URL,
+        scheme: String,
+        configuration: String,
+        sdk: XcodeSDK
+    ) throws {
+        try sh("""
+                xcodebuild clean build \
+                -project \(project.path()) \
+                -scheme \(scheme) \
+                -configuration \(configuration) \
+                -sdk \(sdk.rawValue)
+            """)
+    }
+
+    public func getDerivedDataPath(
+        project: URL,
+        scheme: String,
+        configuration: String,
+        sdk: XcodeSDK
+    ) throws -> URL {
+        let output = Pipe()
+        try sh("""
+                xcodebuild -showBuildSettings \
+                -project "\(project.path())" \
+                -scheme \(scheme) \
+                -configuration \(configuration) \
+                -sdk \(sdk.rawValue) \
+                | grep -m 1 "CONFIGURATION_BUILD_DIR" | grep -oEi "\\/.*"
+            """,
+               stdout: output)
+        let data = output.fileHandleForReading.availableData
+        return String(data: data, encoding: .utf8)?
+            .components(separatedBy: .newlines)
+            .first
+            .flatMap { URL(filePath: $0) } ?? URL(filePath: "")
     }
 }

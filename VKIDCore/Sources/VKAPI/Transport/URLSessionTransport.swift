@@ -161,7 +161,13 @@ public final class URLSessionTransport: NSObject, VKAPITransport {
 
             if let error {
                 self.logger.error("\(request.id) failed with error: \(error)")
-                completion(.failure(.networkConnectionFailed(error)))
+                let apiError: VKAPIError
+                if error.isURLErrorCancelled {
+                    apiError = .cancelled
+                } else {
+                    apiError = .networkConnectionFailed(error)
+                }
+                completion(.failure(apiError))
                 return
             }
             guard let data else {
@@ -241,8 +247,15 @@ public final class URLSessionTransport: NSObject, VKAPITransport {
         data: Data
     ) throws -> T {
         dispatchPrecondition(condition: .onQueue(self.processingQueue))
-
-        return try self.jsonDecoder.decode(T.self, from: data)
+        do {
+            return try self.jsonDecoder.decode(T.self, from: data)
+        } catch {
+            let errorResponse = try self.jsonDecoder.decode(
+                IDHostErrorResponse.self,
+                from: data
+            )
+            throw errorResponse.apiError
+        }
     }
 }
 
@@ -270,5 +283,13 @@ extension URLSessionTransport: URLSessionDelegate {
             self.logger.error("Failed to process server certificate for \(host)")
             completionHandler(.cancelAuthenticationChallenge, nil)
         }
+    }
+}
+
+extension Error {
+    var isURLErrorCancelled: Bool {
+        let nsError = self as NSError
+        return nsError.domain == NSURLErrorDomain &&
+            nsError.code == NSURLErrorCancelled
     }
 }

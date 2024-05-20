@@ -26,6 +26,7 @@
 // THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
 //
 
+import Foundation
 import UIKit
 
 struct DebugSettingsViewModel {
@@ -40,7 +41,7 @@ struct DebugSettingsViewModel {
         return self.sections[section]
     }
 
-    subscript(section: Int, cell: Int) -> DebugSettingsCellViewModel {
+    subscript(section: Int, cell: Int) -> any DebugSettingsCellViewModel {
         let section = self[section]
 
         precondition(
@@ -51,22 +52,27 @@ struct DebugSettingsViewModel {
         return section.cells[cell]
     }
 
-    subscript(indexPath: IndexPath) -> DebugSettingsCellViewModel {
+    subscript(indexPath: IndexPath) -> any DebugSettingsCellViewModel {
         self[indexPath.section, indexPath.row]
     }
 }
 
 struct DebugSettingsSection {
     var title: String
-    var cells: [DebugSettingsCellViewModel]
+    var cells: [any DebugSettingsCellViewModel]
 }
 
 protocol DebugSettingsCellViewModel {
+    associatedtype T = (() -> Void)?
+    associatedtype CellType
     func configureCell(_ cell: UITableViewCell)
-    var action: () -> Void { get set }
+    var action: T { get set }
+    var cellType: CellType { get }
 }
 
 struct DebugSettingsCheckboxCellViewModel: DebugSettingsCellViewModel {
+    var cellType: UITableViewCell.Type = UITableViewCell.self
+
     var title: String
     var checked: Bool
     var action: () -> Void
@@ -79,6 +85,7 @@ struct DebugSettingsCheckboxCellViewModel: DebugSettingsCellViewModel {
 }
 
 final class DebugSettingsToggleCellViewModel: DebugSettingsCellViewModel {
+    var cellType: UITableViewCell.Type = UITableViewCell.self
     var title: String
     var isOn: Bool
     var action: () -> Void
@@ -98,6 +105,7 @@ final class DebugSettingsToggleCellViewModel: DebugSettingsCellViewModel {
         self.title = title
         self.isOn = isOn
         self.action = action
+        self.cellType = UITableViewCell.self
     }
 
     func configureCell(_ cell: UITableViewCell) {
@@ -109,5 +117,34 @@ final class DebugSettingsToggleCellViewModel: DebugSettingsCellViewModel {
     @objc
     private func onToggle() {
         self.action()
+    }
+}
+
+final class DebugSettingsTextFieldViewModel: DebugSettingsCellViewModel {
+    var cellType: DebugSettingsTextFieldCell.Type = DebugSettingsTextFieldCell.self
+    var title: String
+    var placeholder: String
+    var text: String?
+    var action: (String?) -> Void
+
+    init(
+        title: String,
+        placeholder: String,
+        text: String?,
+        action: @escaping (String?) -> Void
+    ) {
+        self.title = title
+        self.action = action
+        self.text = text
+        self.placeholder = placeholder
+    }
+
+    func configureCell(_ cell: UITableViewCell) {
+        guard let cell = (cell as? DebugSettingsTextFieldCell) else { return }
+
+        cell.configure(placeholder: self.placeholder, text: self.text) { [weak self] text in
+            self?.text = text
+            self?.action(text)
+        }
     }
 }

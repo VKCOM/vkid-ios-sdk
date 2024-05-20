@@ -27,12 +27,11 @@
 //
 
 import UIKit
-import VKID
 import VKIDCore
+// Only for debug purposes. Do not use in your projects.
+import VKID
 
 final class AuthViewController: VKIDDemoViewController {
-    var debugSettings: DebugSettingsStorage!
-
     private enum Constants {
         static let authButtonSize = CGSize(width: 220, height: 40)
     }
@@ -54,14 +53,59 @@ final class AuthViewController: VKIDDemoViewController {
         guard let vkid = self.vkid else {
             fatalError("No vkid provided")
         }
-        let oneTap = OneTapButton(
-            layout: .regular(
-                height: .medium(.h44),
-                cornerRadius: 8
-            ),
-            presenter: .uiViewController(self),
-            onCompleteAuth: nil
-        )
+        if self.debugSettings.providedPKCESecretsEnabled {
+            guard let authSecrets = try? PKCESecrets() else {
+                fatalError("PKCE secrets not generated")
+            }
+            self.providedAuthSecrets = authSecrets
+            print("PKCE Secrets: \(authSecrets)")
+        }
+        var oneTap: OneTapButton
+        // condition for interface testing
+        if self.debugSettings.confidentialFlowEnabled {
+            oneTap = OneTapButton(
+                layout: .regular(
+                    height: .medium(.h44),
+                    cornerRadius: 8
+                ),
+                presenter: .uiViewController(self),
+                authConfiguration: AuthConfiguration(
+                    flow: .confidentialClientFlow(
+                        codeExchanger: self,
+                        pkce: self.providedAuthSecrets
+                    ),
+                    scopes: self.debugSettings.scopes.scopesSet
+                ),
+                onCompleteAuth: nil
+            )
+        } else {
+            if self.debugSettings.providedPKCESecretsEnabled {
+                oneTap = OneTapButton(
+                    layout: .regular(
+                        height: .medium(.h44),
+                        cornerRadius: 8
+                    ),
+                    presenter: .uiViewController(self),
+                    authConfiguration: AuthConfiguration(
+                        flow: .publicClientFlow(pkce: self.providedAuthSecrets),
+                        scopes: self.debugSettings.scopes.scopesSet
+                    ),
+                    onCompleteAuth: nil
+                )
+            } else {
+                oneTap = OneTapButton(
+                    layout: .regular(
+                        height: .medium(.h44),
+                        cornerRadius: 8
+                    ),
+                    presenter: .uiViewController(self),
+                    authConfiguration: AuthConfiguration(
+                        scopes: self.debugSettings.scopes.scopesSet
+                    ),
+                    onCompleteAuth: nil
+                )
+            }
+        }
         return vkid.ui(for: oneTap).uiView()
     }()
 

@@ -43,10 +43,6 @@ public struct OneTapBottomSheet: UIViewControllerElement {
     /// Конфигурация для OneTap.
     internal let oneTapButton: AuthButton
 
-    /// Список альтернативных OAuth-провайдеров, которые будут отображаться
-    /// в виджете под основной кнопкой.
-    internal let alternativeOAuthProviders: [OAuthProvider]
-
     /// Цветовая тема шторки.
     internal let theme: Theme
 
@@ -56,13 +52,19 @@ public struct OneTapBottomSheet: UIViewControllerElement {
     /// Коллбэк о завершении авторизации.
     internal let onCompleteAuth: AuthResultCompletion?
 
+    /// Конфигурация авторизации
+    internal let authConfig: AuthConfiguration
+
+    /// Конфигурация OAuth провайдеров, используемых в шторке
+    internal let oAuthProviderConfig: OAuthProviderConfiguration
+
     /// Инициализация конфигурации модальной шторки авторизации с кнопкой, виджетом и темой.
     /// - Parameters:
     ///   - serviceName: Название сервиса в заголовке шторки.
     ///   - targetActionText: Текстовки для целевого действия в шторке.
     ///   - oneTapButton: Конфигурация для OneTap.
-    ///   - alternativeOAuthProviders: Список альтернативных OAuth-провайдеров, которые будут отображаться
-    ///   в виджете под основной кнопкой.
+    ///   - authConfiguration: Конфигурация авторизации.
+    ///   - oAuthConfiguration: Конфигурация OAuth провайдеров, используемых в шторке.
     ///   - theme: Цветовая тема шторки.
     ///   - autoDismissOnSuccess:
     ///   Нужно ли скрывать шторку автоматически в случае успешной авторизации.
@@ -72,7 +74,8 @@ public struct OneTapBottomSheet: UIViewControllerElement {
         serviceName: String,
         targetActionText: TargetActionText,
         oneTapButton: AuthButton,
-        alternativeOAuthProviders: [OAuthProvider] = [],
+        authConfiguration: AuthConfiguration = AuthConfiguration(),
+        oAuthConfiguration: OAuthProviderConfiguration = OAuthProviderConfiguration(),
         theme: Theme = .matchingColorScheme(.current),
         autoDismissOnSuccess: Bool = true,
         onCompleteAuth: AuthResultCompletion?
@@ -80,9 +83,8 @@ public struct OneTapBottomSheet: UIViewControllerElement {
         self.serviceName = serviceName
         self.targetActionText = targetActionText
         self.oneTapButton = oneTapButton
-        self.alternativeOAuthProviders = alternativeOAuthProviders.filter {
-            $0.type != .vkid
-        }
+        self.authConfig = authConfiguration
+        self.oAuthProviderConfig = oAuthConfiguration
         self.theme = theme
         self.autoDismissOnSuccess = autoDismissOnSuccess
         self.onCompleteAuth = onCompleteAuth
@@ -91,8 +93,8 @@ public struct OneTapBottomSheet: UIViewControllerElement {
     public func _uiViewController(factory: VKID) -> UIViewController {
         let oneTap = factory.ui(
             for: OneTapButton(
-                primaryOAuthProvider: .vkid,
-                alternativeOAuthProviders: self.alternativeOAuthProviders,
+                authConfiguration: self.authConfig,
+                oAuthProviderConfiguration: self.oAuthProviderConfig,
                 appearance: .init(
                     title: .init(
                         primary: self.targetActionText.oneTapButtonTitle,
@@ -139,6 +141,15 @@ public struct OneTapBottomSheet: UIViewControllerElement {
 }
 
 extension OneTapBottomSheet {
+    internal enum TargetActionType {
+        case signIn
+        case signInToService
+        case registerForEvent
+        case applyFor
+        case orderCheckout
+        case orderCheckoutAtService
+    }
+
     /// Текстовки для целевого действия в шторке
     public struct TargetActionText {
         /// Заголовок для целевого действия в шторке, максимально 3 строки. Например, "Войдите в сервис или зарегистрируйтесь"
@@ -149,12 +160,15 @@ extension OneTapBottomSheet {
 
         internal let oneTapButtonTitle: String
 
+        internal let type: TargetActionType
+
         /// Войти
         public static var signIn: TargetActionText {
             TargetActionText(
                 title: "vkconnect_auth_floatingonetap_header_sign_in_to_service".localized,
                 subtitle: "vkconnect_auth_floatingonetap_description".localized,
-                oneTapButtonTitle: "vkconnect_auth_floatingonetap_btn_unauth_sign_in_to_service".localized
+                oneTapButtonTitle: "vkconnect_auth_floatingonetap_btn_unauth_sign_in_to_service".localized,
+                type: .signIn
             )
         }
 
@@ -163,7 +177,8 @@ extension OneTapBottomSheet {
             TargetActionText(
                 title: "vkconnect_auth_floatingonetap_header_sign_in_to_account".localizedWithFormat(serviceName),
                 subtitle: "vkconnect_auth_floatingonetap_description".localized,
-                oneTapButtonTitle: "vkconnect_auth_floatingonetap_btn_unauth_sign_in_to_account".localized
+                oneTapButtonTitle: "vkconnect_auth_floatingonetap_btn_unauth_sign_in_to_account".localized,
+                type: .signInToService
             )
         }
 
@@ -172,7 +187,8 @@ extension OneTapBottomSheet {
             TargetActionText(
                 title: "vkconnect_auth_floatingonetap_header_registration_for_event".localized,
                 subtitle: "vkconnect_auth_floatingonetap_description".localized,
-                oneTapButtonTitle: "vkconnect_auth_floatingonetap_btn_unauth_registration_for_event".localized
+                oneTapButtonTitle: "vkconnect_auth_floatingonetap_btn_unauth_registration_for_event".localized,
+                type: .registerForEvent
             )
         }
 
@@ -181,7 +197,8 @@ extension OneTapBottomSheet {
             TargetActionText(
                 title: "vkconnect_auth_floatingonetap_header_submit_applications".localized,
                 subtitle: "vkconnect_auth_floatingonetap_description".localized,
-                oneTapButtonTitle: "vkconnect_auth_floatingonetap_btn_unauth_submit_applications".localized
+                oneTapButtonTitle: "vkconnect_auth_floatingonetap_btn_unauth_submit_applications".localized,
+                type: .applyFor
             )
         }
 
@@ -190,7 +207,8 @@ extension OneTapBottomSheet {
             TargetActionText(
                 title: "vkconnect_auth_floatingonetap_header_make_order_without_service".localized,
                 subtitle: "vkconnect_auth_floatingonetap_description".localized,
-                oneTapButtonTitle: "vkconnect_auth_floatingonetap_btn_unauth_make_order_without_service".localized
+                oneTapButtonTitle: "vkconnect_auth_floatingonetap_btn_unauth_make_order_without_service".localized,
+                type: .orderCheckout
             )
         }
 
@@ -199,18 +217,21 @@ extension OneTapBottomSheet {
             TargetActionText(
                 title: "vkconnect_auth_floatingonetap_header_make_order_with_service".localizedWithFormat(serviceName),
                 subtitle: "vkconnect_auth_floatingonetap_description".localized,
-                oneTapButtonTitle: "vkconnect_auth_floatingonetap_btn_unauth_make_order_with_service".localized
+                oneTapButtonTitle: "vkconnect_auth_floatingonetap_btn_unauth_make_order_with_service".localized,
+                type: .orderCheckoutAtService
             )
         }
 
         fileprivate init(
             title: String,
             subtitle: String,
-            oneTapButtonTitle: String
+            oneTapButtonTitle: String,
+            type: TargetActionType
         ) {
             self.title = title
             self.subtitle = subtitle
             self.oneTapButtonTitle = oneTapButtonTitle
+            self.type = type
         }
     }
 }

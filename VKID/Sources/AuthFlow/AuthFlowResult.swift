@@ -27,24 +27,46 @@
 //
 
 import Foundation
+@_implementationOnly import VKIDCore
 
 internal typealias AuthFlowResult = Result<AuthFlowData, AuthFlowError>
 internal typealias AuthFlowResultCompletion = (AuthFlowResult) -> Void
 
-/// Данные внутреннего флоу авторизации
-internal struct AuthFlowData {
+/// Данные флоу авторизации
+public struct AuthFlowData {
     /// Токен доступа
-    let accessToken: AccessToken
+    public let accessToken: AccessToken
 
-    /// Информация о пользователе
-    let user: User
+    /// Токен для обновления токена доступа
+    public let refreshToken: RefreshToken
+
+    /// Токен для получения данных пользователя в маскированном виде
+    public let idToken: IDToken
+
+    /// Параметр, определяющий девайс айди, предоставляемый сервером в зашифрованном виде.
+    /// Используется для вызовов API с OAuth2.1.
+    public let deviceId: String
+
+    public init(
+        accessToken: AccessToken,
+        refreshToken: RefreshToken,
+        idToken: IDToken,
+        deviceId: String
+    ) {
+        self.accessToken = accessToken
+        self.refreshToken = refreshToken
+        self.idToken = idToken
+        self.deviceId = deviceId
+    }
 }
 
 /// Ошибки внутреннего флоу авторизации
 internal enum AuthFlowError: Error {
     case invalidRedirectURL(URL)
+    case authorizationFailed
+    case invalidExchangeResult
+    case authOverdue
     case invalidAuthCallbackURL
-    case invalidAuthCodePayloadJSON
     case invalidAuthConfigTemplateURL
     case webViewAuthSessionFailedToStart
     case webViewAuthFailed(Error)
@@ -52,6 +74,8 @@ internal enum AuthFlowError: Error {
     case providersFetchingFailed(Error)
     case authByProviderFailed(Error)
     case authCancelledByUser
-    case authCodeResponseStateMismatch
+    case stateMismatch
     case authCodeExchangingFailed(Error)
+    // code verifier not provided for SDK auth code exchanging
+    case codeVerifierNotProvided
 }

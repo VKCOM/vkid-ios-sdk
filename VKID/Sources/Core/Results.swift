@@ -35,6 +35,10 @@ public typealias AuthResult = Result<UserSession, AuthError>
 public typealias AuthResultCompletion = (AuthResult) -> Void
 /// Результат логаута
 public typealias LogoutResult = Result<Void, LogoutError>
+/// Результат обновления токенов
+public typealias TokenRefreshingResult = Result<(AccessToken, RefreshToken), TokenRefreshingError>
+/// Результат обновления пользовательских данных
+public typealias UserFetchingResult = Result<User, UserFetchingError>
 
 /// Основные ошибки авторизации
 public enum AuthError: Error {
@@ -46,6 +50,9 @@ public enum AuthError: Error {
 
     /// Процесс авторизации уже начат. Попытка повторного запуска флоу авторизации
     case authAlreadyInProgress
+
+    /// `codeVerifier` не предоставлен для `AuthConfiguration.Flow.publicClientFlow`
+    case codeVerifierNotProvided
 }
 
 /// Основные ошибки выполнения логаута
@@ -55,4 +62,25 @@ public enum LogoutError: Error {
 
     /// Невалидный токен
     case invalidAccessToken
+}
+
+/// Ошибки обновления токенов: `AccessToken`, `RefreshToken`
+public enum TokenRefreshingError: Error {
+    /// Рефреш токен невалиден или время жизни токена истекло
+    case invalidRefreshToken
+
+    /// Ошибка CSRF
+    case stateMismatch
+
+    /// Причина неизвестна
+    case unknown
+}
+
+/// Ошибки при получении пользовательских данных
+public enum UserFetchingError: Error {
+    /// Невалидный токен
+    case invalidAccessToken
+
+    /// Причина неизвестна
+    case unknown
 }

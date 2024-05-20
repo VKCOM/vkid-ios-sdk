@@ -26,11 +26,13 @@
 // THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
 //
 
-import Foundation
+import UIKit
 
 /// Конфигурация VK ID SDK
 public struct Configuration {
+    /// Учетные данные для VK ID приложения
     public let appCredentials: AppCredentials
+    /// Конфигурация внешнего вида визуальных элементов VK ID
     public var appearance: Appearance
 
     // Only for debug purposes
@@ -79,6 +81,12 @@ public struct Appearance {
         case system
         case light
         case dark
+
+        func resolveSystemToActualScheme() -> Self {
+            UIScreen.main.traitCollection.userInterfaceStyle == .light ?
+                .light :
+                .dark
+        }
     }
 
     /// Локализация интерфейса

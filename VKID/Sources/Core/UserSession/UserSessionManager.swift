@@ -30,35 +30,52 @@ import Foundation
 @_implementationOnly import VKIDCore
 
 internal protocol UserSessionManager {
-    var userSessions: [UserSession] { get }
+    var userSessions: [UserSessionImpl] { get }
     var delegate: UserSessionManagerDelegate? { get set }
+    var currentAuthorizedSession: UserSession? { get }
 
-    func makeUserSession(with data: UserSessionData) -> UserSession
+    func makeUserSession(with data: UserSessionData) -> UserSessionImpl
+    func userSession(by userId: UserID) -> UserSessionImpl?
 }
 
 internal protocol UserSessionManagerDelegate: AnyObject {
     func userSessionManager(
         _ manager: UserSessionManager,
-        didLogoutFrom session: UserSession,
+        didLogoutFrom session: UserSessionImpl,
         with result: LogoutResult
+    )
+
+    func userSessionManager(
+        _ manager: UserSessionManager,
+        didRefreshAccessTokenIn session: UserSessionImpl,
+        with result: TokenRefreshingResult
+    )
+
+    func userSessionManager(
+        _ manager: UserSessionManager,
+        didUpdateUserIn session: UserSessionImpl,
+        with result: UserFetchingResult
     )
 }
 
-/// Менеджер сесиий.
+/// Менеджер сесcий.
 internal final class UserSessionManagerImpl: UserSessionManager {
     struct Dependencies: Dependency {
         let logoutService: LogoutService
         let userSessionDataStorage: UserSessionDataStorage
+        let refreshTokenService: RefreshTokenService
+        let userInfoService: UserInfoService
         let logger: Logging
     }
 
     private let deps: Dependencies
 
-    private lazy var _userSessions: Synchronized<[UserSession]> = Synchronized(
+    private lazy var _userSessions: Synchronized<[UserSessionImpl]> = Synchronized(
         wrappedValue: self.readAllUserSessionsFromStorage()
     )
 
-    private(set) var userSessions: [UserSession] {
+    /// Сессии пользователя.
+    private(set) var userSessions: [UserSessionImpl] {
         get {
             self._userSessions.wrappedValue
         }
@@ -67,38 +84,68 @@ internal final class UserSessionManagerImpl: UserSessionManager {
         }
     }
 
+    /// Последняя созданная сессия пользователя.
+    internal var lastCreatedUserSession: UserSession? {
+        self.userSessions
+            .sorted { $0.data.creationDate > $1.data.creationDate }
+            .first
+    }
+
     internal weak var delegate: UserSessionManagerDelegate?
 
     internal init(deps: Dependencies) {
         self.deps = deps
     }
 
+    /// Самая новая сессия из всех сохраненных.
+    /// Это свойство вычисляемое, и будет возвращать всегда либо самую новую сессию, либо nil.
+    internal var currentAuthorizedSession: UserSession? {
+        self.userSessions
+            .sorted { $0.creationDate > $1.creationDate }
+            .first
+    }
+
     /// Возвращает  уже существующую сессию, если она есть
     /// или создает новую и сохраняет ее в поле userSessions и хранилище keychain.
     /// - Parameter data: Данные сессии пользователя.
     /// - Returns: Экземпляр сессии.
-    internal func makeUserSession(with data: UserSessionData) -> UserSession {
-        if let userSessionFromStorage = userSessions.first(where: { $0.user.id == data.user.id }) {
+    internal func makeUserSession(with data: UserSessionData) -> UserSessionImpl {
+        if let userSessionFromStorage = self.userSession(by: data.id) {
+            self.deps.logger.info("Overwriting session(\(userSessionFromStorage.creationDate))")
+            self.deps.logoutService.logout(with: userSessionFromStorage.data.accessToken) { [weak self] result in
+                if case .failure(let error) = result {
+                    self?.deps
+                        .logger
+                        .info("Overwritten session(\(userSessionFromStorage.creationDate)) logout failed: \(error)")
+                }
+            }
             userSessionFromStorage.data = data
             return userSessionFromStorage
-        } else {
-            let newUserSession = UserSession(
-                delegate: self,
-                data: data,
-                deps: .init(
-                    logoutService: self.deps.logoutService
-                )
-            )
-            self.writeSession(newUserSession)
-            return newUserSession
         }
+
+        let newUserSession = UserSessionImpl(
+            delegate: self,
+            data: data,
+            deps: .init(
+                logoutService: self.deps.logoutService,
+                refreshTokenService: self.deps.refreshTokenService,
+                userInfoService: self.deps.userInfoService
+            )
+        )
+
+        self.writeSessionDataToStorage(data)
+        self.userSessions.append(newUserSession)
+
+        return newUserSession
     }
 
-    private func writeSession(_ session: UserSession) {
+    func userSession(by userId: UserID) -> UserSessionImpl? {
+        self.userSessions.first(where: { $0.userId == userId })
+    }
+
+    private func writeSessionDataToStorage(_ data: UserSessionData) {
         do {
-            try self.deps.userSessionDataStorage.writeUserSessionData(session.data)
-            self.userSessions.removeAll { $0.user.id == session.user.id }
-            self.userSessions.append(session)
+            try self.deps.userSessionDataStorage.writeUserSessionData(data)
         } catch {
             self.deps.logger.error(
                 "Error while saving session to keychain storage: \(error.localizedDescription)"
@@ -106,10 +153,9 @@ internal final class UserSessionManagerImpl: UserSessionManager {
         }
     }
 
-    private func removeSession(_ session: UserSession) {
+    private func removeSessionDataFromStorage(_ userId: UserID) {
         do {
-            try self.deps.userSessionDataStorage.removeUserSessionData(for: session.user.id)
-            self.userSessions.removeAll { $0.user.id == session.user.id }
+            try self.deps.userSessionDataStorage.removeUserSessionData(for: userId)
         } catch {
             self.deps.logger.error(
                 "Error while removing session from keychain storage: \(error.localizedDescription)"
@@ -117,38 +163,108 @@ internal final class UserSessionManagerImpl: UserSessionManager {
         }
     }
 
-    private func readAllUserSessionsFromStorage() -> [UserSession] {
-        var userSessionsData: [UserSessionData] = []
-
+    private func readAllUserSessionsFromStorage() -> [UserSessionImpl] {
         do {
-            userSessionsData = try self.deps.userSessionDataStorage.readAllUserSessionsData()
+            return try self.deps.userSessionDataStorage.readAllUserSessionsData().map {
+                UserSessionImpl(
+                    delegate: self,
+                    data: $0,
+                    deps: .init(
+                        logoutService: self.deps.logoutService,
+                        refreshTokenService: self.deps.refreshTokenService,
+                        userInfoService: self.deps.userInfoService
+                    )
+                )
+            }
         } catch KeychainError.itemNotFound {
             return []
         } catch {
             self.deps.logger.error(
                 "Error while reading all sessions from keychain storage: \(error.localizedDescription)"
             )
-        }
-
-        return userSessionsData.map {
-            UserSession(
-                delegate: self,
-                data: $0,
-                deps: .init(
-                    logoutService: self.deps.logoutService
-                )
-            )
+            return []
         }
     }
 }
 
-/// Обработка событий сесии
+/// Обработка событий сессии
 extension UserSessionManagerImpl: UserSessionDelegate {
-    internal func userSession(_ session: UserSession, didLogoutWith result: LogoutResult) {
-        if case .success = result {
-            self.removeSession(session)
-        }
+    func userSession(
+        _ session: UserSessionImpl,
+        didRefreshAccessTokenWith result: Result<RefreshTokenData, TokenRefreshingError>
+    ) {
+        self.mutateSessions { sessions, strongSelf in
+            var refreshResult: TokenRefreshingResult
+            switch result {
+            case .success(let refreshTokenResult):
+                if let storedSession = sessions.first(
+                    where: { $0.userId == refreshTokenResult.accessToken.userId }
+                ) {
+                    storedSession.data.accessToken = refreshTokenResult.accessToken
+                    storedSession.data.refreshToken = refreshTokenResult.refreshToken
+                    strongSelf.writeSessionDataToStorage(storedSession.data)
+                } else {
+                    self.deps.logger.error("Error: session not found while refreshing")
+                }
+                refreshResult = .success((
+                    refreshTokenResult.accessToken,
+                    refreshTokenResult.refreshToken
+                ))
+            case.failure(let error):
+                refreshResult = .failure(error)
+            }
 
-        self.delegate?.userSessionManager(self, didLogoutFrom: session, with: result)
+            strongSelf.delegate?.userSessionManager(
+                strongSelf,
+                didRefreshAccessTokenIn: session,
+                with: refreshResult
+            )
+        }
+    }
+
+    internal func userSession(_ session: UserSessionImpl, didUpdate data: UserSessionData) {
+        self.writeSessionDataToStorage(data)
+    }
+
+    internal func userSession(_ session: UserSessionImpl, didLogoutWith result: LogoutResult) {
+        self.mutateSessions { sessions, strongSelf in
+            if case .success = result {
+                strongSelf.removeSessionDataFromStorage(session.userId)
+                sessions.removeFirst { $0.userId == session.userId }
+                // После успешного разлогина сессия становится невалидной.
+                // Поэтому, чтобы не реагировать на ее изменения, занулляем у нее ссылку на делегата.
+                session.delegate = nil
+            }
+
+            strongSelf.delegate?.userSessionManager(strongSelf, didLogoutFrom: session, with: result)
+        }
+    }
+
+    func userSession(_ session: UserSessionImpl, didUpdateUserWith result: Result<User, UserFetchingError>) {
+        self.mutateSessions { sessions, strongSelf in
+            var userFetchingResult: UserFetchingResult
+            switch result {
+            case .success(let user):
+                if let storedSession = sessions.first(where: { $0.userId == user.id }) {
+                    storedSession.data.user = user
+                    strongSelf.writeSessionDataToStorage(storedSession.data)
+                } else {
+                    strongSelf.deps.logger.error("Error: session not found while user info update")
+                }
+                userFetchingResult = .success(user)
+            case .failure(let error):
+                userFetchingResult = .failure(error)
+            }
+            strongSelf.delegate?.userSessionManager(strongSelf, didUpdateUserIn: session, with: userFetchingResult)
+        }
+    }
+
+    private func mutateSessions(block: (inout [UserSessionImpl], UserSessionManagerImpl)-> Void) {
+        self._userSessions.mutate { [weak self] sessions in
+            guard let self else {
+                return
+            }
+            block(&sessions, self)
+        }
     }
 }

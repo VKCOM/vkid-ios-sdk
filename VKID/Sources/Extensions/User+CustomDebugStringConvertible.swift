@@ -34,8 +34,8 @@ extension User: CustomDebugStringConvertible {
         """
         <User>
         id: \(id.value)
-        firstName: \(firstName)
-        lastName: \(lastName)
+        firstName: \(firstName ?? "null")
+        lastName: \(lastName ?? "null")
         email: \(email ?? "null")
         phone: \(phone ?? "null")
         avatarURL: \(avatarURL?.absoluteString ?? "null")

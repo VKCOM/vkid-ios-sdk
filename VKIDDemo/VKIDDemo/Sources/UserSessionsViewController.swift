@@ -94,24 +94,113 @@ final class UserSessionsViewController: VKIDDemoViewController, UITableViewDataS
 
     // MARK: - Table view data source
     func numberOfSections(in tableView: UITableView) -> Int {
-        1
+        2
     }
 
     func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         true
     }
 
-    func tableView(_ tableView: UITableView, titleForDeleteConfirmationButtonForRowAt indexPath: IndexPath) -> String? {
-        "Логаут"
+    func tableView(
+        _ tableView: UITableView,
+        trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
+    ) -> UISwipeActionsConfiguration? {
+        if indexPath.section == 0 {
+            guard let session = vkid?.authorizedSessions[indexPath.row] else {
+                return UISwipeActionsConfiguration(actions: [])
+            }
+            return UISwipeActionsConfiguration(actions: [
+                self.action(tableView: tableView,
+                            title: "Обновить данные",
+                            session: session,
+                            color: UIColor.azure,
+                            handler: self.fetchUser(in:completion:)),
+                self.action(tableView: tableView,
+                            title: "Обновить токен",
+                            session: session,
+                            color: UIColor.gray)
+                { session, completion in
+                    session.getFreshAccessToken(forceRefresh: true) { [weak self] result in
+                        self?.handleRefresh(session: session, result: result)
+                    }
+                },
+                self.action(tableView: tableView,
+                            title: "Логаут",
+                            session: session,
+                            color: UIColor.darkGray,
+                            handler: self.logout(from:completion:)),
+            ])
+        } else {
+            guard let legacySession = vkid?.legacyAuthorizedSessions[indexPath.row] else {
+                return UISwipeActionsConfiguration(actions: [])
+            }
+            let migrationAction = UIContextualAction(
+                style: .normal,
+                title: "Мигрировать в OAuth2"
+            ) { _,_,_ in
+                self.vkid?
+                    .oAuth2MigrationManager
+                    .migrate(from: legacySession) { [weak self] result in
+                        tableView.reloadData()
+                        self?.handleMigration(
+                            result: result,
+                            legacyAccessToken: legacySession.accessToken.value
+                        )
+                    }
+            }
+            migrationAction.backgroundColor = .azure
+            return UISwipeActionsConfiguration(actions: [
+                migrationAction,
+                self.action(tableView: tableView,
+                            title: "Логаут",
+                            session: legacySession,
+                            color: UIColor.darkGray,
+                            handler: self.logout(from:completion:)),
+            ])
+        }
+    }
+
+    private func action(
+        tableView: UITableView,
+        title: String,
+        session: UserSession,
+        color: UIColor,
+        handler: @escaping (UserSession, @escaping () -> Void) -> Void
+    ) -> UIContextualAction {
+        let action = UIContextualAction(style: .normal, title: title) { _,_,_ in
+            handler(session) {
+                tableView.reloadData()
+            }
+        }
+        action.backgroundColor = color
+        return action
+    }
+
+    private func action(
+        tableView: UITableView,
+        title: String,
+        session: LegacyUserSession,
+        color: UIColor,
+        handler: @escaping (LegacyUserSession, @escaping () -> Void) -> Void
+    ) -> UIContextualAction {
+        let action = UIContextualAction(style: .normal, title: title) { _,_,_ in
+            handler(session) {
+                tableView.reloadData()
+            }
+        }
+        action.backgroundColor = color
+        return action
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        vkid?.authorizedSessions.count ?? 0
+        section == 0 ?
+            vkid?.authorizedSessions.count ?? 0 :
+            vkid?.legacyAuthorizedSessions.count ?? 0
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard
-            let session = vkid?.authorizedSessions[indexPath.row],
+            let vkid,
             let cell = tableView.dequeueReusableCell(
                 withIdentifier: UserSessionInfoTableViewCell.Constants.identifier,
                 for: indexPath
@@ -119,42 +208,67 @@ final class UserSessionsViewController: VKIDDemoViewController, UITableViewDataS
         else {
             return UITableViewCell()
         }
-
-        cell.apply(session: session)
+        let sessionData: SessionData = indexPath.section == 0 ?
+            .init(from: vkid.authorizedSessions[indexPath.row]) :
+            .init(from: vkid.legacyAuthorizedSessions[indexPath.row])
+        cell.apply(session: sessionData)
 
         return cell
     }
 
-    func tableView(
-        _ tableView: UITableView,
-        commit editingStyle: UITableViewCell.EditingStyle,
-        forRowAt indexPath: IndexPath
-    ) {
-        if editingStyle == .delete, let session = vkid?.authorizedSessions[indexPath.row] {
-            self.logout(from: session) { [indexPath] in
-                tableView.beginUpdates()
-                tableView.deleteRows(at: [indexPath], with: .automatic)
-                tableView.endUpdates()
-            }
-        }
-    }
-
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-
-        guard let userSession = vkid?.authorizedSessions[indexPath.row] else { return }
-
-        self.presentActionSheet(for: userSession)
+        if indexPath.section == 0 {
+            guard let userSession = vkid?.authorizedSessions[indexPath.row] else { return }
+            self.presentActionSheet(for: userSession)
+        } else {
+            guard let legacySession = vkid?.legacyAuthorizedSessions[indexPath.row] else { return }
+            self.presentActionSheet(for: legacySession)
+        }
     }
 
-    private func logout(from session: UserSession, completion: @escaping () -> Void) {
-        session.logout { result in
-            switch result {
-            case .success():
-                DispatchQueue.main.async { completion() }
-            default: break
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        section == 0 ? "Sessions:" : "Legacy sessions:"
+    }
+
+    func presentActionSheet(for legacySession: LegacyUserSession) {
+        let alertViewController = UIAlertController(
+            title: "Действия над устаревшей сессией",
+            message: "Выберите действия, которые хотите выполнить над сессией",
+            preferredStyle: .actionSheet
+        )
+        alertViewController.addAction(
+            UIAlertAction(
+                title: "Мигрировать в OAuth2",
+                style: .destructive
+            ) { [weak self] _ in
+                self?.vkid?.oAuth2MigrationManager.migrate(from: legacySession) { result in
+                    self?.sessionsTableView.reloadData()
+                    self?.handleMigration(result: result, legacyAccessToken: legacySession.accessToken.value)
+                }
             }
-        }
+        )
+        alertViewController.addAction(
+            UIAlertAction(
+                title: "Логаут",
+                style: .destructive
+            ) { [weak self] _ in
+                legacySession.logout { result in
+                    self?.handleLegacyLogout(
+                        legacySession: legacySession,
+                        result: result
+                    )
+                }
+            }
+        )
+        alertViewController.addAction(
+            UIAlertAction(
+                title: "Отменить",
+                style: .cancel
+            )
+        )
+
+        self.present(alertViewController, animated: true)
     }
 
     private func presentActionSheet(for session: UserSession) {
@@ -169,6 +283,27 @@ final class UserSessionsViewController: VKIDDemoViewController, UITableViewDataS
                 style: .destructive
             ) { [weak self] _ in
                 self?.logout(from: session) {
+                    self?.sessionsTableView.reloadData()
+                }
+            }
+        )
+        alertViewController.addAction(
+            UIAlertAction(
+                title: "Обновить токен",
+                style: .destructive
+            ) { [weak self] _ in
+                self?.refreshToken(in: session) { result in
+                    self?.handleRefresh(session: session, result: result)
+                    self?.sessionsTableView.reloadData()
+                }
+            }
+        )
+        alertViewController.addAction(
+            UIAlertAction(
+                title: "Oбновить данные",
+                style: .destructive
+            ) { [weak self] _ in
+                self?.fetchUser(in: session) {
                     self?.sessionsTableView.reloadData()
                 }
             }
@@ -194,9 +329,132 @@ final class UserSessionsViewController: VKIDDemoViewController, UITableViewDataS
         )
         self.present(alertViewController, animated: true)
     }
+
+    private func logout(from legacySession: LegacyUserSession, completion: @escaping () -> Void) {
+        legacySession.logout { [weak self] result in
+            self?.handleLegacyLogout(
+                legacySession: legacySession,
+                result: result
+            )
+        }
+    }
+
+    private func logout(from session: UserSession, completion: @escaping () -> Void) {
+        session.logout { result in
+            switch result {
+            case .success():
+                DispatchQueue.main.async { completion() }
+            default: break
+            }
+        }
+    }
+
+    private func refreshToken(in session: UserSession, completion: @escaping (TokenRefreshingResult) -> Void) {
+        session.getFreshAccessToken(forceRefresh: true) { result in
+            if case .success = result {
+                DispatchQueue.main.async { completion(result) }
+            }
+        }
+    }
+
+    private func fetchUser(in session: UserSession, completion: @escaping () -> Void) {
+        session.fetchUser { result in
+            switch result {
+            case .success:
+                DispatchQueue.main.async { completion() }
+            default: break
+            }
+        }
+    }
+
+    private func handleMigration(
+        result: Result<UserSession, OAuth2MigrationError>,
+        legacyAccessToken: String
+    ) {
+        switch result {
+        case .success(let session):
+            self.presentAlert(
+                title: "Миграция выполнена успешно",
+                message: "Пользователь, для которого была выполнена миграция \(session.userId.value)"
+            )
+        case.failure(let error):
+            self.presentAlert(
+                title: "Не удалось выполнить миграцию",
+                message: """
+                    Не удалось выполнить миграцию для токена '\(legacyAccessToken.prefix(10))...'
+                    Причина: \(error)
+                    """
+            )
+        }
+    }
+
+    private func handleRefresh(
+        session: UserSession,
+        result: TokenRefreshingResult
+    ) {
+        switch result {
+        case .success((_,_)):
+            self.presentAlert(
+                title: "Обновление токенов выполнено успешно",
+                message: "Пользователь, для которого было выполнено обновление токенов \(session.userId.value)"
+            )
+        case .failure(let error):
+            self.presentAlert(
+                title: "Не удалось обновить токены",
+                message: "Не удалось обновить токены для пользователя \(session.userId.value)\nПричина: \(error)"
+            )
+        }
+    }
+
+    private func handleLegacyLogout(legacySession: LegacyUserSession, result: LogoutResult) {
+        switch result {
+        case .success:
+            self.presentAlert(
+                title: "Логаут устаревшей сессии выполнен успешно",
+                message: "Пользователь, для которого был выполнен логаут \(legacySession.accessToken.userId.value)"
+            )
+        case.failure(let error):
+            let message = """
+                Не удалось выполнить логаут для пользователя \(legacySession.accessToken.userId.value).
+                Причина: \(error)"
+                """
+            self.presentAlert(
+                title: "Логаут устаревшей сессии не выполнен",
+                message: message
+            )
+        }
+    }
 }
 
 extension UserSessionsViewController: VKIDObserver {
+    func vkid(
+        _ vkid: VKID,
+        didUpdateUserIn session: UserSession,
+        with result: UserFetchingResult
+    ) {
+        switch result {
+        case .success:
+            self.presentAlert(
+                title: "Обновление данных выполнено успешно",
+                message: "Пользователь, для которого было выполнено обновление данных \(session.userId.value)"
+            )
+        case .failure(let error):
+            self.presentAlert(
+                title: "Не удалось обновить данные",
+                message: "Не удалось обновить данные пользователя \(session.userId.value)\nПричина: \(error)"
+            )
+        }
+    }
+
+    func vkid(_ vkid: VKID, didRefreshAccessTokenIn session: UserSession, with result: TokenRefreshingResult) {
+        switch result {
+        case .success:
+            print("successfully refreshed tokens for: \(session.userId.value)")
+        case .failure(let error):
+            print("failed refresh token for \(session.userId.value): \(error)")
+        }
+    }
+
     func vkid(_ vkid: VKID, didStartAuthUsing oAuth: OAuthProvider) {}
     func vkid(_ vkid: VKID, didCompleteAuthWith result: AuthResult, in oAuth: OAuthProvider) {}
 
@@ -205,12 +463,12 @@ extension UserSessionsViewController: VKIDObserver {
         case .success(()):
             self.presentAlert(
                 title: "Логаут выполнен успешно",
-                message: "Пользователь, для которого был выполнен логаут \(session.user.id.value)"
+                message: "Пользователь, для которого был выполнен логаут \(session.userId.value)"
             )
         case .failure(let error):
             self.presentAlert(
                 title: "Логаут не выполнен",
-                message: "Не удалось выполнить логаут для пользователя \(session.user.id.value)\nПричина: \(error)"
+                message: "Не удалось выполнить логаут для пользователя \(session.userId.value)\nПричина: \(error)"
             )
         }
     }

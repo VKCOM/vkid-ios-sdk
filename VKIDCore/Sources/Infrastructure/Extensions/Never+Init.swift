@@ -34,4 +34,6 @@ extension Never {
     }
 }
 
-public struct Empty: VKAPIDictionaryRepresentable {}
+public struct Empty: VKAPIDictionaryRepresentable {
+    public init() {}
+}

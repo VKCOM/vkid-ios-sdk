@@ -29,6 +29,7 @@ build_for_testing() {
     xcodebuild clean build-for-testing \
     -project ${1} \
     -scheme ${2} \
+    -configuration Debug \
     -sdk iphonesimulator \
     CLIENT_ID=$VKID_DEMO_IOS_CLIENT_ID CLIENT_SECRET=$VKID_DEMO_IOS_CLIENT_SECRET
 }
@@ -41,6 +42,16 @@ test_without_building() {
     -resultBundlePath ${4}
 }
 
+# Allure results
+
+generate_allure_results() {
+    echo "Exporting allure results..."
+    local xcresults_tool_path=${1}
+    local xcresult_artifact_path=${2}
+    local allure_results_folder=${3}
+    $xcresults_tool_path export $xcresult_artifact_path $allure_results_folder
+}
+
 SIM_ID=""
 
 main() {
@@ -48,7 +59,11 @@ main() {
     local project_path=$src_root/VKIDDemo/VKIDDemo.xcodeproj
     local scheme="VKIDDemo"
     local sim_name="VKIDTestSimulator"
-    local xcresult_path=$src_root/build-artifacts/VKID.xcresult
+    local xcresult_artifact_path=$src_root/build-artifacts/VKID.xcresult
+    local xcresults_tool_path=$src_root/bin/xcresults
+    local allure_results_folder=$src_root/allure-results
+
+    rm -rf $xcresult_artifact_path
 
     local sim_id=$(find_simulator $sim_name)
     if [ ! -n "$sim_id" ]; then
@@ -56,9 +71,10 @@ main() {
     fi
 
     SIM_ID=$sim_id
-    boot_simulator $sim_id
+    boot_simulator $sim_id || true
     build_for_testing $project_path $scheme
-    test_without_building $project_path $scheme $sim_id $xcresult_path
+    test_without_building $project_path $scheme $sim_id $xcresult_artifact_path
+    generate_allure_results $xcresults_tool_path $xcresult_artifact_path $allure_results_folder
     shutdown_simulator $sim_id
     delete_simulator $sim_id
     SIM_ID=""

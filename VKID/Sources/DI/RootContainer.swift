@@ -27,12 +27,15 @@
 //
 
 import Foundation
+import UIKit
 @_implementationOnly import VKIDCore
 
 internal final class RootContainer {
     private let appCredentials: AppCredentials
     private let networkConfiguration: NetworkConfiguration
     private let defaultHeaders: VKAPIRequest.Headers
+    private let deviceId = DeviceId.currentDeviceId
+    private let apiHosts: APIHosts
 
     internal init(
         appCredentials: AppCredentials,
@@ -41,13 +44,16 @@ internal final class RootContainer {
         self.appCredentials = appCredentials
         self.networkConfiguration = networkConfiguration
         self.defaultHeaders = ["User-Agent": "\(UserAgent.default) VKID/\(Env.VKIDVersion)"]
+        self.apiHosts = APIHosts(template: networkConfiguration.customDomainTemplate, hostname: Env.apiHost)
     }
 
     internal var anonymousTokenTransport: URLSessionTransport {
         URLSessionTransport(
-            urlRequestBuilder: URLRequestBuilder(hostname: Env.apiHost),
+            urlRequestBuilder: URLRequestBuilder(
+                apiHosts: self.apiHosts
+            ),
             genericParameters: VKAPIGenericParameters(
-                deviceId: DeviceId.currentDeviceId.description,
+                deviceId: self.deviceId.description,
                 clientId: self.appCredentials.clientId,
                 apiVersion: Env.VKAPIVersion,
                 vkidVersion: Env.VKIDVersion
@@ -57,23 +63,34 @@ internal final class RootContainer {
         )
     }
 
-    internal lazy var mainTransport: URLSessionTransport = {
-        let anonTokenService = AnonymousTokenServiceImpl(
+    internal lazy var requestAuthorizationInterceptor = RequestAuthorizationInterceptor(
+        deps: .init(
+            anonymousTokenService: anonTokenService
+        )
+    )
+    internal lazy var expiredAccessTokenInterceptor = ExpiredAccessTokenInterceptor()
+    internal lazy var anonTokenService = AnonymousTokenServiceImpl(
+        deps: .init(
             keychain: Keychain(),
-            api: VKAPI<OAuth>(transport: self.anonymousTokenTransport),
+            api: VKAPI<Auth>(transport: self.anonymousTokenTransport),
             credentials: self.appCredentials
         )
+    )
 
-        return URLSessionTransport(
-            urlRequestBuilder: URLRequestBuilder(hostname: Env.apiHost),
+    internal lazy var mainTransport: URLSessionTransport = {
+        URLSessionTransport(
+            urlRequestBuilder: URLRequestBuilder(
+                apiHosts: self.apiHosts
+            ),
             requestInterceptors: [
-                RequestAuthorizationInterceptor(anonymousTokenService: anonTokenService),
+                self.requestAuthorizationInterceptor,
             ],
             responseInterceptors: [
-                ExpiredAnonymousTokenInterceptor(anonymousTokenService: anonTokenService),
+                ExpiredAnonymousTokenInterceptor(anonymousTokenService: self.anonTokenService),
+                self.expiredAccessTokenInterceptor,
             ],
             genericParameters: VKAPIGenericParameters(
-                deviceId: DeviceId.currentDeviceId.description,
+                deviceId: self.deviceId.description,
                 clientId: self.appCredentials.clientId,
                 apiVersion: Env.VKAPIVersion,
                 vkidVersion: Env.VKIDVersion
@@ -93,51 +110,152 @@ internal final class RootContainer {
     internal lazy var responseParser = AuthCodeResponseParserImpl()
     internal lazy var authURLBuilder = AuthURLBuilderImpl()
     internal lazy var logger: Logging = Logger(subsystem: "VKID")
-    internal lazy var userSessionManager: UserSessionManager = UserSessionManagerImpl(
+    internal lazy var tokenService = TokenService(
         deps: .init(
-            logoutService: self.logoutService,
-            userSessionDataStorage: self.userSessionDataStorage,
-            logger: self.logger
+            api: VKAPI<OAuth2>(transport: self.mainTransport),
+            appCredentials: self.appCredentials
         )
     )
-    internal lazy var userSessionDataStorage: UserSessionDataStorage = UserSessionDataStorageImpl(
+    internal lazy var userService = UserService(
+        deps: .init(
+            api: VKAPI<OAuth2>(transport: self.mainTransport),
+            appCredentials: self.appCredentials,
+            deviceId: self.deviceId
+        )
+    )
+    internal lazy var userSessionManager: UserSessionManager = {
+        let userSessionManager = UserSessionManagerImpl(
+            deps: .init(
+                logoutService: self.logoutService,
+                userSessionDataStorage: self.userSessionDataStorage,
+                refreshTokenService: self.refreshTokenService,
+                userInfoService: self.userInfoService,
+                logger: self.logger
+            )
+        )
+        self.requestAuthorizationInterceptor.userSessionManager = userSessionManager
+        self.expiredAccessTokenInterceptor.userSessionManager = userSessionManager
+
+        return userSessionManager
+    }()
+
+    internal lazy var legacyUserSessionManager: LegacyUserSessionManager = LegacyUserSessionManagerImpl(
+        deps: .init(
+            legacyLogoutService: self.legacyLogoutService,
+            logger: self.logger,
+            legacyUserSessionDataStorage: self.legacyUserSessionDataStorage
+        )
+    )
+    internal lazy var userSessionDataStorage: UserSessionDataStorage = StorageImpl<UserSessionData>(
         deps: .init(
             keychain: self.keychain,
             appCredentials: self.appCredentials
         )
     )
-    internal lazy var logoutService = LogoutServiceImpl(
+    internal lazy var legacyUserSessionDataStorage: LegacyUserSessionDataStorage = StorageImpl<LegacyUserSessionData>(
+        deps: .init(
+            keychain: self.keychain,
+            appCredentials: self.appCredentials
+        )
+    )
+    internal lazy var legacyLogoutService = LegacyLogoutServiceImpl(
         deps: .init(
             api: VKAPI<Auth>(transport: self.mainTransport),
             appCredentials: self.appCredentials
         )
     )
+    internal lazy var oAuth2MigrationService: OAuth2MigrationService = OAuth2MigrationServiceImpl(
+        deps: .init(
+            api: VKAPI<OAuth2>(transport: self.mainTransport),
+            appCredentials: self.appCredentials,
+            deviceId: self.deviceId
+        )
+    )
+    // Менеджер для миграции сессии на OAuth2
+    public lazy var oAuth2MigrationManager: OAuth2MigrationManager = OAuth2MigrationManagerImpl(
+        deps: .init(
+            logoutService: self.logoutService,
+            legacyUserSessionManager: self.legacyUserSessionManager,
+            userSessionManager: self.userSessionManager,
+            oAuth2MigrationService: self.oAuth2MigrationService,
+            appCredentials: self.appCredentials,
+            codeExchangingService: self.tokenService
+        )
+    )
+    internal lazy var analyticsService = AnalyticsServiceImpl(
+        deps: .init(
+            api: VKAPI<StatEvents>(transport: self.mainTransport),
+            logger: self.logger
+        )
+    )
+    internal lazy var analytics = Analytics<TypeRegistrationItemNamespace>(
+        deps: .init(
+            service: self.analyticsService,
+            userInfoProvider: UserInfoProvider(
+                deps: .init(
+                    userSessionManager: self.userSessionManager
+                )
+            )
+        )
+    )
+    internal lazy var vkidAnalytics = VKIDAnalytics(
+        deps: .init(
+            analytics: self.analytics
+        )
+    )
+
+    internal var refreshTokenService: RefreshTokenService {
+        self.tokenService
+    }
+
+    internal var codeExchangingService: CodeExchangingService {
+        self.tokenService
+    }
+
+    internal var userInfoService: UserInfoService {
+        self.userService
+    }
+
+    internal var logoutService: LogoutService {
+        self.userService
+    }
+
+    internal lazy var appStateProvider: AppStateProvider = UIApplication.shared
 }
 
 extension RootContainer: AuthFlowBuilder {
     func webViewAuthFlow(
-        for authConfig: AuthConfiguration,
+        in authContext: AuthContext,
+        for authConfig: ExtendedAuthConfiguration,
         appearance: Appearance
     ) -> AuthFlow {
         WebViewAuthFlow(
             deps: .init(
-                api: VKAPI<OAuth>(transport: self.mainTransport),
+                api: VKAPI<OAuth2>(transport: self.mainTransport),
                 appCredentials: self.appCredentials,
                 appearance: appearance,
+                authConfig: authConfig,
+                authContext: authContext,
                 oAuthProvider: authConfig.oAuthProvider,
-                pkceGenerator: PKCESecretsSHA256Generator(),
+                pkceGenerator: PKCESecretsS256Generator(),
                 authURLBuilder: self.authURLBuilder,
                 webViewStrategyFactory: WebViewAuthStrategyDefaultFactory(
                     appInteropHandler: self.appInteropHandler,
                     responseParser: self.responseParser
                 ),
-                logger: self.logger
+                logger: self.logger,
+                deviceId: self.deviceId,
+                authConfigTemplateURL:
+                URLComponents(
+                    string: "https://\(self.apiHosts.getHostBy(requestHost: .id))/authorize"
+                )?.url
             )
         )
     }
 
     func authByProviderFlow(
-        for authConfig: AuthConfiguration,
+        in authContext: AuthContext,
+        for authConfig: ExtendedAuthConfiguration,
         appearance: Appearance
     ) -> AuthFlow {
         AuthByProviderFlow(
@@ -149,29 +267,37 @@ extension RootContainer: AuthFlowBuilder {
                     )
                 ),
                 appCredentials: self.appCredentials,
-                pkceGenerator: PKCESecretsSHA256Generator(),
+                authConfig: authConfig,
+                authContext: authContext,
+                analytics: self.analytics,
+                pkceGenerator: PKCESecretsS256Generator(),
                 responseParser: self.responseParser,
                 authURLBuilder: self.authURLBuilder,
-                api: VKAPI<OAuth>(transport: self.mainTransport),
-                logger: self.logger
+                api: VKAPI<OAuth2>(transport: self.mainTransport),
+                logger: self.logger,
+                deviceId: self.deviceId
             )
         )
     }
 
     func serviceAuthFlow(
-        for authConfig: AuthConfiguration,
+        in authContext: AuthContext,
+        for authConfig: ExtendedAuthConfiguration,
         appearance: Appearance
     ) -> AuthFlow {
         ServiceAuthFlow(
             deps: .init(
                 webViewAuthFlow: self.webViewAuthFlow(
+                    in: authContext,
                     for: authConfig,
                     appearance: appearance
                 ),
                 authByProviderFlow: self.authByProviderFlow(
+                    in: authContext,
                     for: authConfig,
                     appearance: appearance
-                )
+                ),
+                appStateProvider: self.appStateProvider
             )
         )
     }

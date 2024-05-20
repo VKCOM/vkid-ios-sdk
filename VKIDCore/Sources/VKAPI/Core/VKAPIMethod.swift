@@ -32,7 +32,7 @@ public protocol VKAPIMethod {
     associatedtype Response: VKAPIResponse
     associatedtype Parameters: VKAPIDictionaryRepresentable
 
-    static func request(with parameters: Parameters) -> VKAPIRequest
+    static func request(with parameters: Parameters, for userId: Int?) -> VKAPIRequest
 }
 
 public protocol VKAPIResponse: Decodable {}

@@ -33,18 +33,29 @@ import PackageDescription
 
 let package = Package(
     name: "danger-tooling",
-    platforms: [.macOS("13")],
+    platforms: [
+        .macOS("13"),
+        .iOS(.v15),
+    ],
     products: [
         .library(
             name: "DangerDeps",
             type: .dynamic,
             targets: ["DangerDeps"]
         ),
+        .executable(
+            name: "metrics-collector",
+            targets: ["MetricsCollector"]
+        ),
     ],
     dependencies: [
         .package(
             url: "https://github.com/danger/swift.git",
             .upToNextMajor(from: "3.18.0")
+        ),
+        .package(
+            url: "https://github.com/apple/swift-tools-support-core.git",
+            exact: "0.6.1"
         ),
     ],
     targets: [
@@ -54,9 +65,18 @@ let package = Package(
                 .product(name: "Danger", package: "swift"),
                 "BinarySizeReport",
                 "CodeCoverageReport",
+                "PublicInterfaceChangesReport",
             ]
         ),
-        .target(name: "PluginInfrastructure"),
+        .target(
+            name: "PluginInfrastructure",
+            dependencies: [
+                .product(
+                    name: "SwiftToolsSupport-auto",
+                    package: "swift-tools-support-core"
+                ),
+            ]
+        ),
         .target(
             name: "BinarySizeReport",
             dependencies: ["PluginInfrastructure"]
@@ -64,6 +84,19 @@ let package = Package(
         .target(
             name: "CodeCoverageReport",
             dependencies: ["PluginInfrastructure"]
+        ),
+        .target(
+            name: "PublicInterfaceChangesReport",
+            dependencies: [
+                "PluginInfrastructure",
+            ]
+        ),
+        .executableTarget(
+            name: "MetricsCollector",
+            dependencies: [
+                "BinarySizeReport",
+                "CodeCoverageReport",
+            ]
         ),
     ]
 )

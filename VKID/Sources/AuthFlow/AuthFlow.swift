@@ -38,15 +38,69 @@ internal protocol AuthFlow {
 
 internal protocol AuthFlowBuilder {
     func webViewAuthFlow(
-        for authConfig: AuthConfiguration,
+        in authContext: AuthContext,
+        for authConfig: ExtendedAuthConfiguration,
         appearance: Appearance
     ) -> AuthFlow
     func authByProviderFlow(
-        for authConfig: AuthConfiguration,
+        in authContext: AuthContext,
+        for authConfig: ExtendedAuthConfiguration,
         appearance: Appearance
     ) -> AuthFlow
     func serviceAuthFlow(
-        for authConfig: AuthConfiguration,
+        in authContext: AuthContext,
+        for authConfig: ExtendedAuthConfiguration,
         appearance: Appearance
     ) -> AuthFlow
+}
+
+extension AuthFlow {
+    func handle(
+        exchangeCodeResult: Result<OAuth2.ExchangeAuthCode.Response, VKAPIError>,
+        state: String,
+        serverProvidedDeviceId: String,
+        completion: @escaping AuthFlowResultCompletion
+    ) {
+        switch exchangeCodeResult {
+        case .success(let response):
+            completion(
+                state == response.state ?
+                    .success(.init(from: response, serverProvidedDeviceId: serverProvidedDeviceId)) :
+                    .failure(.stateMismatch)
+            )
+        case .failure(let error):
+            completion(.failure(.authCodeExchangingFailed(error)))
+        }
+    }
+
+    func exchangeCode(
+        using codeExchanger: AuthCodeExchanging,
+        authCodeResponse: AuthCodeResponse,
+        redirectURI: String,
+        pkceSecrets: PKCESecretsWallet,
+        completion: @escaping AuthFlowResultCompletion
+    ) {
+        do {
+            codeExchanger.exchangeAuthCode(
+                .init(
+                    from: authCodeResponse,
+                    codeVerifier: try pkceSecrets.codeVerifier,
+                    redirectURI: redirectURI
+                )
+            ) { result in
+                switch result {
+                case .success(let data):
+                    completion(.success(data))
+                case .failure(AuthFlowError.codeVerifierNotProvided):
+                    completion(.failure(.codeVerifierNotProvided))
+                default:
+                    completion(.failure(.authorizationFailed))
+                }
+            }
+        } catch PKCEWalletError.secretsExpired {
+            completion(.failure(.authOverdue))
+        } catch let error {
+            completion(.failure(.authCodeExchangingFailed(error)))
+        }
+    }
 }

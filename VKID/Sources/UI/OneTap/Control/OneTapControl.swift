@@ -116,6 +116,7 @@ internal class OneTapControl: UIControl {
     )
 
     internal var onTap: ((OneTapControl) -> Void)?
+    internal var didMoveToSuperView: (() -> Void)?
 
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -209,6 +210,14 @@ internal class OneTapControl: UIControl {
                 origin: newValue.origin,
                 size: actualSize
             )
+        }
+    }
+
+    override func didMoveToSuperview() {
+        super.didMoveToSuperview()
+
+        if superview != nil {
+            self.didMoveToSuperView?()
         }
     }
 

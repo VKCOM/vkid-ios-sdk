@@ -29,13 +29,42 @@
 import Foundation
 
 extension URL {
-    public static func temporaryFile(extension pathExtension: String) -> URL {
-        URL(filePath: NSTemporaryDirectory())
-            .appending(component: UUID().uuidString)
-            .appendingPathExtension(pathExtension)
+    public static func temporaryFile(
+        name: String? = nil,
+        extension pathExtension: String?
+    ) -> URL {
+        var result = URL(filePath: NSTemporaryDirectory())
+            .appending(component: name ?? UUID().uuidString)
+        if let pathExtension {
+            result.appendPathExtension(pathExtension)
+        }
+        return result
     }
 
     public static var temporaryJSONFile: URL {
         self.temporaryFile(extension: "json")
+    }
+}
+
+public final class TempFile {
+    public let path: URL
+    public let autoRemoveAfterUse: Bool
+
+    public init(
+        name: String? = nil,
+        extension fileExtension: String? = nil,
+        autoRemoveAfterUse: Bool = true
+    ) {
+        self.path = .temporaryFile(
+            name: name,
+            extension: fileExtension
+        )
+        self.autoRemoveAfterUse = autoRemoveAfterUse
+    }
+
+    deinit {
+        if self.autoRemoveAfterUse {
+            try? FileManager.default.removeItem(at: self.path)
+        }
     }
 }

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2023 - present, LLC “V Kontakte”
+// Copyright (c) 2024 - present, LLC “V Kontakte”
 //
 // 1. Permission is hereby granted to any person obtaining a copy of this Software to
 // use the Software without charge.
@@ -29,35 +29,60 @@
 import CommonCrypto
 import Foundation
 
-internal struct PKCESecrets {
-    internal enum CodeChallengeMethod: String {
-        case sha256
+/// Для повышения безопасности авторизации используется [PKCE](https://datatracker.ietf.org/doc/html/rfc7636)
+public struct PKCESecrets {
+    public enum CodeChallengeMethod: String {
+        case s256
     }
 
-    let codeVerifier: String
-    let codeChallenge: String
-    let codeChallengeMethod: CodeChallengeMethod
-    let state = UUID().uuidString
+    /// [Случайно сгенерированная строка](https://datatracker.ietf.org/doc/html/rfc7636#section-4.1)
+    public var codeVerifier: String?
+    /// [Захешированный codeVerifier](https://datatracker.ietf.org/doc/html/rfc7636#section-4.2)
+    public var codeChallenge: String
+    /// [Алгоритм хеширования](https://datatracker.ietf.org/doc/html/rfc7636#section-4.3)
+    /// На данный момент используется s256
+    public var codeChallengeMethod: CodeChallengeMethod
+    /// Случайно сгенерированная строка для повышения безопасности от [CSRF-атак](https://datatracker.ietf.org/doc/html/rfc6749#section-10.12)
+    public var state: String
+
+    /// Инициализатор для передачи параметров PKCE в SDK
+    public init(
+        codeVerifier: String? = nil,
+        codeChallenge: String,
+        codeChallengeMethod: CodeChallengeMethod = .s256,
+        state: String
+    ) {
+        self.codeVerifier = codeVerifier
+        self.codeChallenge = codeChallenge
+        self.codeChallengeMethod = codeChallengeMethod
+        self.state = state
+    }
+
+    /// Инициализатор, который сгенерирует параметры PKCE
+    public init() throws {
+        self = try PKCESecretsS256Generator().generateSecrets()
+    }
 }
 
 internal protocol PKCESecretsGenerator {
     func generateSecrets() throws -> PKCESecrets
 }
 
-internal final class PKCESecretsSHA256Generator: PKCESecretsGenerator {
+internal final class PKCESecretsS256Generator: PKCESecretsGenerator {
     internal enum Error: Swift.Error {
         case securityServicesError(OSStatus)
         case failedToGenerateChallenge
     }
 
-    func generateSecrets() throws -> PKCESecrets {
+    internal func generateSecrets() throws -> PKCESecrets {
         let octets = try self.generateRandomBytes(length: 32)
         let verifier = octets.base64URLEncoded()
         let challenge = try generateChallenge(for: verifier)
         return PKCESecrets(
             codeVerifier: verifier,
             codeChallenge: challenge,
-            codeChallengeMethod: .sha256
+            codeChallengeMethod: .s256,
+            state: UUID().uuidString
         )
     }
 

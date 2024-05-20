@@ -33,8 +33,13 @@ import Foundation
 @_spi(VKIDDebug)
 public struct NetworkConfiguration {
     public var isSSLPinningEnabled: Bool
+    public var customDomainTemplate: String?
 
-    public init(isSSLPinningEnabled: Bool) {
+    public init(
+        isSSLPinningEnabled: Bool,
+        customDomainTemplate: String? = nil
+    ) {
         self.isSSLPinningEnabled = isSSLPinningEnabled
+        self.customDomainTemplate = customDomainTemplate
     }
 }

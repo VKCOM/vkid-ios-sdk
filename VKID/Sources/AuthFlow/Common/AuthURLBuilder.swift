@@ -28,83 +28,115 @@
 
 import Foundation
 import UIKit
+@_implementationOnly import VKIDCore
 
 internal protocol AuthURLBuilder {
     func buildProviderAuthURL(
-        from templateURLString: String,
-        with secrets: PKCESecrets,
-        credentials: AppCredentials
+        baseURL: URL,
+        authContext: AuthContext,
+        secrets: PKCESecretsWallet,
+        credentials: AppCredentials,
+        scope: String?,
+        deviceId: String
     ) throws -> URL
 
     func buildWebViewAuthURL(
-        from templateURLString: String,
-        for oAuth: OAuthProvider,
-        with secrets: PKCESecrets,
+        baseURL: URL,
+        oAuthProvider: OAuthProvider,
+        authContext: AuthContext,
+        secrets: PKCESecretsWallet,
         credentials: AppCredentials,
+        scope: String?,
+        deviceId: String,
         appearance: Appearance
     ) throws -> URL
 }
 
 internal final class AuthURLBuilderImpl: AuthURLBuilder {
     func buildProviderAuthURL(
-        from templateURLString: String,
-        with secrets: PKCESecrets,
-        credentials: AppCredentials
+        baseURL: URL,
+        authContext: AuthContext,
+        secrets: PKCESecretsWallet,
+        credentials: AppCredentials,
+        scope: String?,
+        deviceId: String
     ) throws -> URL {
         let queryItems: [URLQueryItem] = [
+            .uuid(uniqueSessionId: authContext.uniqueSessionId),
             .authProviderMethod,
-            .init(
-                name: "client_id",
-                value: credentials.clientId
+            .redirectURI(
+                redirectURL(
+                    for: credentials.clientId,
+                    scope: scope
+                ).absoluteString
             ),
         ]
+
         return try self.buildAuthUrl(
-            from: templateURLString,
-            with: secrets,
+            baseURL: baseURL,
+            secrets: secrets,
             credentials: credentials,
+            deviceId: deviceId,
             additionalQueryItems: queryItems
         )
     }
 
     func buildWebViewAuthURL(
-        from templateURLString: String,
-        for provider: OAuthProvider,
-        with secrets: PKCESecrets,
+        baseURL: URL,
+        oAuthProvider: OAuthProvider,
+        authContext: AuthContext,
+        secrets: PKCESecretsWallet,
         credentials: AppCredentials,
+        scope: String?,
+        deviceId: String,
         appearance: Appearance
     ) throws -> URL {
+        guard let codeChallengeMethod = (try? secrets.codeChallengeMethod.rawValue) else {
+            throw AuthFlowError.authOverdue
+        }
         var queryItems: [URLQueryItem] = appearance.urlQueryItems
-        queryItems.append(.sdkOauthJson(oAuth: provider))
+        queryItems += [
+            .uuid(uniqueSessionId: authContext.uniqueSessionId),
+            .provider(oAuth: oAuthProvider),
+            .codeChallengeMethod(codeChallengeMethod),
+            .deviceId(deviceId),
+            .prompt("login"),
+            .oAuthVersion,
+            .scope(scope ?? ""),
+            .redirectURI(
+                redirectURL(
+                    for: credentials.clientId
+                ).absoluteString
+            ),
+        ]
 
         return try self.buildAuthUrl(
-            from: templateURLString,
-            with: secrets,
+            baseURL: baseURL,
+            secrets: secrets,
             credentials: credentials,
+            deviceId: deviceId,
             additionalQueryItems: queryItems
         )
     }
 
     private func buildAuthUrl(
-        from templateURLString: String,
-        with secrets: PKCESecrets,
+        baseURL: URL,
+        secrets: PKCESecretsWallet,
         credentials: AppCredentials,
+        deviceId: String,
         additionalQueryItems: [URLQueryItem]
     ) throws -> URL {
         guard
-            let encodedTemplate = templateURLString
-                .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-                var components = URLComponents(string: encodedTemplate)
+            var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)
         else {
             throw AuthFlowError.invalidAuthConfigTemplateURL
         }
 
-        var queryItems = components
-            .queryItems?
-            .filter { !$0.isTemplate }
-            ?? []
-        queryItems += self.сommonQueryItems(
+        var queryItems = components.queryItems ?? []
+        queryItems += try self.сommonQueryItems(
             clientId: credentials.clientId,
-            secrets: secrets
+            secrets: secrets,
+            deviceId: deviceId
         )
         queryItems += additionalQueryItems
 
@@ -115,43 +147,31 @@ internal final class AuthURLBuilderImpl: AuthURLBuilder {
         throw AuthFlowError.invalidAuthConfigTemplateURL
     }
 
-    private func сommonQueryItems(clientId: String, secrets: PKCESecrets) -> [URLQueryItem] {
+    private func сommonQueryItems(
+        clientId: String,
+        secrets: PKCESecretsWallet,
+        deviceId: String
+    ) throws -> [URLQueryItem] {
         [
-            .init(
-                name: "redirect_uri",
-                value: redirectURL(for: clientId).absoluteString
-            ),
-            .init(
-                name: "response_type",
-                value: "code"
-            ),
-            .init(
-                name: "state",
-                value: secrets.state
-            ),
-            .init(
-                name: "code_challenge",
-                value: secrets.codeChallenge
-            ),
-            .init(
-                name: "code_challenge_method",
-                value: secrets.codeChallengeMethod.rawValue
-            ),
+            .responseType("code"),
+            .state(try secrets.state),
+            .codeChallenge(try secrets.codeChallenge),
+            .clientId(clientId),
         ]
     }
 }
 
-internal func redirectURL(for clientId: String) -> URL {
-    URL(string: "vk\(clientId)://vk.com/blank.html")!
-}
-
-extension URLQueryItem {
-    internal var isTemplate: Bool {
-        if let value {
-            return value.contains("{\(self.name)}")
-        }
-        return false
+internal func redirectURL(for clientId: String, scope: String? = nil) -> URL {
+    var components = URLComponents(string: "vk\(clientId)://\(Env.apiHost)/blank.html")!
+    if let scope, let jsonData = try? JSONSerialization.data(withJSONObject: ["scope": scope]) {
+        let params = String(data: jsonData.base64EncodedData(), encoding: .utf8)
+        components.queryItems = [.init(name: "oauth2_params", value: params)]
+    } else {
+        // stub value to enable OAuth2 by query item name
+        components.queryItems = [.oAuth2Params("oauth2")]
     }
+
+    return components.url!
 }
 
 extension Appearance {
@@ -166,47 +186,22 @@ extension Appearance {
         func rawColorScheme(_ theme: Appearance.ColorScheme) -> String? {
             switch theme {
             case .system:
-                return UIScreen
-                    .main
-                    .traitCollection
-                    .userInterfaceStyle
-                    .colorScheme
-                    .flatMap(rawColorScheme(_:))
+                return rawColorScheme(
+                    theme.resolveSystemToActualScheme()
+                )
             case .light:
-                return "bright_light"
+                return "light"
             case .dark:
-                return "space_gray"
+                return "dark"
             }
         }
         return rawColorScheme(self.colorScheme).map {
-            URLQueryItem(name: "scheme", value: $0)
+            .scheme($0)
         }
     }
 
     private var localeQueryItem: URLQueryItem? {
-        func rawLocale(_ locale: Appearance.Locale) -> String? {
-            switch locale {
-            case .system:
-                return preferredLocale().flatMap(rawLocale(_:))
-            case .ru:
-                return "0"
-            case .uk:
-                return "1"
-            case .en:
-                return "3"
-            case .es:
-                return "4"
-            case .de:
-                return "6"
-            case .pl:
-                return "15"
-            case .fr:
-                return "16"
-            case .tr:
-                return "82"
-            }
-        }
-        return rawLocale(self.locale).map {
+        self.locale.rawLocale.map {
             URLQueryItem(name: "lang_id", value: $0)
         }
     }
@@ -230,56 +225,103 @@ extension UIUserInterfaceStyle {
 extension URLQueryItem {
     internal static let authProviderMethod = Self(name: "vkconnect_auth_provider_method", value: "external_auth")
 
-    internal static func sdkOauthJson(oAuth: OAuthProvider) -> Self {
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = .sortedKeys
-
-        struct SDKOAuth: Encodable {
-            struct OAuth: Encodable {
-                let oauth: String
-            }
-
-            let name: String = "sdk_oauth"
-            let params: OAuth
-
-            init(oauth: String) {
-                self.params = OAuth(oauth: oauth)
-            }
-        }
-
-        return Self(
-            name: "action",
-            value: try? encoder.encode(
-                SDKOAuth(
-                    oauth: oAuth.type.rawValue
-                )
-            ).base64EncodedString()
+    internal static func uuid(uniqueSessionId: String) -> Self {
+        Self(
+            name: "uuid",
+            value: uniqueSessionId
         )
     }
-}
 
-private func preferredLocale() -> Appearance.Locale? {
-    guard let lang = NSLocale.preferredLanguages.first?.prefix(2) else {
-        return nil
+    internal static func provider(oAuth: OAuthProvider) -> Self {
+        Self(
+            name: "provider",
+            value: oAuth.type.endingWithRuIfNeeded
+        )
     }
-    switch lang {
-    case "ru":
-        return .ru
-    case "uk":
-        return .uk
-    case "en":
-        return .en
-    case "es":
-        return .es
-    case "de":
-        return .de
-    case "pl":
-        return .pl
-    case "fr":
-        return .fr
-    case "tr":
-        return .tr
-    default:
-        return nil
+
+    internal static func codeChallengeMethod(_ codeChallengeMethod: String) -> Self {
+        Self(
+            name: "code_challenge_method",
+            value: codeChallengeMethod
+        )
+    }
+
+    internal static func deviceId(_ deviceId: String) -> Self {
+        Self(
+            name: "device_id",
+            value: deviceId
+        )
+    }
+
+    internal static func prompt(_ prompt: String) -> Self {
+        Self(
+            name: "prompt",
+            value: prompt
+        )
+    }
+
+    internal static func redirectURI(_ redirectURI: String) -> Self {
+        Self(
+            name: "redirect_uri",
+            value: redirectURI
+        )
+    }
+
+    internal static func responseType(_ responseType: String) -> Self {
+        Self(
+            name: "response_type",
+            value: responseType
+        )
+    }
+
+    internal static func state(_ state: String) -> Self {
+        Self(
+            name: "state",
+            value: state
+        )
+    }
+
+    internal static func codeChallenge(_ codeChallenge: String) -> Self {
+        Self(
+            name: "code_challenge",
+            value: codeChallenge
+        )
+    }
+
+    internal static func clientId(_ clientId: String) -> Self {
+        Self(
+            name: "client_id",
+            value: clientId
+        )
+    }
+
+    internal static func scheme(_ scheme: String) -> Self {
+        Self(
+            name: "scheme",
+            value: scheme
+        )
+    }
+
+    internal static func langId(_ langId: String) -> Self {
+        Self(
+            name: "lang_id",
+            value: langId
+        )
+    }
+
+    internal static func oAuth2Params(_ oAuth2Params: String) -> Self {
+        Self(
+            name: "oauth2_params",
+            value: oAuth2Params
+        )
+    }
+
+    internal static let oAuthVersion = Self(name: "oauth_version", value: "2")
+
+    internal static func scope(_ scope: String) -> Self {
+        Self(
+            name: "scope",
+            value: scope
+        )
     }
 }
