@@ -32,6 +32,9 @@
             reference = "container:TestPlans/MRPipeline.xctestplan"
             default = "YES">
          </TestPlanReference>
+         <TestPlanReference
+            reference = "container:TestPlans/SSLPinning.xctestplan">
+         </TestPlanReference>
       </TestPlans>
    </TestAction>
    <LaunchAction

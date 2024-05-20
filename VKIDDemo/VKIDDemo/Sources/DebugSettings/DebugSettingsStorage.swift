@@ -31,6 +31,11 @@ import Foundation
 final class DebugSettingsStorage {
     private enum Keys: String {
         case sslPinningEnabled = "com.vkid.debug.sslPinningEnabled"
+        case customDomainTemplate = "com.vkid.debug.customDomainTemplate"
+        case providedPKCESecretsEnabled = "com.vkid.debug.providedPKCESecretsEnabled"
+        case confidentialFlowEnabled = "com.vkid.debug.confidentialFlowEnabled"
+        case serviceToken = "com.vkid.debug.serviceToken"
+        case scopes = "com.vkid.debug.scopes"
     }
 
     private let userDefaults = UserDefaults.standard
@@ -45,6 +50,76 @@ final class DebugSettingsStorage {
             self.userDefaults.setValue(
                 newValue,
                 forKey: Keys.sslPinningEnabled.rawValue
+            )
+        }
+    }
+
+    var customDomainTemplate: String? {
+        get {
+            (self.userDefaults.value(
+                forKey: Keys.customDomainTemplate.rawValue
+            ) as? String)
+        }
+        set {
+            self.userDefaults.setValue(
+                newValue,
+                forKey: Keys.customDomainTemplate.rawValue
+            )
+        }
+    }
+
+    var providedPKCESecretsEnabled: Bool {
+        get {
+            (self.userDefaults.value(
+                forKey: Keys.providedPKCESecretsEnabled.rawValue
+            ) as? Bool) ?? false
+        }
+        set {
+            self.userDefaults.setValue(
+                newValue,
+                forKey: Keys.providedPKCESecretsEnabled.rawValue
+            )
+        }
+    }
+
+    var confidentialFlowEnabled: Bool {
+        get {
+            (self.userDefaults.value(
+                forKey: Keys.confidentialFlowEnabled.rawValue
+            ) as? Bool) ?? false
+        }
+        set {
+            self.userDefaults.setValue(
+                newValue,
+                forKey: Keys.confidentialFlowEnabled.rawValue
+            )
+        }
+    }
+
+    var serviceToken: String? {
+        get {
+            (self.userDefaults.value(
+                forKey: Keys.serviceToken.rawValue
+            ) as? String)
+        }
+        set {
+            self.userDefaults.setValue(
+                newValue,
+                forKey: Keys.serviceToken.rawValue
+            )
+        }
+    }
+
+    var scopes: String? {
+        get {
+            (self.userDefaults.value(
+                forKey: Keys.scopes.rawValue
+            ) as? String)
+        }
+        set {
+            self.userDefaults.setValue(
+                newValue,
+                forKey: Keys.scopes.rawValue
             )
         }
     }

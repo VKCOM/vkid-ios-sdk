@@ -33,9 +33,9 @@ public struct User: Equatable, Hashable, Codable {
     /// Идентификатор пользователя
     public let id: UserID
     /// Имя
-    public let firstName: String
+    public let firstName: String?
     /// Фамилия
-    public let lastName: String
+    public let lastName: String?
     /// Электронная почта
     public let email: String?
     /// Номер мобильного телефона

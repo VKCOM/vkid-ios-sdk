@@ -36,18 +36,41 @@ public protocol VKIDObserver: AnyObject {
     ///   - vkid: объект взаимодействия с VKID
     ///   - oAuth: провайдер авторизации
     func vkid(_ vkid: VKID, didStartAuthUsing oAuth: OAuthProvider)
+
     /// Сообщает о завершении флоу авторизации через VKID
     /// - Parameters:
     ///   - vkid: объект взаимодействия с VKID
     ///   - result: результат авторизации
     ///   - oAuth: провайдер авторизации
     func vkid(_ vkid: VKID, didCompleteAuthWith result: AuthResult, in oAuth: OAuthProvider)
+
     /// Сообщает о завершении логаута сессии через VKID
     /// - Parameters:
     ///   - vkid: объект взаимодействия с VKID
     ///   - session: сессия, из которой был выполнен логаут
     ///   - result: результат логаута
     func vkid(_ vkid: VKID, didLogoutFrom session: UserSession, with result: LogoutResult)
+
+    /// Сообщает об обновлении токенов через VKID
+    /// - Parameters:
+    ///   - vkid: объект взаимодействия с VKID
+    ///   - session: сессия, в которой обновляются токены
+    ///   - result: результат обновления токенов
+    func vkid(_ vkid: VKID, didRefreshAccessTokenIn session: UserSession, with result: TokenRefreshingResult)
+
+    /// Сообщает об обновлении данных пользователя через VKID
+    /// - Parameters:
+    ///   - vkid: объект взаимодействия с VKID
+    ///   - session: сессия, в которой обновляются данные пользователя
+    ///   - result: результат обновления данных пользователя
+    func vkid(_ vkid: VKID, didUpdateUserIn session: UserSession, with result: UserFetchingResult)
+}
+
+// MARK: - Поддержка обратной совместимости
+extension VKIDObserver {
+    public func vkid(_ vkid: VKID, didLogoutFrom session: UserSession, with result: LogoutResult) {}
+    public func vkid(_ vkid: VKID, didUpdateUserIn session: UserSession, with result: UserFetchingResult) {}
+    public func vkid(_ vkid: VKID, didRefreshAccessTokenIn session: UserSession, with result: TokenRefreshingResult) {}
 }
 
 /// Объект, через который идет все взаимодействие с VKID
@@ -56,7 +79,12 @@ public final class VKID {
     private var observers = WeakObservers<VKIDObserver>()
     private var activeFlow: AuthFlow?
 
-    private let rootContainer: RootContainer
+    internal let rootContainer: RootContainer
+
+    // Менеджер для миграции сессии на OAuth2
+    public var oAuth2MigrationManager: OAuth2MigrationManager {
+        self.rootContainer.oAuth2MigrationManager
+    }
 
     /// Сохраненные авторизованные сессии
     public var authorizedSessions: [UserSession] {
@@ -66,9 +94,12 @@ public final class VKID {
     /// Самая новая сессия из всех сохраненных.
     /// Это свойство вычисляемое, и будет возвращать всегда либо самую новую сессию, либо nil.
     public var currentAuthorizedSession: UserSession? {
-        self.authorizedSessions
-            .sorted { $0.data.creationDate > $1.data.creationDate }
-            .first
+        self.rootContainer.userSessionManager.currentAuthorizedSession
+    }
+
+    /// Сохраненные сессии требующие миграции
+    public var legacyAuthorizedSessions: [LegacyUserSession] {
+        self.rootContainer.legacyUserSessionManager.legacyUserSessions
     }
 
     public var appearance: Appearance {
@@ -91,7 +122,12 @@ public final class VKID {
             appCredentials: config.appCredentials,
             networkConfiguration: config.network
         )
+
         self.rootContainer.userSessionManager.delegate = self
+        self.observers.add(
+            self.rootContainer.vkidAnalytics
+        )
+        self.rootContainer.analytics.sdkInit.send()
     }
 
     public func add(observer: VKIDObserver) {
@@ -105,7 +141,16 @@ public final class VKID {
         self.observers.remove(observer)
     }
 
-    /// Запускает флоу авторизации через VKID
+    /// Открытие ресурса в VKID
+    ///
+    /// Необходим для открытия ссылки при возврате после прыжка в провайдер(приложение).
+    /// - Parameters:
+    ///   - url: ссылка ресурса
+    public func open(url: URL) -> Bool {
+        self.rootContainer.appInteropHandler.open(url: url)
+    }
+
+    /// Запускает флоу авторизации через VKID.
     /// - Parameters:
     ///   - authConfig: настройки флоу авторизации
     ///   - presenter: объект, отвечающий за показ экранов авторизации
@@ -115,25 +160,100 @@ public final class VKID {
         using presenter: UIKitPresenter,
         completion: @escaping AuthResultCompletion
     ) {
+        self.authorize(
+            authContext: AuthContext(
+                launchedBy: .service
+            ),
+            authConfig: authConfig,
+            oAuthProviderConfig: .init(),
+            presenter: presenter,
+            completion: completion
+        )
+    }
+
+    /// Запускает флоу авторизации через VKID.
+    /// - Parameters:
+    ///   - authConext: информация о текущей авторизации.
+    ///   - authConfig: настройки флоу авторизации.
+    ///   - presenter: объект, отвечающий за показ экранов авторизации.
+    ///   - completion: коллбэк с результатом авторизации.
+    internal func authorize(
+        authContext: AuthContext,
+        authConfig: AuthConfiguration,
+        oAuthProviderConfig: OAuthProviderConfiguration,
+        presenter: UIKitPresenter,
+        completion: @escaping AuthResultCompletion
+    ) {
+        guard let pkce = authConfig.flow.pkce ?? (try? PKCESecrets())
+        else {
+            let pkceGenerationFailed: AuthResult = .failure(.unknown)
+            self.observers.notify {
+                $0.vkid(
+                    self,
+                    didCompleteAuthWith: pkceGenerationFailed,
+                    in: oAuthProviderConfig.primaryProvider
+                )
+            }
+            completion(pkceGenerationFailed)
+            return
+        }
+        let pkceWallet = PKCESecretsWallet(secrets: pkce)
+        let codeExchanger = authConfig.flow.codeExchanger ??
+            CodeExchanger(
+                deps: .init(codeExchangingService: self.rootContainer.codeExchangingService),
+                pkceSecrets: pkceWallet
+            )
+        let extendedAuthConfiguration = ExtendedAuthConfiguration(
+            pkceSecrets: pkceWallet,
+            codeExchanger: codeExchanger,
+            oAuthProvider: oAuthProviderConfig.primaryProvider,
+            scope: authConfig.scopes?.joined(separator: " ")
+        )
+
+        self.authorize(
+            authContext: authContext,
+            extendedAuthConfig: extendedAuthConfiguration,
+            presenter: presenter,
+            completion: completion
+        )
+    }
+
+    /// Запускает флоу авторизации через VKID.
+    /// - Parameters:
+    ///   - authConext: информация о текущей авторизации.
+    ///   - extendedAuthConfig: расширенные настройки флоу авторизации.
+    ///   - presenter: объект, отвечающий за показ экранов авторизации.
+    ///   - completion: коллбэк с результатом авторизации.
+    internal func authorize(
+        authContext: AuthContext,
+        extendedAuthConfig: ExtendedAuthConfiguration,
+        presenter: UIKitPresenter,
+        completion: @escaping AuthResultCompletion
+    ) {
         dispatchPrecondition(condition: .onQueue(.main))
 
         if self.activeFlow != nil {
             let authAlreadyInProgress: AuthResult = .failure(.authAlreadyInProgress)
             self.observers.notify {
-                $0.vkid(self, didCompleteAuthWith: authAlreadyInProgress, in: authConfig.oAuthProvider)
+                $0.vkid(self, didCompleteAuthWith: authAlreadyInProgress, in: extendedAuthConfig.oAuthProvider)
             }
             completion(authAlreadyInProgress)
             return
         }
 
-        if authConfig.oAuthProvider.type == .vkid {
+        self.rootContainer.vkidAnalytics.context = authContext
+
+        switch extendedAuthConfig.oAuthProvider.type {
+        case .vkid:
             self.activeFlow = self.rootContainer.serviceAuthFlow(
-                for: authConfig,
+                in: authContext,
+                for: extendedAuthConfig,
                 appearance: self.appearance
             )
-        } else {
+        case .ok, .mail:
             self.activeFlow = self.rootContainer.webViewAuthFlow(
-                for: authConfig,
+                in: authContext,
+                for: extendedAuthConfig,
                 appearance: self.appearance
             )
         }
@@ -150,42 +270,64 @@ public final class VKID {
                     .userSessionManager
                     .makeUserSession(
                         with: UserSessionData(
-                            oAuthProvider: authConfig.oAuthProvider,
+                            id: $0.accessToken.userId,
+                            oAuthProvider: extendedAuthConfig.oAuthProvider,
                             accessToken: $0.accessToken,
-                            user: $0.user
+                            refreshToken: $0.refreshToken,
+                            idToken: $0.idToken,
+                            serverProvidedDeviceId: $0.deviceId
                         )
-                    )
+                    ) as UserSession
             }
 
             let authResult = AuthResult(userSessionResult)
+
             self.observers.notify {
-                $0.vkid(self, didCompleteAuthWith: authResult, in: authConfig.oAuthProvider)
+                $0.vkid(
+                    self,
+                    didCompleteAuthWith: authResult,
+                    in: extendedAuthConfig.oAuthProvider
+                )
             }
             completion(authResult)
         }
         self.observers.notify {
-            $0.vkid(self, didStartAuthUsing: authConfig.oAuthProvider)
+            $0.vkid(
+                self,
+                didStartAuthUsing: extendedAuthConfig.oAuthProvider
+            )
         }
-    }
-
-    /// Открытие ресурса в VKID
-    ///
-    /// Необходим для открытия ссылки при возврате после прыжка в провайдер(приложение).
-    /// - Parameters:
-    ///   - url: ссылка ресурса
-    public func open(url: URL) -> Bool {
-        self.rootContainer.appInteropHandler.open(url: url)
     }
 }
 
 extension VKID: UserSessionManagerDelegate {
     internal func userSessionManager(
         _ manager: UserSessionManager,
-        didLogoutFrom session: UserSession,
+        didRefreshAccessTokenIn session: UserSessionImpl,
+        with result: TokenRefreshingResult
+    ) {
+        self.observers.notify {
+            $0.vkid(self, didRefreshAccessTokenIn: session, with: result)
+        }
+    }
+
+    internal func userSessionManager(
+        _ manager: UserSessionManager,
+        didLogoutFrom session: UserSessionImpl,
         with result: LogoutResult
     ) {
         self.observers.notify {
             $0.vkid(self, didLogoutFrom: session, with: result)
+        }
+    }
+
+    internal func userSessionManager(
+        _ manager: UserSessionManager,
+        didUpdateUserIn session: UserSessionImpl,
+        with result: UserFetchingResult
+    ) {
+        self.observers.notify {
+            $0.vkid(self, didUpdateUserIn: session, with: result)
         }
     }
 }
@@ -196,18 +338,25 @@ extension VKID {
     /// VKID version
     public static var sdkVersion: String { VKID_VERSION }
 
+    /// VKID server API version
+    public static var apiVersion: String { VKAPI_VERSION }
+
     internal var isAuthorizing: Bool {
         self.activeFlow != nil
     }
 }
 
 extension AuthResult {
-    internal init(_ result: Result<UserSession, AuthFlowError>) {
+    internal init(
+        _ result: Result<UserSession, AuthFlowError>
+    ) {
         switch result {
         case .success(let session):
             self = .success(session)
         case .failure(.authCancelledByUser):
             self = .failure(.cancelled)
+        case .failure(.codeVerifierNotProvided):
+            self = .failure(.codeVerifierNotProvided)
         case .failure:
             self = .failure(.unknown)
         }

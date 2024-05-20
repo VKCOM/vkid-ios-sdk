@@ -42,7 +42,7 @@ final class AuthCodeResponseParserTests: XCTestCase {
 
     func testParseAuthCodeResponseWithValidURL() {
         let expectedResponse = makeRandomResponse()
-        let validUrl = makeURLforAuthCodeResponse(response: expectedResponse)
+        let validUrl = self.makeURLComponents(with: expectedResponse).url!
         do {
             let actualResponse = try parser.parseAuthCodeResponse(from: validUrl)
             XCTAssertEqual(expectedResponse, actualResponse)
@@ -70,7 +70,7 @@ final class AuthCodeResponseParserTests: XCTestCase {
     func testParseAuthCodeResponseWithEmptyPayload() {
         let urlWithEmptyPayload = URL(string: "vk523633://vk.com/blank.html?payload=")!
         XCTAssertThrowsError(try self.parser.parseAuthCodeResponse(from: urlWithEmptyPayload)) { error in
-            guard case AuthFlowError.invalidAuthCodePayloadJSON = error
+            guard case AuthFlowError.invalidAuthCallbackURL = error
             else { return XCTFail("Invalid error type/class - \(error)") }
         }
     }
@@ -78,7 +78,7 @@ final class AuthCodeResponseParserTests: XCTestCase {
     func testParseAuthCodeResponseWithInvalidPayload() {
         let urlWithInvalidPayload = URL(string: "vk523633://vk.com/blank.html?payload=invalidPayloadStucture")!
         XCTAssertThrowsError(try self.parser.parseAuthCodeResponse(from: urlWithInvalidPayload)) { error in
-            guard case AuthFlowError.invalidAuthCodePayloadJSON = error
+            guard case AuthFlowError.invalidAuthCallbackURL = error
             else { return XCTFail("Invalid error type/class - \(error)") }
         }
     }
@@ -128,22 +128,8 @@ final class AuthCodeResponseParserTests: XCTestCase {
 }
 
 extension AuthCodeResponseParserTests {
-    private func makeURLforAuthCodeResponse(response: AuthCodeResponse) -> URL {
-        let payloadJson = try! JSONEncoder().encode(response)
-        let payload = String(data: payloadJson, encoding: .utf8)
-
-        let urlComponents = self.makeURLComponents(with: payload)
-
-        return urlComponents.url!
-    }
-
     private func makeURLforCallbackMethod(typeAuthProvider: String) -> URL {
-        let payloadJson = try! JSONEncoder().encode(
-            self.makeRandomResponse()
-        )
-        let payload = String(data: payloadJson, encoding: .utf8)
-
-        var urlComponents = self.makeURLComponents(with: payload)
+        var urlComponents = self.makeURLComponents(with: self.makeRandomResponse())
         urlComponents.queryItems?.append(
             URLQueryItem(
                 name: "vkconnect_auth_provider_method",
@@ -154,34 +140,25 @@ extension AuthCodeResponseParserTests {
         return urlComponents.url!
     }
 
-    private func makeURLComponents(with payload: String?) -> URLComponents {
+    private func makeURLComponents(with response: AuthCodeResponse) -> URLComponents {
         var urlComponents = URLComponents()
         urlComponents.scheme = "vk\(Int.random)"
         urlComponents.host = "vk.com"
         urlComponents.path = "/blank.html"
-        urlComponents.queryItems = [
-            URLQueryItem(
-                name: "payload",
-                value: payload
-            ),
+        let queryItems: [URLQueryItem] = [
+            .init(name: "code", value: response.code),
+            .init(name: "state", value: response.state),
+            .init(name: "device_id", value: response.serverProvidedDeviceId),
         ]
-
+        urlComponents.queryItems = queryItems
         return urlComponents
     }
 
     private func makeRandomResponse() -> AuthCodeResponse {
         AuthCodeResponse(
-            oauth: .init(
-                code: UUID().uuidString,
-                state: UUID().uuidString
-            ),
-            user: .init(
-                id: Int.random,
-                firstName: UUID().uuidString,
-                lastName: UUID().uuidString,
-                email: UUID().uuidString,
-                avatar: URL.random
-            )
+            code: UUID().uuidString,
+            state: UUID().uuidString,
+            serverProvidedDeviceId: UUID().uuidString
         )
     }
 }

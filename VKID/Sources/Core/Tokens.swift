@@ -41,7 +41,7 @@ extension Expiring {
     }
 
     public func willExpire(in interval: TimeInterval) -> Bool {
-        expirationDate.addingTimeInterval(interval) <= Date()
+        expirationDate <= Date().addingTimeInterval(interval)
     }
 }
 
@@ -60,6 +60,28 @@ public struct AccessToken: Expiring, Equatable, Codable {
         self.userId = userId
         self.value = value
         self.expirationDate = expirationDate
+    }
+}
+
+/// Токен обновления `AccessToken`
+public struct RefreshToken: Equatable, Codable {
+    public let userId: UserID
+    public let value: String
+
+    public init(userId: UserID, value: String) {
+        self.userId = userId
+        self.value = value
+    }
+}
+
+/// Токен для получения пользовательских данных в маскированном виде
+public struct IDToken: Equatable, Codable {
+    public let userId: UserID
+    public let value: String
+
+    public init(userId: UserID, value: String) {
+        self.userId = userId
+        self.value = value
     }
 }
 

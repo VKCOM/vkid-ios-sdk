@@ -32,9 +32,6 @@ import UIKit
 public struct OAuthListWidget: UIViewElement {
     public typealias Factory = VKID
 
-    /// Список oauth-ов, который будет отображен в виджете
-    internal var oAuthProviders: [OAuthProvider]
-
     /// Конфигурация кнопок с oauth-ами
     internal let buttonConfiguration: ButtonConfiguration
 
@@ -47,15 +44,26 @@ public struct OAuthListWidget: UIViewElement {
     /// Колбэк с результатом авторизации
     internal let onCompleteAuth: AuthResultCompletion?
 
+    /// Конфигурация авторизации
+    internal let authConfig: AuthConfiguration
+
+    /// Список провайдеров для отображения в виджете
+    internal let oAuthProviders: [OAuthProvider]
+
+    /// Экран на котором находится виджет
+    internal let screen: AuthContext.Screen
+
     /// Инициализация конфигурации виджета
     /// - Parameters:
-    ///   - oAuthProviders: Список oauth-ов, который будет отображен в виджете
+    ///   - oAuthProviders: Список провайдеров для отображения в виджете
+    ///   - authConfiguration: Конфигурация авторизации
     ///   - buttonConfiguration: Конфигурация кнопок с oauth-ами
     ///   - theme: Цветовая тема виджета
     ///   - presenter: Объект, отвечающий за отображение экранов авторизации
     ///   - onCompleteAuth: Колбэк с результатом авторизации
     public init(
         oAuthProviders: [OAuthProvider],
+        authConfiguration: AuthConfiguration = AuthConfiguration(),
         buttonConfiguration: ButtonConfiguration = .init(
             height: .medium(),
             cornerRadius: LayoutConstants.defaultCornerRadius
@@ -65,16 +73,22 @@ public struct OAuthListWidget: UIViewElement {
         onCompleteAuth: AuthResultCompletion?
     ) {
         self.oAuthProviders = oAuthProviders
+        self.authConfig = authConfiguration
         self.buttonConfiguration = buttonConfiguration
         self.theme = theme
         self.presenter = presenter
         self.onCompleteAuth = onCompleteAuth
+        self.screen = .multibrandingWidget
     }
 
     public func _uiView(factory: Factory) -> UIView {
         let oAuthButtons = self.oAuthProviders.map { provider in
             self.oAuthButton(
-                for: provider,
+                authConfiguration: AuthConfiguration(
+                    flow: self.authConfig.flow,
+                    scopes: self.authConfig.scopes
+                ),
+                oAuthProviderConfiguration: OAuthProviderConfiguration(primaryProvider: provider),
                 using: factory,
                 config: self.buttonConfiguration,
                 theme: self.theme,
@@ -82,11 +96,21 @@ public struct OAuthListWidget: UIViewElement {
                 onCompleteAuth: self.onCompleteAuth
             )
         }
+
+        factory.rootContainer.analytics.multibrandingOAuthAdded
+            .context(
+                .init(screen: self.screen)
+            )
+            .send(
+                .init(providers: self.oAuthProviders)
+            )
+
         return OAuthListWidgetView(oAuthButtons: oAuthButtons)
     }
 
     private func oAuthButton(
-        for provider: OAuthProvider,
+        authConfiguration: AuthConfiguration,
+        oAuthProviderConfiguration: OAuthProviderConfiguration,
         using factory: Factory,
         config: ButtonConfiguration,
         theme: Theme,
@@ -94,9 +118,11 @@ public struct OAuthListWidget: UIViewElement {
         onCompleteAuth: AuthResultCompletion?
     ) -> UIView {
         let oneTap = OneTapButton(
-            primaryOAuthProvider: provider,
+            authConfiguration: authConfiguration,
+            oAuthProviderConfiguration: oAuthProviderConfiguration,
+            screen: self.screen,
             appearance: .appearance(
-                for: provider,
+                for: oAuthProviderConfiguration.primaryProvider,
                 colorScheme: theme.colorScheme
             ),
             layout: .regular(

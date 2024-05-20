@@ -31,6 +31,7 @@ import VKID
 
 final class UserSessionInfoTableViewCell: UITableViewCell {
     enum Constants {
+        static let badgeImageSize: CGFloat = 20
         static let imageSize: CGFloat = 40
         static let identifier: String = .init(describing: UserSessionInfoTableViewCell.self)
     }
@@ -43,6 +44,14 @@ final class UserSessionInfoTableViewCell: UITableViewCell {
         return imageView
     }()
 
+    private let leftBadgeImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.layer.masksToBounds = true
+        imageView.layer.cornerRadius = Constants.badgeImageSize / 2
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -51,25 +60,47 @@ final class UserSessionInfoTableViewCell: UITableViewCell {
 
     private let detailLabel: UILabel = {
         let label = UILabel()
+        label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 
+    private let footerLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private let dateFormatter: DateFormatter = {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "HH:mm:ss dd.MM.yyyy"
+        return dateFormatter
+    }()
+
     var regularAttributes: [NSAttributedString.Key: Any] = [
         .font: UIFont.systemFont(ofSize: 16, weight: .bold),
-        .foregroundColor: UIColor.black,
+        .foregroundColor: UIColor(resource: .colorTextPrimary),
     ]
 
     var lightAttributes: [NSAttributedString.Key: Any] = [
         .font: UIFont.systemFont(ofSize: 16, weight: .light),
-        .foregroundColor: UIColor.gray.withAlphaComponent(0.6),
+        .foregroundColor: UIColor(resource: .colorTextSecondary),
     ]
 
-    var userSession: UserSession?
+    var lightMutedAttributes: [NSAttributedString.Key: Any] = [
+        .font: UIFont.systemFont(ofSize: 16, weight: .light),
+        .foregroundColor: UIColor(resource: .colorTextTertiary),
+    ]
+
+    var smallLightAttributes: [NSAttributedString.Key: Any] = [
+        .font: UIFont.systemFont(ofSize: 12, weight: .light),
+        .foregroundColor: UIColor(resource: .colorTextAccent),
+    ]
+
+    var userSession: SessionData?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        self.calculateColors()
         self.setupSubviews()
     }
 
@@ -77,37 +108,22 @@ final class UserSessionInfoTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        self.calculateColors()
-        self.updateTextAttributes()
-    }
-
-    func apply(session: UserSession) {
+    func apply(session: SessionData) {
         self.userSession = session
 
         self.updateTextAttributes()
         self.updateImageView()
-    }
-
-    private func calculateColors() {
-        if traitCollection.userInterfaceStyle == .light {
-            self.regularAttributes[.foregroundColor] = UIColor.black
-            self.lightAttributes[.foregroundColor] = UIColor.darkGray.withAlphaComponent(0.6)
-        } else {
-            self.regularAttributes[.foregroundColor] = UIColor.white
-            self.lightAttributes[.foregroundColor] = UIColor.lightGray.withAlphaComponent(0.6)
-        }
+        self.updateBadgeImageView()
     }
 
     private func updateImageView() {
-        guard let url = self.userSession?.user.avatarURL else { return }
+        guard let url = self.userSession?.user?.avatarURL else { return }
 
         self.leftImageView.loadImage(with: url) { [weak self] result in
             guard
                 let self,
                 let imageResult = try? result.get(),
-                imageResult.url == self.userSession?.user.avatarURL
+                imageResult.url == self.userSession?.user?.avatarURL
             else {
                 return
             }
@@ -115,12 +131,27 @@ final class UserSessionInfoTableViewCell: UITableViewCell {
         }
     }
 
+    private func updateBadgeImageView() {
+        guard let provider = self.userSession?.oAuthProvider else { return }
+
+        var image: UIImage?
+
+        switch provider {
+        case OAuthProvider.vkid:
+            image = UIImage(resource: .vkIdLogo)
+        default:
+            break
+        }
+
+        self.leftBadgeImageView.image = image
+    }
+
     private func updateTextAttributes() {
         guard let session = self.userSession else { return }
 
-        let name = "\(session.user.firstName) \(session.user.lastName)"
-        let id = " ID: \(session.user.id.value)"
-        let detail = "\(session.user.phone ?? "-") | \(session.user.email ?? "-")"
+        let name = "\(session.user?.firstName ?? "") \(session.user?.lastName ?? "")"
+        let id = " | ID: \(session.id.value)"
+        let creationDate = "Дата авторизации: \(dateFormatter.string(from: session.creationDate))"
 
         let mutableAttributedTitleString = NSMutableAttributedString()
         mutableAttributedTitleString.append(
@@ -130,25 +161,50 @@ final class UserSessionInfoTableViewCell: UITableViewCell {
             NSAttributedString(string: id, attributes: self.lightAttributes)
         )
 
-        let mutableAttributedDetailString = NSAttributedString(
-            string: detail, attributes: lightAttributes
+        let mutableAttributedDetailString = NSMutableAttributedString()
+
+        if let userPhone = session.user?.phone {
+            mutableAttributedDetailString.append(
+                NSAttributedString(string: "\(userPhone)\n", attributes: self.lightAttributes)
+            )
+        } else {
+            mutableAttributedDetailString.append(
+                NSAttributedString(string: "Нет телефона\n", attributes: self.lightMutedAttributes)
+            )
+        }
+
+        if let userEmail = session.user?.email {
+            mutableAttributedDetailString.append(
+                NSAttributedString(string: "\(userEmail)", attributes: self.lightAttributes)
+            )
+        } else {
+            mutableAttributedDetailString.append(
+                NSAttributedString(string: "Нет почты", attributes: self.lightMutedAttributes)
+            )
+        }
+
+        let mutableAttributedFooterString = NSAttributedString(
+            string: creationDate, attributes: self.smallLightAttributes
         )
 
         self.titleLabel.attributedText = mutableAttributedTitleString
         self.detailLabel.attributedText = mutableAttributedDetailString
+        self.footerLabel.attributedText = mutableAttributedFooterString
     }
 
     private func setupSubviews() {
-        self.addSubview(self.leftImageView)
         self.addSubview(self.titleLabel)
         self.addSubview(self.detailLabel)
+        self.addSubview(self.leftImageView)
+        self.addSubview(self.leftBadgeImageView)
+        self.addSubview(self.footerLabel)
 
         NSLayoutConstraint.activate([
-            // MARK: - Header
-            self.leftImageView.topAnchor.constraint(
-                equalTo: self.topAnchor,
-                constant: 8
+            // MARK: - ImageView
+            self.leftImageView.centerYAnchor.constraint(
+                equalTo: self.centerYAnchor
             ),
+
             self.leftImageView.heightAnchor.constraint(
                 equalToConstant: Constants.imageSize
             ),
@@ -160,7 +216,23 @@ final class UserSessionInfoTableViewCell: UITableViewCell {
                 constant: 16
             ),
 
-            // MARK: - ImageView
+            // MARK: - BadgeImageView
+            self.leftBadgeImageView.bottomAnchor.constraint(
+                equalTo: self.leftImageView.bottomAnchor,
+                constant: 2
+            ),
+            self.leftBadgeImageView.heightAnchor.constraint(
+                equalToConstant: Constants.badgeImageSize
+            ),
+            self.leftBadgeImageView.widthAnchor.constraint(
+                equalToConstant: Constants.badgeImageSize
+            ),
+            self.leftBadgeImageView.trailingAnchor.constraint(
+                equalTo: self.leftImageView.trailingAnchor,
+                constant: 2
+            ),
+
+            // MARK: - Title
             self.titleLabel.topAnchor.constraint(
                 equalTo: self.topAnchor,
                 constant: 8
@@ -174,7 +246,7 @@ final class UserSessionInfoTableViewCell: UITableViewCell {
                 constant: -16
             ),
 
-            // MARK: - Title
+            // MARK: - Detail
             self.detailLabel.topAnchor.constraint(
                 equalTo: self.titleLabel.bottomAnchor,
                 constant: 4
@@ -187,7 +259,22 @@ final class UserSessionInfoTableViewCell: UITableViewCell {
                 equalTo: self.trailingAnchor,
                 constant: -16
             ),
-            self.detailLabel.bottomAnchor.constraint(
+
+            // MARK: - Footer
+            self.footerLabel.topAnchor.constraint(
+                equalTo: self.detailLabel.bottomAnchor,
+                constant: 4
+            ),
+
+            self.footerLabel.leadingAnchor.constraint(
+                equalTo: self.leftImageView.trailingAnchor,
+                constant: 8
+            ),
+            self.footerLabel.trailingAnchor.constraint(
+                equalTo: self.trailingAnchor,
+                constant: -16
+            ),
+            self.footerLabel.bottomAnchor.constraint(
                 equalTo: self.bottomAnchor,
                 constant: -8
             ),

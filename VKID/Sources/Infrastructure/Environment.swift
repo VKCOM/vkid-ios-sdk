@@ -33,4 +33,5 @@ internal enum Env {
     internal static let VKIDVersion: Version = .init(VKID_VERSION)
     internal static let VKAPIVersion: Version = .init(VKAPI_VERSION)
     internal static let apiHost = "vk.com"
+    internal static var customDomain: String?
 }

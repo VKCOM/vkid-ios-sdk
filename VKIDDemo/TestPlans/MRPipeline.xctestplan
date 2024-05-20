@@ -20,6 +20,9 @@
       }
     },
     {
+      "skippedTests" : [
+        "SSLPinningTests"
+      ],
       "target" : {
         "containerPath" : "container:..",
         "identifier" : "VKIDTests",

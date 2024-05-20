@@ -31,20 +31,55 @@ import UIKit
 
 public struct DeviceId {
     private let uuid: UUID
+    private static var _deviceId: DeviceId?
 
     private init(uuid: UUID) {
         self.uuid = uuid
     }
 
-    public static let currentDeviceId: Self = {
+    public static var currentDeviceId: Self {
+        if let deviceId = Self._deviceId {
+            return deviceId
+        }
+        let fetchedDeviceID = fetchCurrentDeviceId()
+        Self._deviceId = fetchedDeviceID
+        return fetchedDeviceID
+    }
+
+    internal static func reset() {
+        Self._deviceId = nil
+    }
+
+    private static func fetchCurrentDeviceId() -> DeviceId {
         let ud = UserDefaults.standard
+        let keychain = Keychain()
+
+        func save(deviceId: UUID, inKeychain: Keychain) throws {
+            try keychain.add(deviceId, query: .deviceId)
+            ud.storedCurrentDeviceId = nil
+        }
+
+        if let deviceId = try? keychain.fetch(query: .readDeviceId).flatMap(DeviceId.init(uuid:)) {
+            return deviceId
+        }
+
         if let id = ud.storedCurrentDeviceId.flatMap(DeviceId.init(uuid:)) {
+            do {
+                try save(deviceId: id.uuid, inKeychain: keychain)
+            } catch {
+                // do nothing
+            }
+            return id
+        } else {
+            let id = DeviceId(uuid: UIDevice.current.identifierForVendor ?? UUID())
+            do {
+                try save(deviceId: id.uuid, inKeychain: keychain)
+            } catch {
+                ud.storedCurrentDeviceId = id.uuid
+            }
             return id
         }
-        let id = DeviceId(uuid: UIDevice.current.identifierForVendor ?? UUID())
-        ud.storedCurrentDeviceId = id.uuid
-        return id
-    }()
+    }
 }
 
 extension DeviceId: CustomStringConvertible {
@@ -70,4 +105,22 @@ extension UserDefaults {
             )
         }
     }
+}
+
+extension Keychain.Query {
+    fileprivate enum Keys {
+        static let deviceIdKey: String = "com.vkid.storage.deviceID"
+    }
+
+    internal static let deviceId: Keychain.Query = {
+        [
+            .itemClass(.genericPassword),
+            .accessible(.afterFirstUnlockThisDeviceOnly),
+            .attributeService(Keys.deviceIdKey),
+        ]
+    }()
+
+    internal static let readDeviceId: Keychain.Query = {
+        Keychain.Query.deviceId.appending(.returnData(true))
+    }()
 }

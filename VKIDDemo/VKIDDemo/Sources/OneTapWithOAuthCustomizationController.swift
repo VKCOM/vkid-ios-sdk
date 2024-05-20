@@ -50,7 +50,11 @@ final class OneTapWithOAuthCustomizationController: VKIDDemoViewController {
             height: .medium(.h40),
             cornerRadius: 6,
             theme: .matchingColorScheme(.system),
-            alternativeOAuthProviders: [.ok, .mail],
+            authConfiguration: .init(
+                flow: self.createFlow(secrets: self.providedAuthSecrets),
+                scopes: self.debugSettings.scopes.scopesSet
+            ),
+            oAuthProviderConfiguration: .init(alternativeProviders: [.ok, .mail]),
             onCompleteAuth: onCompleteAuth
         )
 

@@ -30,36 +30,69 @@ import Foundation
 @_implementationOnly import VKIDCore
 
 internal final class RequestAuthorizationInterceptor: VKAPIRequestInterceptor {
-    private let anonymousTokenService: AnonymousTokenService
+    struct Dependencies {
+        let anonymousTokenService: AnonymousTokenService
+    }
 
-    init(anonymousTokenService: AnonymousTokenService) {
-        self.anonymousTokenService = anonymousTokenService
+    var userSessionManager: UserSessionManager?
+
+    private var deps: Dependencies
+
+    init(deps: Dependencies) {
+        self.deps = deps
     }
 
     func intercept(
         request: VKAPIRequest,
         completion: @escaping (Result<VKAPIRequest, VKAPIError>) -> Void
     ) {
-        guard request.authorization == .anonymousToken else {
+        func signRequest(
+            _ request: VKAPIRequest,
+            token: String,
+            completion: @escaping (Result<VKAPIRequest, VKAPIError>) -> Void
+        ) {
+            var mutableRequest = request
+            mutableRequest.addBearerToken(token)
+            completion(.success(mutableRequest))
+        }
+        switch request.authorization {
+        case .accessToken(let id):
+            var userSession: UserSession
+            if let id {
+                if let session = self.userSessionManager?
+                    .userSession(by: .init(value: id))
+                {
+                    userSession = session
+                } else {
+                    completion(.failure(.authorizedRequestWithoutSession))
+                    return
+                }
+            } else if let currentAuthorizedSession = self.userSessionManager?.currentAuthorizedSession {
+                userSession = currentAuthorizedSession
+            } else {
+                completion(.failure(.authorizedRequestWithoutSession))
+                return
+            }
+            userSession.getFreshAccessToken { _ in
+                signRequest(request,
+                            token: userSession.accessToken.value,
+                            completion: completion)
+            }
+        case .anonymousToken:
+            self.deps.anonymousTokenService.getFreshToken { result in
+                switch result {
+                case .success(let token):
+                    signRequest(request,
+                                token: token.value,
+                                completion: completion)
+                case .failure(let error):
+                    completion(.failure(.failedToGetAnonymousToken(error)))
+                    return
+                }
+            }
+        case .none:
             completion(.success(request))
             return
         }
-
-        var mutableRequest = request
-        self.anonymousTokenService.getFreshToken { result in
-            switch result {
-            case .success(let token):
-                mutableRequest.addBearerToken(token.value)
-                completion(.success(mutableRequest))
-            case .failure(let error):
-                completion(.failure(.failedToGetAnonymousToken(error)))
-            }
-        }
-    }
-}
-
-extension VKAPIRequest {
-    fileprivate mutating func addBearerToken(_ token: String) {
-        self.add(headers: ["Authorization": "Bearer \(token)"])
     }
 }

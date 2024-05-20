@@ -32,15 +32,9 @@ import UIKit
 /// Конфигурация OneTapButton
 public struct OneTapButton: UIViewElement {
     public typealias Factory = VKID
+
     /// Определяет замыкание, вызывающееся при нажатии на кнопку
     public typealias OnTapCallback = (ActivityIndicating) -> Void
-
-    /// Основной провайдер авторизации для кнопки
-    internal let primaryOAuthProvider: OAuthProvider
-
-    /// Список альтернативных OAuth-провайдеров, которые будут отображаться
-    /// в виджете под основной кнопкой.
-    internal let alternativeOAuthProviders: [OAuthProvider]
 
     /// Внешний вид кнопки.
     internal let appearance: Appearance
@@ -57,6 +51,15 @@ public struct OneTapButton: UIViewElement {
     /// Замыкание, вызывающееся при завершении авторизации.
     internal let onCompleteAuth: AuthResultCompletion?
 
+    /// Конфигурация авторизации
+    internal let authConfig: AuthConfiguration
+
+    /// Конфигурация OAuth провайдеров, используемых в кнопке
+    internal let oAuthProviderConfig: OAuthProviderConfiguration
+
+    /// Экран на котором находится кнопка
+    internal let screen: AuthContext.Screen
+
     /// Инициализация конфигурации кнопки
     /// - Parameters:
     ///   - appearance: Внешний вид кнопки.
@@ -68,7 +71,8 @@ public struct OneTapButton: UIViewElement {
         onTap: OnTapCallback?
     ) {
         self.init(
-            primaryOAuthProvider: .vkid,
+            authConfiguration: AuthConfiguration(),
+            oAuthProviderConfiguration: OAuthProviderConfiguration(),
             appearance: appearance,
             layout: layout,
             presenter: nil,
@@ -82,15 +86,18 @@ public struct OneTapButton: UIViewElement {
     ///   - appearance: Конфигурация внешнего вида кнопки
     ///   - layout: Конфигурация лейаут кнопки
     ///   - presenter: Объект, отвечающий за отображение экранов авторизации
+    ///   - authConfiguration: Конфигурация авторизации
     ///   - onCompleteAuth: Колбэк о завершении авторизации
     public init(
         appearance: Appearance = Appearance(),
         layout: Layout = .regular(),
         presenter: UIKitPresenter = .newUIWindow,
+        authConfiguration: AuthConfiguration,
         onCompleteAuth: AuthResultCompletion?
     ) {
         self.init(
-            primaryOAuthProvider: .vkid,
+            authConfiguration: authConfiguration,
+            oAuthProviderConfiguration: OAuthProviderConfiguration(),
             appearance: appearance,
             layout: layout,
             presenter: presenter,
@@ -106,21 +113,22 @@ public struct OneTapButton: UIViewElement {
     ///   - height: Детерменированная высота кнопок.
     ///   - cornerRadius: Радиус закругления углов кнопок.
     ///   - theme: Цветовая тема кнопок.
-    ///   - alternativeOAuthProviders: Список альтернативных oauth-ов, которые будут отображаться
-    ///   в виджете под основной кнопкой.
+    ///   - authConfiguration: Конфигурация авторизации.
+    ///   - oAuthProviderConfiguration: Конфигурация OAuth провайдеров, используемых в кнопке.
     ///   - presenter: Объект, отвечающий за отображение экранов авторизации.
     ///   - onCompleteAuth: Колбэк о завершении авторизации.
     public init(
         height: Layout.Height = .medium(),
         cornerRadius: CGFloat = LayoutConstants.defaultCornerRadius,
         theme: Appearance.Theme = .matchingColorScheme(.current),
-        alternativeOAuthProviders: [OAuthProvider],
+        authConfiguration: AuthConfiguration = AuthConfiguration(),
+        oAuthProviderConfiguration: OAuthProviderConfiguration,
         presenter: UIKitPresenter = .newUIWindow,
         onCompleteAuth: AuthResultCompletion?
     ) {
         self.init(
-            primaryOAuthProvider: .vkid,
-            alternativeOAuthProviders: alternativeOAuthProviders,
+            authConfiguration: authConfiguration,
+            oAuthProviderConfiguration: oAuthProviderConfiguration,
             appearance: .init(
                 style: .primary(),
                 theme: theme
@@ -135,41 +143,32 @@ public struct OneTapButton: UIViewElement {
         )
     }
 
-    /// Создает конфигурацию для OneTap кнопки
-    /// - Parameters:
-    ///   - primaryOAuthProvider: Основной провайдер авторизации.
-    ///   - alternativeOAuthProviders: Список альтернативных oauth-ов,
-    ///   которые будут отображаться в виджете под основной кнопкой.
-    ///   - appearance: Конфигурация внешнего вида кнопки.
-    ///   - layout: Конфигурация лейаут кнопки.
-    ///   - presenter: Источник отображения авторизации, при нажатии на кнопку.
-    ///   - onTap: Колбэк для обработки нажатия на кнопку.
-    ///   - onCompleteAuth: Замыкание, вызывающееся при завершении авторизации.
     internal init(
-        primaryOAuthProvider: OAuthProvider,
-        alternativeOAuthProviders: [OAuthProvider] = [],
+        authConfiguration: AuthConfiguration,
+        oAuthProviderConfiguration: OAuthProviderConfiguration,
+        screen: AuthContext.Screen = .nowhere,
         appearance: Appearance = Appearance(),
         layout: Layout = .regular(),
         presenter: UIKitPresenter?,
         onTap: OnTapCallback?,
         onCompleteAuth: AuthResultCompletion?
     ) {
-        self.primaryOAuthProvider = primaryOAuthProvider
-        self.alternativeOAuthProviders = alternativeOAuthProviders.filter {
-            $0.type != primaryOAuthProvider.type
-        }
+        self.authConfig = authConfiguration
+        self.oAuthProviderConfig = oAuthProviderConfiguration
         self.appearance = appearance
         self.layout = layout
         self.presenter = presenter
         self.onTap = onTap
         self.onCompleteAuth = onCompleteAuth
+        self.screen = screen
     }
 
     public func _uiView(factory: Factory) -> UIView {
         let control = self.makeOneTapControl(using: factory)
-        if self.alternativeOAuthProviders.isEmpty {
+        if self.oAuthProviderConfig.alternativeProviders.isEmpty {
             return control
         }
+
         let oAuthListWidget = self.makeOAuthListWidgetView(using: factory)
         return OneTapButtonWithOAuthListWidgetView(
             configuration: .init(
@@ -186,10 +185,16 @@ public struct OneTapButton: UIViewElement {
     }
 
     private func makeOneTapControl(using factory: Factory) -> UIView {
-        let control = OneTapControl(configuration: .init(
-            appearance: self.appearance,
-            layout: self.layout
-        ))
+        let control = OneTapControl(
+            configuration: .init(
+                appearance: self.appearance,
+                layout: self.layout
+            )
+        )
+
+        control.didMoveToSuperView = {
+            self.sendShowAnalytics(using: factory)
+        }
 
         if let onTap = self.onTap {
             control.onTap = onTap
@@ -202,8 +207,16 @@ public struct OneTapButton: UIViewElement {
                 control.startAnimating()
 
                 factory.authorize(
-                    with: .init(oAuthProvider: self.primaryOAuthProvider),
-                    using: presenter
+                    authContext: AuthContext(
+                        screen: self.screen,
+                        launchedBy: .oneTapButton(
+                            provider: self.oAuthProviderConfig.primaryProvider,
+                            kind: self.layout.kind
+                        )
+                    ),
+                    authConfig: self.authConfig,
+                    oAuthProviderConfig: self.oAuthProviderConfig,
+                    presenter: presenter
                 ) { result in
                     self.onCompleteAuth?(result)
 
@@ -218,7 +231,8 @@ public struct OneTapButton: UIViewElement {
     private func makeOAuthListWidgetView(using factory: Factory) -> UIView {
         factory.ui(
             for: OAuthListWidget(
-                oAuthProviders: self.alternativeOAuthProviders,
+                oAuthProviders: self.oAuthProviderConfig.alternativeProviders,
+                authConfiguration: self.authConfig,
                 buttonConfiguration: .init(
                     height: self.layout.height,
                     cornerRadius: self.layout.cornerRadius
@@ -229,6 +243,54 @@ public struct OneTapButton: UIViewElement {
             )
         )
         .uiView()
+    }
+
+    private func sendShowAnalytics(using factory: Factory) {
+        switch self.oAuthProviderConfig.primaryProvider.type {
+        case .vkid:
+            switch self.screen {
+            case .multibrandingWidget:
+                factory.rootContainer.analytics.vkButtonShow
+                    .context(
+                        .init(screen: self.screen)
+                    )
+                    .send(
+                        .init(
+                            buttonType: .init(kind: self.layout.kind)
+                        )
+                    )
+            case .nowhere, .oneTapBottomSheet:
+                factory.rootContainer.analytics.oneTapButtonNoUserShow
+                    .context(
+                        .init(screen: self.screen)
+                    )
+                    .send(
+                        .init(
+                            buttonType: .init(kind: self.layout.kind)
+                        )
+                    )
+            }
+        case .ok:
+            factory.rootContainer.analytics.okButtonShow
+                .context(
+                    .init(screen: self.screen)
+                )
+                .send(
+                    .init(
+                        buttonType: .init(kind: self.layout.kind)
+                    )
+                )
+        case .mail:
+            factory.rootContainer.analytics.mailButtonShow
+                .context(
+                    .init(screen: self.screen)
+                )
+                .send(
+                    .init(
+                        buttonType: .init(kind: self.layout.kind)
+                    )
+                )
+        }
     }
 }
 

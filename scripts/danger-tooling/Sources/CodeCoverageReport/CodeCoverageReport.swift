@@ -29,7 +29,7 @@
 import Foundation
 import PluginInfrastructure
 
-public final class CodeCoverageReportGenerator: MetricReportGenerating {
+public final class CodeCoverageReportGenerator: MetricsReportGenerating {
     public struct ModuleInfo {
         public var name: String
         public var modifiedFileNames: [String]
@@ -44,6 +44,8 @@ public final class CodeCoverageReportGenerator: MetricReportGenerating {
     private let sourceCommit: GitCommit
     private let targetCommit: GitCommit
     private let modules: [ModuleInfo]
+    private let metricsCollector: CodeCoverageMetricsCollector
+    private let storedMetricsFile: CodeCoverageMetricsFile?
 
     private lazy var jsonDecoder: JSONDecoder = {
         let decoder = JSONDecoder()
@@ -55,75 +57,105 @@ public final class CodeCoverageReportGenerator: MetricReportGenerating {
         xcresultPath: URL,
         sourceCommit: GitCommit,
         targetCommit: GitCommit,
-        modules: [ModuleInfo]
+        modules: [ModuleInfo],
+        metricsCollector: CodeCoverageMetricsCollector,
+        storedMetricsFile: CodeCoverageMetricsFile?
     ) {
         self.xcresultPath = xcresultPath
         self.sourceCommit = sourceCommit
         self.targetCommit = targetCommit
         self.modules = modules
+        self.metricsCollector = metricsCollector
+        self.storedMetricsFile = storedMetricsFile
     }
 
     public func generateReport() throws -> String {
-        let modulesCoverageMapping = try self.gatherModulesCoverage()
-            .reportByTargetNameMapping
+        let modulesCoverageMapping = try self.metricsCollector.collectMetrics()
 
         print("Modules coverage mapping: \(modulesCoverageMapping)")
         print("Modules for report: \(self.modules)")
 
-        var reportMarkdown = "# Code Coverage Report"
+        let metricsFile: CodeCoverageMetricsFile = self.storedMetricsFile ?? CodeCoverageMetricsFile(modules: [])
+
+        var modulesCoverage = ""
+        var filesCoverage = ""
 
         for module in self.modules {
-            if let moduleReport = modulesCoverageMapping[module.name] {
-                reportMarkdown.append(
+            if let moduleReport = modulesCoverageMapping.findCommit(
+                moduleName: module.name,
+                commitHash: self.sourceCommit.shortSHA
+            )?.metricsData {
+                var targetCommitCoverage = "-"
+                var diff = "-"
+
+                if let commit = metricsFile.findCommit(
+                    moduleName: module.name,
+                    commitHash: self.targetCommit.shortSHA
+                ) {
+                    targetCommitCoverage = self.coverageDetailsString(
+                        executableLines: commit.metricsData.executableLines,
+                        coveredLines: commit.metricsData.coveredLines,
+                        lineCoverage: commit.metricsData.lineCoverage
+                    )
+                    diff = NumberFormatter
+                        .diffPercentFormatter
+                        .string(from: .init(
+                            value: moduleReport.lineCoverage - commit.metricsData.lineCoverage
+                        )) ?? "-"
+                }
+                let sourceCommitCoverage = self.coverageDetailsString(
+                    executableLines: moduleReport.executableLines,
+                    coveredLines: moduleReport.coveredLines,
+                    lineCoverage: moduleReport.lineCoverage
+                )
+                modulesCoverage.append(
                     """
-                    \n\n## \(module.name)
-                    Overall module coverage - (\(moduleReport.coveredLines)/\(moduleReport.executableLines), \
-                    \(String(format: "%.2f", moduleReport.lineCoverage * 100))%)
+                    |\(module.name)|\(sourceCommitCoverage)|\(targetCommitCoverage)|\(diff)|\n
                     """
                 )
             }
-            reportMarkdown.append(
-                """
-                \n\n|File|Source branch(\(self.sourceCommit.shortSHALink))|Target branch(\(self.targetCommit
-                    .shortSHALink))|Diff|
-                |:-:|:-:|:-:|:-:|
-                """
-            )
+
             let filesCoverageMapping = try self.gatherFilesCoverage(
                 for: module.name
             )
             .reportByFileNameMapping
-            for file in module.modifiedFileNames {
-                let report = filesCoverageMapping[file]
-                reportMarkdown.append(
-                    """
-                    \n|\(file)|\(String(format: "%.2f", (report?.lineCoverage ?? 0) * 100))%|||
-                    """
-                )
-            }
+            module.modifiedFileNames
+                .compactMap { filesCoverageMapping[$0] }
+                .forEach { file in
+                    let coverage = self.coverageDetailsString(
+                        executableLines: file.executableLines,
+                        coveredLines: file.coveredLines,
+                        lineCoverage: file.lineCoverage
+                    )
+                    filesCoverage.append(
+                        """
+                        |\(module.name)|\(file.name)|\(coverage)|\n
+                        """
+                    )
+                }
         }
 
+        var reportMarkdown = "# Code Coverage Report"
+        if modulesCoverage.isEmpty {
+            reportMarkdown.append("""
+                \n\nNo code coverage info.
+                """)
+        } else {
+            reportMarkdown.append("""
+                \n\n|Module|Source branch(\(self.sourceCommit.shortSHALink))|Target branch(\(self.targetCommit
+                .shortSHALink))|Diff|
+                |:-:|:-:|:-:|:-:|
+                \(modulesCoverage)\n\n
+                <details>
+                    <summary>Coverage of modified files</summary>\n\n
+
+                |Module|File|Source branch(\(self.sourceCommit.shortSHALink))|
+                |:-:|:-:|:-:|
+                \(filesCoverage)\n\n
+                </details>
+                """)
+        }
         return reportMarkdown
-    }
-
-    private func gatherModulesCoverage() throws -> [XcodeCoverageReport.Target] {
-        let coverageFilePath = URL.temporaryJSONFile
-        defer {
-            try? FileManager.default.removeItem(at: coverageFilePath)
-        }
-
-        try sh("""
-            xcrun xccov view \
-            --report "\(self.xcresultPath.path())" \
-            --only-targets \(self.modules.map(\.name).joined(separator: " ")) \
-            --json > "\(coverageFilePath.path())"
-            """)
-
-        let coverageJson = try Data(contentsOf: coverageFilePath)
-        return try self.jsonDecoder.decode(
-            [XcodeCoverageReport.Target].self,
-            from: coverageJson
-        )
     }
 
     private func gatherFilesCoverage(for module: String) throws -> [XcodeCoverageReport.File] {
@@ -145,42 +177,13 @@ public final class CodeCoverageReportGenerator: MetricReportGenerating {
             from: coverageJson
         ).first?.files ?? []
     }
-}
 
-private enum XcodeCoverageReport {
-    struct File: Decodable {
-        let name: String
-        let path: String
-        let coveredLines: Int
-        let executableLines: Int
-        let lineCoverage: Double
-    }
-
-    struct FilesForTarget: Decodable {
-        let files: [XcodeCoverageReport.File]
-    }
-
-    struct Target: Decodable {
-        let name: String
-        let buildProductPath: String
-        let coveredLines: Int
-        let executableLines: Int
-        let lineCoverage: Double
-    }
-}
-
-extension Array where Element == XcodeCoverageReport.File {
-    fileprivate var reportByFileNameMapping: [String: XcodeCoverageReport.File] {
-        self.reduce(into: [:]) { partialResult, item in
-            partialResult[item.name] = item
-        }
-    }
-}
-
-extension Array where Element == XcodeCoverageReport.Target {
-    fileprivate var reportByTargetNameMapping: [String: XcodeCoverageReport.Target] {
-        self.reduce(into: [:]) { partialResult, item in
-            partialResult[item.name] = item
-        }
+    private func coverageDetailsString(
+        executableLines: Int,
+        coveredLines: Int,
+        lineCoverage: Double
+    ) -> String {
+        let coveragePercent = NumberFormatter.percentFormatter.string(from: .init(value: lineCoverage)) ?? "-"
+        return "(\(coveredLines)/\(executableLines)) \(coveragePercent)"
     }
 }

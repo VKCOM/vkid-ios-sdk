@@ -27,28 +27,57 @@
 //
 
 import Foundation
+@_implementationOnly import VKIDCore
 
 /// Данные сессии пользователя
-internal struct UserSessionData: Equatable, Codable {
+internal struct UserSessionData {
+    let id: UserID
     /// Провайдер авторизации.
     let oAuthProvider: OAuthProvider
     /// Токен доступа.
-    let accessToken: AccessToken
+    var accessToken: AccessToken
     /// Данные о пользователе.
-    let user: User
+    var user: User?
     /// Дата создания данных сессии.
     let creationDate: Date
+    /// Токен для обновления `AccessToken`
+    var refreshToken: RefreshToken
+    /// ID токен
+    let idToken: IDToken
+
+    let serverProvidedDeviceId: String
 
     /// Инициализациия сессии пользователя
     /// - Parameters:
     ///   - oAuthProvider: Провайдер авторизации
     ///   - accessToken: Токен доступа
+    ///   - refreshToken: Токен для обновления `AccessToken`
+    ///   - idToken: ID токен
     ///   - user: Данные о пользователе
-    init(oAuthProvider: OAuthProvider, accessToken: AccessToken, user: User) {
+    init(
+        id: UserID,
+        oAuthProvider: OAuthProvider,
+        accessToken: AccessToken,
+        refreshToken: RefreshToken,
+        idToken: IDToken,
+        user: User? = nil,
+        serverProvidedDeviceId: String
+    ) {
         self.oAuthProvider = oAuthProvider
         self.accessToken = accessToken
         self.user = user
-
+        self.refreshToken = refreshToken
         self.creationDate = Date()
+        self.idToken = idToken
+        self.id = id
+        self.serverProvidedDeviceId = serverProvidedDeviceId
     }
+}
+
+extension UserSessionData: Storable {
+    static var storageAccessible: VKIDCore.Keychain.Query.Accessible {
+        .whenUnlockedThisDeviceOnly
+    }
+
+    static let storageKey: String = "com.vkid.storage.OAuth2userSession"
 }

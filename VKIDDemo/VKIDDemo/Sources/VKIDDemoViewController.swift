@@ -87,7 +87,11 @@ class VKIDDemoViewController: UIViewController {
         return image
     }()
 
+    var providedAuthSecrets: PKCESecrets?
+
     var vkid: VKID?
+    var api: VKAPI<OAuth>?
+    var debugSettings: DebugSettingsStorage
 
     var appearance: Appearance {
         get {
@@ -112,8 +116,12 @@ class VKIDDemoViewController: UIViewController {
         title: String,
         subtitle: String,
         description: String,
-        navigationTitle: String? = nil
+        navigationTitle: String? = nil,
+        debugSettings: DebugSettingsStorage,
+        api: VKAPI<OAuth>?
     ) {
+        self.debugSettings = debugSettings
+        self.api = api
         super.init(nibName: nil, bundle: nil)
         self.titleLabel.text = title
         self.subtitleLabel.text = subtitle
@@ -136,6 +144,9 @@ class VKIDDemoViewController: UIViewController {
         self.navigationItem.titleView = self.navigationTitleLabel
 
         self.setupSubviews()
+        if self.debugSettings.providedPKCESecretsEnabled {
+            self.providedAuthSecrets = try? PKCESecrets()
+        }
     }
 
     private func setupSubviews() {
@@ -279,5 +290,72 @@ extension VKIDDemoViewController {
     enum LayoutType {
         case oneColumn
         case twoColumn
+    }
+}
+
+extension VKIDDemoViewController {
+    func createFlow(
+        secrets: PKCESecrets?
+    ) -> AuthConfiguration.Flow {
+        var flow: AuthConfiguration.Flow
+        if self.debugSettings.confidentialFlowEnabled {
+            flow = .confidentialClientFlow(
+                codeExchanger: self,
+                pkce: secrets
+            )
+        } else {
+            flow = .publicClientFlow(pkce: secrets)
+        }
+        return flow
+    }
+}
+
+extension VKIDDemoViewController: AuthCodeExchanging {
+    func exchangeAuthCode(
+        _ authCode: AuthorizationCode,
+        completion: @escaping (Result<AuthFlowData, any Error>) -> Void
+    ) {
+        var codeVerifier: String
+        let serviceToken = self.debugSettings.serviceToken ?? ""
+        guard let clientId = InfoPlist.clientId else {
+            fatalError("clientId not provided")
+        }
+        if self.debugSettings.providedPKCESecretsEnabled,
+           let authSecrets = self.providedAuthSecrets
+        {
+            guard let authSecretsCodeVerifier = authSecrets.codeVerifier,
+                  authSecrets.state == authCode.state
+            else {
+                fatalError("code verifier not provided from service or invalid state")
+            }
+            codeVerifier = authSecretsCodeVerifier
+        } else {
+            guard let authCodeCodeVerifier = authCode.codeVerifier else {
+                fatalError("code verifier not provided from SDK")
+            }
+            codeVerifier = authCodeCodeVerifier
+        }
+        let state = UUID().uuidString
+        // Only for debug purposes
+        self.api?.exchangeAuthCode.execute(with: .init(
+            code: authCode.code,
+            codeVerifier: codeVerifier,
+            redirectUri: authCode.redirectURI,
+            state: state,
+            deviceId: authCode.deviceId,
+            clientId: clientId,
+            serviceToken: serviceToken
+        )) { result in
+            switch result {
+            case .success(let response):
+                guard state == response.state else {
+                    completion(.failure(AuthError.unknown))
+                    return
+                }
+                completion(.success(.init(from: response, serverProvidedDeviceId: authCode.deviceId)))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
     }
 }

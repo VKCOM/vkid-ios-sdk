@@ -534,8 +534,13 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
                 height: self.oneTapButtonHeight,
                 cornerRadius: self.oneTapButtonCornerRadius
             ),
-            alternativeOAuthProviders: self.oAuthListWidgetSwitcher.isOn ?
-                [.mail, .ok] : [],
+            authConfiguration: .init(
+                flow: self.createFlow(secrets: self.providedAuthSecrets),
+                scopes: self.debugSettings.scopes.scopesSet
+            ),
+            oAuthConfiguration: .init(
+                alternativeProviders: self.oAuthListWidgetSwitcher.isOn ? [.mail, .ok] : []
+            ),
             autoDismissOnSuccess: self.autoDismissSwitcher.isOn,
             onCompleteAuth: onCompleteAuth
         )

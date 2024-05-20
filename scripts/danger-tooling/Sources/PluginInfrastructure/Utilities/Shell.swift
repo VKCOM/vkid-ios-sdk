@@ -32,6 +32,7 @@ public enum ShellError: Error {
     case unknown
     case failed(terminationStatus: Int32)
     case crashed
+    case generic(reason: String)
 }
 
 public func sh(

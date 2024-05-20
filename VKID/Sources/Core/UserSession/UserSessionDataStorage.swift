@@ -29,15 +29,31 @@
 import Foundation
 @_implementationOnly import VKIDCore
 
-internal protocol UserSessionDataStorage {
-    func readUserSessionData(for userId: UserID) throws -> UserSessionData?
-    func readAllUserSessionsData() throws -> [UserSessionData]
-    func writeUserSessionData(_ data: UserSessionData) throws
+protocol Storable: Equatable, Codable {
+    var id: UserID { get }
+    static var storageKey: String { get }
+    static var storageAccessible: Keychain.Query.Accessible { get }
+}
+
+extension Storable {
+    var storageKey: String {
+        type(of: self).storageKey
+    }
+}
+
+internal protocol Storage<T> {
+    associatedtype T: Storable
+    func readUserSessionData(for userId: UserID) throws -> T?
+    func readAllUserSessionsData() throws -> [T]
+    func writeUserSessionData(_ data: T) throws
     func removeUserSessionData(for userId: UserID) throws
     func removeAllUserSessionsData() throws
 }
 
-internal final class UserSessionDataStorageImpl: UserSessionDataStorage {
+typealias UserSessionDataStorage = StorageImpl<UserSessionData>
+typealias LegacyUserSessionDataStorage = StorageImpl<LegacyUserSessionData>
+
+internal final class StorageImpl<U: Storable>: Storage {
     /// Зависимости хранилища
     internal struct Dependencies: Dependency {
         let keychain: Keychain
@@ -58,29 +74,40 @@ internal final class UserSessionDataStorageImpl: UserSessionDataStorage {
         self.deps = deps
     }
 
-    func readUserSessionData(for userId: UserID) throws -> UserSessionData? {
-        try self.deps.keychain.fetch(
-            query: .userSessionRead(
-                for: userId.asString,
-                with: self.deps.appCredentials.clientId
+    func readUserSessionData(for userId: UserID) throws -> U? {
+        do {
+            return try self.deps.keychain.fetch(
+                query: .userSessionRead(
+                    for: userId.asString,
+                    with: self.deps.appCredentials.clientId,
+                    forType: U.self
+                )
             )
-        )
+        } catch KeychainError.itemNotFound {
+            return nil
+        }
     }
 
-    func readAllUserSessionsData() throws -> [UserSessionData] {
-        try self.deps.keychain.fetchMany(
-            query: .userSessionRead(
-                with: self.clientId
-            )
-        ) ?? []
+    func readAllUserSessionsData() throws -> [U] {
+        do {
+            return try self.deps.keychain.fetchMany(
+                query: .userSessionRead(
+                    with: self.clientId,
+                    forType: U.self
+                )
+            ) ?? []
+        } catch KeychainError.itemNotFound {
+            return []
+        }
     }
 
-    func writeUserSessionData(_ data: UserSessionData) throws {
+    func writeUserSessionData(_ data: U) throws {
         try self.deps.keychain.add(
             data,
             query: .userSessionWrite(
-                for: data.user.id.asString,
-                with: self.clientId
+                for: data.id.asString,
+                with: self.clientId,
+                forType: U.self
             )
         )
     }
@@ -89,14 +116,15 @@ internal final class UserSessionDataStorageImpl: UserSessionDataStorage {
         try self.deps.keychain.delete(
             query: .userSessionWrite(
                 for: userId.asString,
-                with: self.clientId
+                with: self.clientId,
+                forType: U.self
             )
         )
     }
 
     func removeAllUserSessionsData() throws {
         try self.deps.keychain.delete(
-            query: .userSession(with: self.clientId)
+            query: .userSession(with: self.clientId, forType: U.self)
         )
     }
 }
@@ -108,32 +136,31 @@ extension UserID {
 }
 
 extension Keychain.Query {
-    /// Ключи по которым хранятся данные в кейчейн
-    fileprivate enum Keys {
-        static let userSessionDataStorageKey: String = "com.vkid.storage.userSession"
-    }
-
     /// Кейчейн Query для формирования данных по идентификатору клиента
-    fileprivate static func userSession(with clientId: String) -> Keychain.Query {
+    fileprivate static func userSession<U: Storable>(with clientId: String, forType: U.Type) -> Keychain.Query {
         [
             .itemClass(.genericPassword),
-            .accessible(.afterFirstUnlockThisDeviceOnly),
+            .accessible(U.storageAccessible),
             .attributeService(
-                [Keys.userSessionDataStorageKey, clientId].joined(separator: ".")
+                [U.storageKey, clientId].joined(separator: ".")
             ),
         ]
     }
 
     /// Кейчейн Query для записи данных по идентификатору пользователя и клиента
-    fileprivate static func userSessionWrite(for userId: String, with clientId: String) -> Keychain.Query {
-        Self.userSession(with: clientId).appending(
+    fileprivate static func userSessionWrite<U: Storable>(
+        for userId: String,
+        with clientId: String,
+        forType: U.Type
+    ) -> Keychain.Query {
+        Self.userSession(with: clientId, forType: U.self).appending(
             .attributeAccount(userId)
         )
     }
 
     /// Кейчейн Query для чтения данных по идентификатору клиента
-    fileprivate static func userSessionRead(with clientId: String) -> Keychain.Query {
-        Self.userSession(with: clientId).appending(
+    fileprivate static func userSessionRead<U: Storable>(with clientId: String, forType: U.Type) -> Keychain.Query {
+        Self.userSession(with: clientId, forType: U.self).appending(
             [
                 .matchLimit(.all),
                 .returnData(true),
@@ -142,8 +169,12 @@ extension Keychain.Query {
     }
 
     /// Кейчейн Query для чтееия данных по идентификатору пользователя и клиента
-    fileprivate static func userSessionRead(for userId: String, with clientId: String) -> Keychain.Query {
-        Self.userSessionWrite(for: userId, with: clientId).appending(
+    fileprivate static func userSessionRead<U: Storable>(
+        for userId: String,
+        with clientId: String,
+        forType: U.Type
+    ) -> Keychain.Query {
+        Self.userSessionWrite(for: userId, with: clientId, forType: U.self).appending(
             .returnData(true)
         )
     }

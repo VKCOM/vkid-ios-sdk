@@ -28,22 +28,10 @@
 
 import Foundation
 
-internal struct AuthCodeResponse: Codable, Equatable {
-    let oauth: OAuthResponse
-    let user: UserData
-
-    struct UserData: Codable, Equatable {
-        let id: Int
-        let firstName: String
-        let lastName: String
-        let email: String?
-        let avatar: URL?
-    }
-
-    struct OAuthResponse: Codable, Equatable {
-        internal let code: String
-        internal let state: String
-    }
+internal struct AuthCodeResponse: Equatable {
+    let code: String
+    let state: String
+    let serverProvidedDeviceId: String
 }
 
 internal protocol AuthCodeResponseParser {
@@ -52,33 +40,24 @@ internal protocol AuthCodeResponseParser {
 }
 
 internal final class AuthCodeResponseParserImpl: AuthCodeResponseParser {
-    private let jsonDecoder: JSONDecoder = {
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        return decoder
-    }()
-
     func parseAuthCodeResponse(from url: URL) throws -> AuthCodeResponse {
-        guard
-            let queryItems = queryItems(from: url),
-            let payload = queryItems
-                .first(where: { $0.name == "payload" })?
-                .value
-        else {
+        guard let queryItems = queryItems(from: url) else {
             throw AuthFlowError.invalidAuthCallbackURL
         }
-        guard let payloadData = payload.data(using: .utf8) else {
-            throw AuthFlowError.invalidAuthCodePayloadJSON
+        guard let state = queryItems.value(byName: "state"),
+              let code = queryItems.value(byName: "code"),
+              let deviceId = queryItems.value(byName: "device_id")
+        else {
+            if let _ = queryItems.value(byName: "error") {
+                throw AuthFlowError.authorizationFailed
+            }
+            throw AuthFlowError.invalidAuthCallbackURL
         }
-
-        do {
-            return try self.jsonDecoder.decode(
-                AuthCodeResponse.self,
-                from: payloadData
-            )
-        } catch {
-            throw AuthFlowError.invalidAuthCodePayloadJSON
-        }
+        return .init(
+            code: code,
+            state: state,
+            serverProvidedDeviceId: deviceId
+        )
     }
 
     func parseCallbackMethod(from url: URL) throws -> String? {
@@ -101,5 +80,11 @@ internal final class AuthCodeResponseParserImpl: AuthCodeResponseParser {
         )
 
         return components?.queryItems
+    }
+}
+
+extension [URLQueryItem] {
+    func value(byName name: String) -> String? {
+        self.first(where: { $0.name == name })?.value
     }
 }

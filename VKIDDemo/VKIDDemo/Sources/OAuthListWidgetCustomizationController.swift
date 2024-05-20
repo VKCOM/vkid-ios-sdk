@@ -35,6 +35,12 @@ final class OAuthListWidgetCustomizationController: VKIDDemoViewController {
 
         let widget = OAuthListWidget(
             oAuthProviders: [.vkid, .ok, .mail],
+            authConfiguration: AuthConfiguration(
+                flow: self.createFlow(
+                    secrets: self.providedAuthSecrets
+                ),
+                scopes: self.debugSettings.scopes.scopesSet
+            ),
             buttonConfiguration: .init(
                 height: .large(.h56),
                 cornerRadius: 28

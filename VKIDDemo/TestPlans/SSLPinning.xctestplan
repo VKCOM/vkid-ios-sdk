@@ -1,0 +1,30 @@
+{
+  "configurations" : [
+    {
+      "id" : "3F705C4A-A15D-49CE-AEEB-9AD4A3E1E7B7",
+      "name" : "Configuration 1",
+      "options" : {
+        "environmentVariableEntries" : [
+
+        ],
+        "targetForVariableExpansion" : null
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "environmentVariableEntries" : [
+
+    ],
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:VKIDDemo.xcodeproj",
+        "identifier" : "A25C94172B8DC54600D0C412",
+        "name" : "VKIDSSLPinningTests"
+      }
+    }
+  ],
+  "version" : 1
+}

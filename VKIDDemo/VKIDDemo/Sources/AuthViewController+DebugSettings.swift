@@ -46,11 +46,19 @@ extension AuthViewController {
                     title: "Network",
                     cells: self.networkConfigurationCells()
                 ),
+                .init(
+                    title: "Auth configuration",
+                    cells: self.authConfigurationCells()
+                ),
+                .init(
+                    title: "Scope",
+                    cells: self.scopeCells()
+                ),
             ]
         )
     }
 
-    private func colorSchemeCells() -> [DebugSettingsCellViewModel] {
+    private func colorSchemeCells() -> [any DebugSettingsCellViewModel] {
         Appearance
             .ColorScheme
             .allCases
@@ -65,7 +73,7 @@ extension AuthViewController {
             }
     }
 
-    private func localeCells() -> [DebugSettingsCellViewModel] {
+    private func localeCells() -> [any DebugSettingsCellViewModel] {
         Appearance
             .Locale
             .allCases
@@ -80,7 +88,7 @@ extension AuthViewController {
             }
     }
 
-    private func networkConfigurationCells() -> [DebugSettingsCellViewModel] {
+    private func networkConfigurationCells() -> [any DebugSettingsCellViewModel] {
         [
             DebugSettingsToggleCellViewModel(
                 title: "SSL Pinning Enabled",
@@ -88,6 +96,51 @@ extension AuthViewController {
             ) { [weak self] in
                 self?.debugSettings.isSSLPinningEnabled.toggle()
                 self?.updateSettings()
+            },
+            DebugSettingsTextFieldViewModel(
+                title: "Custom domain",
+                placeholder: "Please, use %@ to place host",
+                text: self.debugSettings.customDomainTemplate
+            ) { [weak self] text in
+                self?.debugSettings.customDomainTemplate = text
+            },
+        ]
+    }
+
+    private func authConfigurationCells() -> [any DebugSettingsCellViewModel] {
+        [
+            DebugSettingsToggleCellViewModel(
+                title: "Confidential flow Enabled",
+                isOn: self.debugSettings.confidentialFlowEnabled
+            ) { [weak self] in
+                self?.debugSettings.confidentialFlowEnabled.toggle()
+                self?.updateSettings()
+            },
+            DebugSettingsToggleCellViewModel(
+                title: "PKCE Secrets providing Enabled",
+                isOn: self.debugSettings.providedPKCESecretsEnabled
+            ) { [weak self] in
+                self?.debugSettings.providedPKCESecretsEnabled.toggle()
+                self?.updateSettings()
+            },
+            DebugSettingsTextFieldViewModel(
+                title: "Service token",
+                placeholder: "Service token",
+                text: self.debugSettings.serviceToken
+            ) { [weak self] text in
+                self?.debugSettings.serviceToken = text
+            },
+        ]
+    }
+
+    private func scopeCells() -> [any DebugSettingsCellViewModel] {
+        [
+            DebugSettingsTextFieldViewModel(
+                title: "Scopes",
+                placeholder: "email phone ...",
+                text: self.debugSettings.scopes
+            ) { [weak self] text in
+                self?.debugSettings.scopes = text
             },
         ]
     }

@@ -42,11 +42,15 @@ internal final class AuthByProviderFlow: Component, AuthFlow {
         let appInteropHandler: AppInteropCompositeHandler
         let authProvidersFetcher: AuthProviderFetcher
         let appCredentials: AppCredentials
+        let authConfig: ExtendedAuthConfiguration
+        let authContext: AuthContext
+        let analytics: Analytics<TypeRegistrationItemNamespace>
         let pkceGenerator: PKCESecretsGenerator
         let responseParser: AuthCodeResponseParser
         let authURLBuilder: AuthURLBuilder
-        let api: VKAPI<OAuth>
+        let api: VKAPI<OAuth2>
         let logger: Logging
+        let deviceId: DeviceId
     }
 
     let deps: Dependencies
@@ -68,16 +72,11 @@ internal final class AuthByProviderFlow: Component, AuthFlow {
             }
             switch result {
             case .success(let providers):
-                do {
-                    let pkceSecrets = try self.deps.pkceGenerator.generateSecrets()
-                    self.authorize(
-                        using: providers,
-                        pkceSecrets: pkceSecrets,
-                        completion: completion
-                    )
-                } catch {
-                    completion(.failure(.authByProviderFailed(error)))
-                }
+                self.authorize(
+                    using: providers,
+                    pkceSecrets: self.deps.authConfig.pkceSecrets,
+                    completion: completion
+                )
             case .failure(let error):
                 completion(.failure(.providersFetchingFailed(error)))
             }
@@ -86,11 +85,12 @@ internal final class AuthByProviderFlow: Component, AuthFlow {
 
     private func authorize(
         using providers: [AuthProvider],
-        pkceSecrets: PKCESecrets,
+        pkceSecrets: PKCESecretsWallet,
         completion: @escaping AuthFlowResultCompletion
     ) {
         guard let provider = providers.first else {
             self.deps.logger.warning("Can't open any provider")
+            self.deps.analytics.noAuthProvider.send()
             completion(.failure(.noAvailableProviders))
             return
         }
@@ -103,13 +103,14 @@ internal final class AuthByProviderFlow: Component, AuthFlow {
             }
             switch response {
             case.success(let response):
-                guard response.oauth.state == pkceSecrets.state else {
-                    completion(.failure(.authCodeResponseStateMismatch))
-                    return
-                }
-                self.exchangeAuthCode(
+                self.exchangeCode(
+                    using: self.deps.authConfig.codeExchanger,
                     authCodeResponse: response,
-                    pkceSecrets: pkceSecrets,
+                    redirectURI: redirectURL(
+                        for: self.deps.appCredentials.clientId,
+                        scope: self.deps.authConfig.scope
+                    ).absoluteString,
+                    pkceSecrets: self.deps.authConfig.pkceSecrets,
                     completion: completion
                 )
             case .failure(let error):
@@ -129,15 +130,18 @@ internal final class AuthByProviderFlow: Component, AuthFlow {
 
     private func goToProviderForAuthCode(
         _ provider: AuthProvider,
-        pkceSecrets: PKCESecrets,
+        pkceSecrets: PKCESecretsWallet,
         completion: @escaping (Result<AuthCodeResponse, AuthProviderError>) -> Void
     ) {
         let providerUniversalLink: URL
         do {
             providerUniversalLink = try self.deps.authURLBuilder.buildProviderAuthURL(
-                from: provider.universalLink.absoluteString,
-                with: pkceSecrets,
-                credentials: self.deps.appCredentials
+                baseURL: provider.universalLink,
+                authContext: self.deps.authContext,
+                secrets: pkceSecrets,
+                credentials: self.deps.appCredentials,
+                scope: self.deps.authConfig.scope,
+                deviceId: self.deps.deviceId.description
             )
         } catch {
             self.deps.logger.error("Failed to open provider \(error)")
@@ -167,39 +171,13 @@ internal final class AuthByProviderFlow: Component, AuthFlow {
             universalLink: providerUniversalLink,
             fallbackDeepLink: providerDeepLink
         ) { [weak self] opened in
-            if !opened {
+            if opened {
+                self?.deps.analytics.authProviderUsed.send()
+            } else {
                 self?.cleanup()
                 completion(.failure(.failedToOpenProvider))
             }
         }
-    }
-
-    private func exchangeAuthCode(
-        authCodeResponse: AuthCodeResponse,
-        pkceSecrets: PKCESecrets,
-        completion: @escaping AuthFlowResultCompletion
-    ) {
-        self.deps
-            .api
-            .exchangeAuthCode
-            .execute(
-                with: .init(
-                    code: authCodeResponse.oauth.code,
-                    codeVerifier: pkceSecrets.codeVerifier,
-                    redirectUri: redirectURL(for: self.deps.appCredentials.clientId).absoluteString
-                )
-            ) { result in
-                completion(
-                    result
-                        .map {
-                            .init(
-                                accessToken: .init(from: $0),
-                                user: .init(from: authCodeResponse.user, response: $0)
-                            )
-                        }
-                        .mapError { .authCodeExchangingFailed($0) }
-                )
-            }
     }
 
     private func handleProviderCallbackURL(_ url: URL) -> Result<AuthCodeResponse, AuthProviderError> {
@@ -248,7 +226,7 @@ internal final class AuthByProviderFlow: Component, AuthFlow {
     }
 
     private func cleanup() {
-        self.appStateObserver.map(NotificationCenter.default.removeObserver(_:))
+        self.appStateObserver.map(NotificationCenter.default.removeObserver)
         self.appStateObserver = nil
         self.callbackHandler.map(self.deps.appInteropHandler.detach(handler:))
         self.callbackHandler = nil

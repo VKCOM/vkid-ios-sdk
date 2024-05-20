@@ -26,18 +26,23 @@
 // THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
 //
 
+import VKIDCore
 import XCTest
 @testable import VKID
 
 final class AuthURLBuilderTests: XCTestCase {
     private var builder: AuthURLBuilder!
 
-    private let secrets = PKCESecrets(
+    private let secrets = PKCESecretsWallet(secrets: .init(
         codeVerifier: "test_code_vefifier_1@3$5",
         codeChallenge: "test_code_challenge_1@3$5",
-        codeChallengeMethod: .sha256
-    )
+        codeChallengeMethod: .s256,
+        state: UUID().uuidString
+    ))
+    private let scope = "email phone_number"
+
     private let credentials = AppCredentials(clientId: "test_client_id_1@3$5", clientSecret: "test_client_secret_1@3$5")
+    private let context = AuthContext(launchedBy: .service)
 
     override func setUpWithError() throws {
         self.builder = AuthURLBuilderImpl()
@@ -47,45 +52,39 @@ final class AuthURLBuilderTests: XCTestCase {
         self.builder = nil
     }
 
-    func testBuildProviderAuthURLInvalidURLString() {
-        let templateURLString = "http://example.com:-80/"
-
-        let secrets = PKCESecrets(codeVerifier: "", codeChallenge: "", codeChallengeMethod: .sha256)
-        let credentials = AppCredentials(clientId: "", clientSecret: "")
-        XCTAssertThrowsError(
-            try self.builder.buildProviderAuthURL(
-                from: templateURLString,
-                with: secrets,
-                credentials: credentials
-            )
-        ) { error in
-            guard case AuthFlowError.invalidAuthConfigTemplateURL = error
-            else { return XCTFail("Invalid error type/class - \(error)") }
-        }
-    }
-
     func testBuildProviderAuthURLWithValidParameters() {
         do {
-            let templateURLString = "http://example.com/"
+            let baseURL = URL(string: "http://example.com/")!
 
             let result = try builder.buildProviderAuthURL(
-                from: templateURLString,
-                with: self.secrets,
-                credentials: self.credentials
+                baseURL: baseURL,
+                authContext: self.context,
+                secrets: self.secrets,
+                credentials: self.credentials,
+                scope: self.scope,
+                deviceId: DeviceId.currentDeviceId.description
             )
 
             let urlComponents = URLComponents(url: result, resolvingAgainstBaseURL: true)
-            let commonQueryItems = createCommonQueryItems(secrets: secrets, credentials: credentials)
+            let commonQueryItems = try createCommonQueryItems(
+                authContext: self.context,
+                secrets: self.secrets,
+                credentials: self.credentials
+            )
             let expectedQueryItems = commonQueryItems + [
+                .uuid(uniqueSessionId: self.context.uniqueSessionId),
                 .authProviderMethod,
                 .init(
-                    name: "client_id",
-                    value: credentials.clientId
+                    name: "redirect_uri",
+                    value: redirectURL(
+                        for: self.credentials.clientId,
+                        scope: self.scope
+                    ).absoluteString
                 ),
             ]
             XCTAssertEqual(urlComponents?.queryItems, expectedQueryItems)
 
-            guard var expectedURLComponents = URLComponents(string: templateURLString) else {
+            guard var expectedURLComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: false) else {
                 XCTFail("Failed to form a url string")
                 return
             }
@@ -99,30 +98,46 @@ final class AuthURLBuilderTests: XCTestCase {
 
     func testBuildProviderAuthURLWithEmptyParameters() {
         do {
-            let templateURLString = ""
+            let baseURL = URL(string: "http://example.com/")!
 
-            let secrets = PKCESecrets(codeVerifier: "", codeChallenge: "", codeChallengeMethod: .sha256)
+            let secrets = PKCESecretsWallet(secrets: .init(
+                codeVerifier: "",
+                codeChallenge: "",
+                codeChallengeMethod: .s256,
+                state: ""
+            ))
             let credentials = AppCredentials(clientId: "", clientSecret: "")
+            let context = AuthContext(uniqueSessionId: "", launchedBy: .service)
 
             let result = try builder.buildProviderAuthURL(
-                from: templateURLString,
-                with: secrets,
-                credentials:
-                credentials
+                baseURL: baseURL,
+                authContext: context,
+                secrets: secrets,
+                credentials: credentials,
+                scope: self.scope,
+                deviceId: DeviceId.currentDeviceId.description
             )
 
             let urlComponents = URLComponents(url: result, resolvingAgainstBaseURL: true)
-            let commonQueryItems = createCommonQueryItems(secrets: secrets, credentials: credentials)
+            let commonQueryItems = try createCommonQueryItems(
+                authContext: context,
+                secrets: secrets,
+                credentials: credentials
+            )
             let expectedQueryItems = commonQueryItems + [
+                .uuid(uniqueSessionId: context.uniqueSessionId),
                 .authProviderMethod,
                 .init(
-                    name: "client_id",
-                    value: credentials.clientId
+                    name: "redirect_uri",
+                    value: redirectURL(
+                        for: credentials.clientId,
+                        scope: self.scope
+                    ).absoluteString
                 ),
             ]
             XCTAssertEqual(urlComponents?.queryItems, expectedQueryItems)
 
-            guard var expectedURLComponents = URLComponents(string: templateURLString) else {
+            guard var expectedURLComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: false) else {
                 XCTFail("Failed to form a url string")
                 return
             }
@@ -134,57 +149,51 @@ final class AuthURLBuilderTests: XCTestCase {
         }
     }
 
-    func testBuildWebViewAuthURLInvalidURLString() {
-        let oAuth = OAuthProvider.vkid
-        let appearance = Appearance()
-
-        XCTAssertThrowsError(
-            try self.builder.buildWebViewAuthURL(
-                from: "http://example.com:-80/",
-                for: oAuth,
-                with: self.secrets,
-                credentials: self.credentials,
-                appearance: appearance
-            )
-        ) { error in
-            guard case AuthFlowError.invalidAuthConfigTemplateURL = error
-            else { return XCTFail("Invalid error type/class - \(error)") }
-        }
-    }
-
     func testBuildWebViewAuthURLWithValidParameters() {
         do {
-            let templateURLString = "http://example.com/"
+            let baseURL = URL(string:"http://example.com/")!
 
             let oAuth = OAuthProvider.vkid
             let appearance = Appearance(colorScheme: .dark, locale: .ru)
 
             let result = try builder.buildWebViewAuthURL(
-                from: templateURLString,
-                for: oAuth,
-                with: self.secrets,
+                baseURL: baseURL,
+                oAuthProvider: oAuth,
+                authContext: self.context,
+                secrets: self.secrets,
                 credentials: self.credentials,
+                scope: self.scope,
+                deviceId: DeviceId.currentDeviceId.description,
                 appearance: appearance
             )
 
             let urlComponents = URLComponents(url: result, resolvingAgainstBaseURL: true)
 
-            let sdkOAuthJsonItem = URLQueryItem.sdkOauthJson(oAuth: oAuth)
-            let commonQueryItems = createCommonQueryItems(secrets: secrets, credentials: credentials)
+            let commonQueryItems = try createCommonQueryItems(
+                authContext: self.context,
+                secrets: self.secrets,
+                credentials: self.credentials
+            )
             let expectedQueryItems = commonQueryItems + [
+                .scheme("dark"),
+                .langId("0"),
+                .uuid(uniqueSessionId: self.context.uniqueSessionId),
+                .provider(oAuth: oAuth),
+                .codeChallengeMethod(try self.secrets.codeChallengeMethod.rawValue),
+                .deviceId(DeviceId.currentDeviceId.description),
+                .prompt("login"),
+                .oAuthVersion,
+                .scope(self.scope),
                 .init(
-                    name: "scheme",
-                    value: "space_gray"
+                    name: "redirect_uri",
+                    value: redirectURL(
+                        for: self.credentials.clientId
+                    ).absoluteString
                 ),
-                .init(
-                    name: "lang_id",
-                    value: "0"
-                ),
-                sdkOAuthJsonItem,
             ]
             XCTAssertEqual(urlComponents?.queryItems, expectedQueryItems)
 
-            guard var expectedURLComponents = URLComponents(string: templateURLString) else {
+            guard var expectedURLComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: false) else {
                 XCTFail("Failed to form a url string")
                 return
             }
@@ -199,40 +208,58 @@ final class AuthURLBuilderTests: XCTestCase {
 
     func testBuildWebViewAuthURLEmptyQueryItems() {
         do {
-            let templateURLString = ""
+            let baseURL = URL(string: "http://example.com/")!
 
             let oAuth = OAuthProvider.vkid
-            let secrets = PKCESecrets(codeVerifier: "", codeChallenge: "", codeChallengeMethod: .sha256)
+            let secrets = PKCESecretsWallet(secrets: .init(
+                codeVerifier: "",
+                codeChallenge: "",
+                codeChallengeMethod: .s256,
+                state: ""
+            ))
             let credentials = AppCredentials(clientId: "", clientSecret: "")
             let appearance = Appearance(colorScheme: .light, locale: .en)
+            let context = AuthContext(uniqueSessionId: "", launchedBy: .service)
 
             let result = try builder.buildWebViewAuthURL(
-                from: templateURLString,
-                for: oAuth,
-                with: secrets,
+                baseURL: baseURL,
+                oAuthProvider: oAuth,
+                authContext: context,
+                secrets: secrets,
                 credentials: credentials,
+                scope: self.scope,
+                deviceId: DeviceId.currentDeviceId.description,
                 appearance: appearance
             )
 
             let urlComponents = URLComponents(url: result, resolvingAgainstBaseURL: true)
 
-            let sdkOAuthJsonItem = URLQueryItem.sdkOauthJson(oAuth: oAuth)
-            let commonQueryItems = createCommonQueryItems(secrets: secrets, credentials: credentials)
+            let commonQueryItems = try createCommonQueryItems(
+                authContext: context,
+                secrets: secrets,
+                credentials: credentials
+            )
             let expectedQueryItems = commonQueryItems + [
+                .scheme("light"),
+                .langId("3"),
+                .uuid(uniqueSessionId: context.uniqueSessionId),
+                .provider(oAuth: oAuth),
+                .codeChallengeMethod(try secrets.codeChallengeMethod.rawValue),
+                .deviceId(DeviceId.currentDeviceId.description),
+                .prompt("login"),
+                .oAuthVersion,
+                .scope(self.scope),
                 .init(
-                    name: "scheme",
-                    value: "bright_light"
+                    name: "redirect_uri",
+                    value: redirectURL(
+                        for: credentials.clientId
+                    ).absoluteString
                 ),
-                .init(
-                    name: "lang_id",
-                    value: "3"
-                ),
-                sdkOAuthJsonItem,
             ]
 
             XCTAssertEqual(urlComponents?.queryItems, expectedQueryItems)
 
-            guard var expectedURLComponents = URLComponents(string: templateURLString) else {
+            guard var expectedURLComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: false) else {
                 XCTFail("Failed to form a url string")
                 return
             }
@@ -247,13 +274,16 @@ final class AuthURLBuilderTests: XCTestCase {
 }
 
 extension AuthURLBuilderTests {
-    private func createCommonQueryItems(secrets: PKCESecrets, credentials: AppCredentials) -> [URLQueryItem] {
+    private func createCommonQueryItems(
+        authContext: AuthContext,
+        secrets: PKCESecretsWallet,
+        credentials: AppCredentials
+    ) throws -> [URLQueryItem] {
         [
-            .init(name: "redirect_uri", value: redirectURL(for: credentials.clientId).absoluteString),
             .init(name: "response_type", value: "code"),
-            .init(name: "state", value: secrets.state),
-            .init(name: "code_challenge", value: secrets.codeChallenge),
-            .init(name: "code_challenge_method", value: secrets.codeChallengeMethod.rawValue),
+            .init(name: "state", value: try secrets.state),
+            .init(name: "code_challenge", value: try secrets.codeChallenge),
+            .init(name: "client_id", value: credentials.clientId),
         ]
     }
 }

@@ -88,8 +88,10 @@ internal final class WebAuthenticationSessionStrategy: NSObject, WebViewAuthStra
                 do {
                     let response = try self.responseParser.parseAuthCodeResponse(from: url)
                     completion(.success(response))
+                } catch let e as AuthFlowError {
+                    completion(.failure(e))
                 } catch {
-                    completion(.failure(.invalidAuthCodePayloadJSON))
+                    completion(.failure(.invalidAuthCallbackURL))
                 }
             } else {
                 completion(.failure(.invalidAuthCallbackURL))
@@ -162,8 +164,10 @@ internal final class SafariViewControllerStrategy: NSObject, WebViewAuthStrategy
             do {
                 let response = try self.responseParser.parseAuthCodeResponse(from: url)
                 self.complete(with: .success(response))
+            } catch let e as AuthFlowError {
+                completion(.failure(e))
             } catch {
-                self.complete(with: .failure(.invalidAuthCodePayloadJSON))
+                completion(.failure(.invalidAuthCallbackURL))
             }
             return true
         }

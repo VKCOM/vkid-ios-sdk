@@ -151,7 +151,25 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
         self.setupUI()
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        self.vkid.rootContainer.analytics.screenProceed
+            .context(
+                .init(
+                    screen: .floatingOneTap
+                )
+            ).send(
+                .init(
+                    language: self.vkid.appearance.locale,
+                    themeType: self.theme.colorScheme,
+                    textType: self.targetActionText.type
+                )
+            )
     }
 
     private func setupUI() {
@@ -243,6 +261,10 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
                 self.contentPlaceholderView.layoutIfNeeded()
             }
 
+            self.vkid.rootContainer.analytics.dataLoading.context(
+                .init(screen: .floatingOneTap)
+            ).send()
+
             UIView.transition(
                 with: self.contentPlaceholderView,
                 duration: 0.25,
@@ -302,8 +324,10 @@ extension OneTapBottomSheetContentViewController: OneTapBottomSheetAuthStateView
         guard let oAuth = self.currentOAuthProivder, !vkid.isAuthorizing else { return }
 
         self.vkid.authorize(
-            with: .init(oAuthProvider: oAuth),
-            using: .newUIWindow,
+            authContext: .init(launchedBy: .oneTapBottomSheetRetry),
+            authConfig: .init(),
+            oAuthProviderConfig: .init(primaryProvider: oAuth),
+            presenter: .newUIWindow,
             completion: { [onCompleteAuth = self.onCompleteAuth] result in
                 onCompleteAuth?(result)
             }
@@ -341,7 +365,7 @@ extension OneTapBottomSheetContentViewController: VKIDObserver {
         case .failure(let error):
             switch error {
             case .cancelled: self.authState = .idle
-            case .unknown: self.authState = .failure
+            case .unknown, .codeVerifierNotProvided: self.authState = .failure
             case .authAlreadyInProgress: break
             }
             self.onCompleteAuth?(result)

@@ -26,6 +26,7 @@
 // THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
 //
 
+import VKIDAllureReport
 import VKIDCore
 import XCTest
 
@@ -39,6 +40,12 @@ final class WeakObserversTests: XCTestCase {
     }
 
     private var underTest: WeakObservers<Observer>!
+    private let testCaseMeta = Allure.TestCase.MetaInformation(
+        owner: .vkidTester,
+        layer: .unit,
+        product: .VKIDCore,
+        feature: "Список WeakObservers"
+    )
 
     override func setUpWithError() throws {
         self.underTest = WeakObservers()
@@ -49,39 +56,79 @@ final class WeakObserversTests: XCTestCase {
     }
 
     func testObserverGetNotified() {
+        Allure.report(
+            .init(
+                name: "Добавленный в список observer получает уведомления",
+                meta: self.testCaseMeta
+            )
+        )
         let observer = Observer()
-        XCTAssertFalse(observer.getNotified)
-        self.underTest.add(observer)
-
-        self.underTest.notify { $0.notify() }
-
-        XCTAssertTrue(observer.getNotified)
+        given("Добавляем observer в список") {
+            XCTAssertFalse(observer.getNotified)
+            self.underTest.add(observer)
+        }
+        when("Вызываем метод notify") {
+            self.underTest.notify { $0.notify() }
+        }
+        then("Добавленный observer получает уведомление") {
+            XCTAssertTrue(observer.getNotified)
+        }
     }
 
     func testObserverStoredWeakly() {
+        Allure.report(
+            .init(
+                name: "Добавленный в список observer хранится weak ссылкой",
+                meta: self.testCaseMeta
+            )
+        )
         weak var observer: Observer?
-        do {
-            let o = Observer()
-            self.underTest.add(o)
-            observer = o
+        when("Добавляем observer в список") {
+            do {
+                let o = Observer()
+                self.underTest.add(o)
+                observer = o
+            }
         }
-        XCTAssertNil(observer)
+        then("Если на observer нету strong ссылок - он уничтожается") {
+            XCTAssertNil(observer)
+        }
     }
 
     func testRemovedObserverNotGetNotified() {
+        Allure.report(
+            .init(
+                name: "Удаленный из списка observer больше не получает уведомления",
+                meta: self.testCaseMeta
+            )
+        )
         let observer = Observer()
-        XCTAssertFalse(observer.getNotified)
-        self.underTest.add(observer)
-
-        self.underTest.remove(observer)
-        self.underTest.notify { $0.notify() }
-
-        XCTAssertFalse(observer.getNotified)
+        given("Добавляем observer в список") {
+            XCTAssertFalse(observer.getNotified)
+            self.underTest.add(observer)
+        }
+        when("Удаляем observer из списка и вызываем метод notify") {
+            self.underTest.remove(observer)
+            self.underTest.notify { $0.notify() }
+        }
+        then("Удаленный observer не получает уведомления") {
+            XCTAssertFalse(observer.getNotified)
+        }
     }
 
     func testContainsObserver() {
+        Allure.report(
+            .init(
+                name: "Добавленный в список observer проходит проверку на contains",
+                meta: self.testCaseMeta
+            )
+        )
         let observer = Observer()
-        self.underTest.add(observer)
-        XCTAssertTrue(self.underTest.contains(observer))
+        when("Добавляем observer в список") {
+            self.underTest.add(observer)
+        }
+        then("Проверка на contains возвращает true") {
+            XCTAssertTrue(self.underTest.contains(observer))
+        }
     }
 }

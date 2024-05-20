@@ -121,7 +121,9 @@ final class ControlsViewController: VKIDDemoViewController, UITableViewDataSourc
             let controller = OneTapButtonCustomizationController(
                 title: "Кастомизация",
                 subtitle: "OneTapButton",
-                description: "Нажмите на кнопку, чтобы включить или выключить анимацию"
+                description: "Нажмите на кнопку, чтобы включить или выключить анимацию",
+                debugSettings: self.debugSettings,
+                api: self.api
             )
             controller.vkid = self.vkid
             self.navigationController?.pushViewController(
@@ -132,9 +134,12 @@ final class ControlsViewController: VKIDDemoViewController, UITableViewDataSourc
             let controller = OneTapBottomSheetCustomizationController(
                 title: "Кастомизация",
                 subtitle: "OneTapBottomSheet",
-                description: "Настройте параметры конфигурации"
+                description: "Настройте параметры конфигурации",
+                debugSettings: self.debugSettings,
+                api: self.api
             )
             controller.vkid = self.vkid
+            controller.debugSettings = self.debugSettings
             self.navigationController?.pushViewController(
                 controller,
                 animated: true
@@ -143,9 +148,12 @@ final class ControlsViewController: VKIDDemoViewController, UITableViewDataSourc
             let controller = OAuthListWidgetCustomizationController(
                 title: "Кастомизация",
                 subtitle: "OAuthListWidget",
-                description: "Настройте параметры конфигурации"
+                description: "Настройте параметры конфигурации",
+                debugSettings: self.debugSettings,
+                api: self.api
             )
             controller.vkid = self.vkid
+            controller.debugSettings = self.debugSettings
             self.navigationController?.pushViewController(
                 controller,
                 animated: true
@@ -154,9 +162,12 @@ final class ControlsViewController: VKIDDemoViewController, UITableViewDataSourc
             let controller = OneTapWithOAuthCustomizationController(
                 title: "Кастомизация",
                 subtitle: "OneTapButton with OAuthListWidget",
-                description: "Настройте параметры конфигурации"
+                description: "Настройте параметры конфигурации",
+                debugSettings: self.debugSettings,
+                api: self.api
             )
             controller.vkid = self.vkid
+            controller.debugSettings = self.debugSettings
             self.navigationController?.pushViewController(
                 controller,
                 animated: true

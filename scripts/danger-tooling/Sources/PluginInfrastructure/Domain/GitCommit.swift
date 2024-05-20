@@ -37,17 +37,11 @@ public struct GitCommit {
         self.repoURL = repoURL
     }
 
-    public var shortSHALink: String {
-        let shortSHA = self.sha.prefix(8)
-        return "[\(shortSHA)](\(self.repoURL.absoluteString)/-/tree/\(self.sha))"
+    public var shortSHA: String {
+        String(self.sha.prefix(8))
     }
-}
 
-extension GitCommit {
-    public static func vkid(sha: String) -> GitCommit {
-        .init(
-            sha: sha,
-            repoURL: URL(string: "https://gitlab.mvk.com/vk-ecosystem/vk-id-sdk/ios-sdk")!
-        )
+    public var shortSHALink: String {
+        "[\(self.shortSHA)](\(self.repoURL.absoluteString)/-/tree/\(self.sha))"
     }
 }

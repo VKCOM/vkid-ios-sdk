@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name = "VKID"
-  spec.version = "1.3.0"
+  spec.version = "2.0.0-alpha"
   spec.summary = "iOS library for VK ID authorization"
   spec.homepage = "https://id.vk.com/business"
   spec.authors = { 'VK ID' => 'devsupport@corp.vk.com' }

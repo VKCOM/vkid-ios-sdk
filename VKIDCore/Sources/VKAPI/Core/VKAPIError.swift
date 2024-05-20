@@ -28,14 +28,27 @@
 
 import Foundation
 
+public enum InvalidRequestReason {
+    case invalidRefreshToken
+    case invalidURL
+    case unknown
+}
+
 public enum VKAPIError: Swift.Error {
     case unknown
     case noTransportProvided
-    case invalidRequest(reason: String)
+    case invalidRequest(reason: InvalidRequestReason)
     case networkConnectionFailed(Error)
     case responseDecodingFailed(Error)
     case failedToGetAnonymousToken(Error)
+    case failedToGetAccessToken(Error)
+    case authorizedRequestWithoutSession
     case noResponseDataProvided
     case anonymousTokenExpired
     case invalidAccessToken
+    case serverError
+    case temporarilyUnavailable
+    case slowDown
+    case accessDenied
+    case cancelled
 }

@@ -45,6 +45,11 @@ final class DebugSettingsViewController: UITableViewController {
             UITableViewCell.self,
             forCellReuseIdentifier: String(describing: UITableViewCell.self)
         )
+        self.tableView.register(
+            DebugSettingsTextFieldCell.self,
+            forCellReuseIdentifier: String(describing: DebugSettingsTextFieldCell.self)
+        )
+        self.tableView.rowHeight = 44
     }
 
     @objc
@@ -75,15 +80,17 @@ final class DebugSettingsViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let vm = self.viewModel[indexPath]
         let cell = tableView.dequeueReusableCell(
-            withIdentifier: String(describing: UITableViewCell.self),
+            withIdentifier: String(describing: vm.cellType),
             for: indexPath
         )
         vm.configureCell(cell)
+
         return cell
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        self.viewModel[indexPath].action()
+        (self.viewModel[indexPath] as? DebugSettingsToggleCellViewModel)?.action()
+        (self.viewModel[indexPath] as? DebugSettingsCheckboxCellViewModel)?.action()
     }
 }

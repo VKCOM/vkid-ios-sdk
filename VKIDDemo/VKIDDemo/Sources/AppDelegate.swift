@@ -30,6 +30,7 @@ import UIKit
 
 // Only for debug purposes. Do not use in your projects.
 @_spi(VKIDDebug) import VKID
+import VKIDCore
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -37,6 +38,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     private let debugSettings = DebugSettingsStorage()
+
+    var api: VKAPI<OAuth>?
 
     func application(
         _ application: UIApplication,
@@ -58,7 +61,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                     ),
                     // Only for debug purposes
                     network: NetworkConfiguration(
-                        isSSLPinningEnabled: self.debugSettings.isSSLPinningEnabled
+                        isSSLPinningEnabled: self.debugSettings.isSSLPinningEnabled,
+                        customDomainTemplate: self.debugSettings.customDomainTemplate
                     )
                 )
             )
@@ -68,6 +72,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         let tabBarController = UITabBarController()
+        self.makeAPI(clientId: clientId)
         tabBarController.viewControllers = [
             self.makeAuthViewController(),
             self.makeCustomizationViewController(),
@@ -95,7 +100,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             title: "Авторизация VKID",
             subtitle: "Вход с помощью OneTapButton",
             description: "Нажмите на кнопку, чтобы начать авторизацию",
-            navigationTitle: "VKID Version: \(VKID.sdkVersion)\nBuild: \(bundleVersion)"
+            navigationTitle: "VKID Version: \(VKID.sdkVersion)\nBuild: \(bundleVersion)",
+            debugSettings: self.debugSettings,
+            api: self.api
         )
         authViewController.tabBarItem = UITabBarItem(
             title: "Авторизация",
@@ -104,6 +111,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         )
         authViewController.vkid = self.vkid
         authViewController.debugSettings = self.debugSettings
+        authViewController.api = self.api
 
         return UINavigationController(
             rootViewController: authViewController
@@ -114,7 +122,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let customizationViewController = ControlsViewController(
             title: "Кастомизация",
             subtitle: "Примеры контролов из VK ID SDK",
-            description: "Выберите контрол из списка, чтобы посмотреть его детальные настройки"
+            description: "Выберите контрол из списка, чтобы посмотреть его детальные настройки",
+            debugSettings: self.debugSettings,
+            api: self.api
         )
         customizationViewController.vkid = self.vkid
         customizationViewController.tabBarItem = UITabBarItem(
@@ -134,7 +144,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             description: """
                 Здесь отображается список сохраненных
                 авторизованных сессий.
-                """
+                """,
+            debugSettings: self.debugSettings,
+            api: self.api
         )
         userSessionsViewController.vkid = self.vkid
         userSessionsViewController.tabBarItem = UITabBarItem(
@@ -144,6 +156,28 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         )
         return UINavigationController(
             rootViewController: userSessionsViewController
+        )
+    }
+
+    private func makeAPI(clientId: String) {
+        let urlRequestBuilder = URLRequestBuilder(
+            apiHosts: .init(
+                template: self.debugSettings.customDomainTemplate,
+                hostname: "vk.com"
+            )
+        )
+        self.api = VKAPI<OAuth>(
+            transport: URLSessionTransport(
+                urlRequestBuilder: urlRequestBuilder,
+                genericParameters: .init(
+                    deviceId: DeviceId.currentDeviceId.description,
+                    clientId: clientId,
+                    apiVersion: Version(VKID.apiVersion),
+                    vkidVersion: Version(VKID.sdkVersion)
+                ),
+                defaultHeaders: [:],
+                sslPinningConfiguration: SSLPinningConfiguration(domains: [])
+            )
         )
     }
 }

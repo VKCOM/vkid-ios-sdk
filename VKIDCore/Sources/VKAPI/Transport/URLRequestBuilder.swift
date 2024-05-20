@@ -33,10 +33,10 @@ public protocol URLRequestBuilding {
 }
 
 public final class URLRequestBuilder: URLRequestBuilding {
-    private let hostname: String
+    private let apiHosts: APIHosts
 
-    public init(hostname: String) {
-        self.hostname = hostname
+    public init(apiHosts: APIHosts) {
+        self.apiHosts = apiHosts
     }
 
     public func buildURLRequest(from request: VKAPIRequest) throws -> URLRequest {
@@ -48,13 +48,13 @@ public final class URLRequestBuilder: URLRequestBuilding {
             var componentsWithoutQuery = components
             componentsWithoutQuery.queryItems = nil
             guard let url = componentsWithoutQuery.url else {
-                throw VKAPIError.invalidRequest(reason: "Could not construct url for request: \(request)")
+                throw VKAPIError.invalidRequest(reason: .invalidURL)
             }
             urlRequest = URLRequest(url: url)
             urlRequest.httpBody = components.percentEncodedQuery?.data(using: .utf8)
         case .get:
             guard let url = components.url else {
-                throw VKAPIError.invalidRequest(reason: "Could not construct url for request: \(request)")
+                throw VKAPIError.invalidRequest(reason: .invalidURL)
             }
             urlRequest = URLRequest(url: url)
         }
@@ -72,7 +72,7 @@ public final class URLRequestBuilder: URLRequestBuilding {
     private func urlComponents(for request: VKAPIRequest) -> URLComponents {
         var components = URLComponents()
         components.scheme = "https"
-        components.host = "\(request.host.rawValue).\(self.hostname)"
+        components.host = self.apiHosts.getHostBy(requestHost: request.host)
         components.path = request.path
         components.queryItems = request.parameters
             .map { ($0.key, String(describing: $0.value)) }
