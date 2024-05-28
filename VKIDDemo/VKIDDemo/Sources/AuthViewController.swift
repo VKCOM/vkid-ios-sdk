@@ -74,7 +74,7 @@ final class AuthViewController: VKIDDemoViewController {
                         codeExchanger: self,
                         pkce: self.providedAuthSecrets
                     ),
-                    scopes: self.debugSettings.scopes.scopesSet
+                    scope: Scope(self.debugSettings.scope)
                 ),
                 onCompleteAuth: nil
             )
@@ -88,7 +88,7 @@ final class AuthViewController: VKIDDemoViewController {
                     presenter: .uiViewController(self),
                     authConfiguration: AuthConfiguration(
                         flow: .publicClientFlow(pkce: self.providedAuthSecrets),
-                        scopes: self.debugSettings.scopes.scopesSet
+                        scope: Scope(self.debugSettings.scope)
                     ),
                     onCompleteAuth: nil
                 )
@@ -100,7 +100,7 @@ final class AuthViewController: VKIDDemoViewController {
                     ),
                     presenter: .uiViewController(self),
                     authConfiguration: AuthConfiguration(
-                        scopes: self.debugSettings.scopes.scopesSet
+                        scope: Scope(self.debugSettings.scope)
                     ),
                     onCompleteAuth: nil
                 )

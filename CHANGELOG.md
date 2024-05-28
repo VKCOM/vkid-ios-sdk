@@ -3,6 +3,23 @@
 > **Note**\
 > Описание основных изменений в релизах VK ID SDK. Наш SDK следует [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.0-alpha.2 - 2024-05-28
+
+### Added
+- Тип `Scope`, описывающий права доступа при авторизации
+- Поля `AccessToken.scope` и `RefreshToken.scope`, содержащие разрешенные права для указанных токенов 
+
+### Fixed
+- Отсутствие SSL Pinning при установке через CocoaPods
+
+### Removed
+- Возможность миграции токенов по `confidentialClientFlow` 
+
+## 1.3.1 - 2024-05-27
+
+### Fixed
+- Отсутствие SSL Pinning при установке через CocoaPods
+
 ## 2.0.0-alpha - 2024-05-20
 
 ### Added

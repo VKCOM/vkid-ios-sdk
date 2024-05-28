@@ -136,11 +136,11 @@ extension AuthViewController {
     private func scopeCells() -> [any DebugSettingsCellViewModel] {
         [
             DebugSettingsTextFieldViewModel(
-                title: "Scopes",
+                title: "Scope",
                 placeholder: "email phone ...",
-                text: self.debugSettings.scopes
+                text: self.debugSettings.scope
             ) { [weak self] text in
-                self?.debugSettings.scopes = text
+                self?.debugSettings.scope = text
             },
         ]
     }

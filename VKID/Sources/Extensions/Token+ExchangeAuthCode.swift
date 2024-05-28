@@ -32,7 +32,8 @@ extension RefreshToken {
     internal init(from response: OAuth2.ExchangeAuthCode.Response) {
         self.init(
             userId: .init(value: response.userId),
-            value: response.refreshToken
+            value: response.refreshToken,
+            scope: Scope(response.scope)
         )
     }
 }

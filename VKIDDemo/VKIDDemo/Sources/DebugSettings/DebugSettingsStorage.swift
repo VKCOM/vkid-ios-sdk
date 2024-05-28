@@ -35,7 +35,7 @@ final class DebugSettingsStorage {
         case providedPKCESecretsEnabled = "com.vkid.debug.providedPKCESecretsEnabled"
         case confidentialFlowEnabled = "com.vkid.debug.confidentialFlowEnabled"
         case serviceToken = "com.vkid.debug.serviceToken"
-        case scopes = "com.vkid.debug.scopes"
+        case scope = "com.vkid.debug.scope"
     }
 
     private let userDefaults = UserDefaults.standard
@@ -110,16 +110,16 @@ final class DebugSettingsStorage {
         }
     }
 
-    var scopes: String? {
+    var scope: String? {
         get {
             (self.userDefaults.value(
-                forKey: Keys.scopes.rawValue
+                forKey: Keys.scope.rawValue
             ) as? String)
         }
         set {
             self.userDefaults.setValue(
                 newValue,
-                forKey: Keys.scopes.rawValue
+                forKey: Keys.scope.rawValue
             )
         }
     }

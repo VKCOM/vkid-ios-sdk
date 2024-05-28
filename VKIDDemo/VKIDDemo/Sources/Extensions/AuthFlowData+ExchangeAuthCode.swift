@@ -34,15 +34,18 @@ extension AuthFlowData {
         let expirationDate: Date = response.expiresIn > 0 ?
             Date().addingTimeInterval(response.expiresIn) :
             .distantFuture
+        let scope = Scope(response.scope)
         self.init(
             accessToken: .init(
                 userId: .init(value: response.userId),
                 value: response.accessToken,
-                expirationDate: expirationDate
+                expirationDate: expirationDate,
+                scope: scope
             ),
             refreshToken: .init(
                 userId: .init(value: response.userId),
-                value: response.refreshToken
+                value: response.refreshToken,
+                scope: scope
             ),
             idToken: .init(
                 userId: .init(value: response.userId),

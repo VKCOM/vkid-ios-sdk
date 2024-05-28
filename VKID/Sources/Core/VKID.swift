@@ -207,7 +207,7 @@ public final class VKID {
             pkceSecrets: pkceWallet,
             codeExchanger: codeExchanger,
             oAuthProvider: oAuthProviderConfig.primaryProvider,
-            scope: authConfig.scopes?.joined(separator: " ")
+            scope: authConfig.scope?.description
         )
 
         self.authorize(

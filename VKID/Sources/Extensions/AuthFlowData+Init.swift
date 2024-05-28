@@ -37,11 +37,13 @@ extension AuthFlowData {
             accessToken: .init(
                 userId: .init(value: response.userId),
                 value: response.accessToken,
-                expirationDate: expirationDate
+                expirationDate: expirationDate,
+                scope: Scope(response.scope)
             ),
             refreshToken: .init(
                 userId: .init(value: response.userId),
-                value: response.refreshToken
+                value: response.refreshToken,
+                scope: Scope(response.scope)
             ),
             idToken: .init(
                 userId: .init(value: response.userId),

@@ -36,7 +36,8 @@ extension AccessToken {
         self.init(
             userId: .init(value: response.userId),
             value: response.accessToken,
-            expirationDate: expirationDate
+            expirationDate: expirationDate,
+            scope: Scope(response.scope)
         )
     }
 }
@@ -45,7 +46,8 @@ extension RefreshToken {
     internal init(from response: OAuth2.RefreshToken.Response) {
         self.init(
             userId: .init(value: response.userId),
-            value: response.refreshToken
+            value: response.refreshToken,
+            scope: Scope(response.scope)
         )
     }
 }

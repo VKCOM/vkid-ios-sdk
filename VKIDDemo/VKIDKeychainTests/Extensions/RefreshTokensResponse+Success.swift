@@ -38,7 +38,8 @@ extension OAuth2.RefreshToken.Response {
             accessToken: data.accessToken.value,
             state: state,
             expiresIn: 3600,
-            userId: data.id.value
+            userId: data.id.value,
+            scope: ""
         )
     }
 }

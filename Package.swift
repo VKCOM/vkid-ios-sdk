@@ -44,14 +44,12 @@ let package = Package(
             name: "VKIDCore",
             targets: ["VKIDCore"]
         ),
-        .library(
-            name: "VKIDAllureReport",
-            targets: ["VKIDAllureReport"]
-        ),
     ],
     dependencies: [
-        // Dependencies declare other packages that this package depends on.
-        // .package(url: /* package url */, from: "1.0.0"),
+        .package(
+            name: "testing-infra",
+            path: "scripts/testing-infra"
+        ),
     ],
     targets: [
         .target(
@@ -76,14 +74,12 @@ let package = Package(
             name: "VKIDCoreTests",
             dependencies: [
                 "VKIDCore",
-                "VKIDAllureReport",
+                .product(
+                    name: "VKIDAllureReport",
+                    package: "testing-infra"
+                ),
             ],
             path: "VKIDCore/Tests"
-        ),
-        .target(
-            name: "VKIDAllureReport",
-            dependencies: [],
-            path: "VKIDAllureReport/Sources"
         ),
     ]
 )

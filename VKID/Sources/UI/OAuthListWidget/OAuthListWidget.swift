@@ -86,7 +86,7 @@ public struct OAuthListWidget: UIViewElement {
             self.oAuthButton(
                 authConfiguration: AuthConfiguration(
                     flow: self.authConfig.flow,
-                    scopes: self.authConfig.scopes
+                    scope: self.authConfig.scope
                 ),
                 oAuthProviderConfiguration: OAuthProviderConfiguration(primaryProvider: provider),
                 using: factory,

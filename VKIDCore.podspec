@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name = "VKIDCore"
-  spec.version = "2.0.0-alpha"
+  spec.version = "2.0.0-alpha.2"
   spec.summary = "VKID core functionality. Not for public use."
   spec.homepage = "https://id.vk.com/business"
     spec.authors = { 'VK ID' => 'devsupport@corp.vk.com' }
@@ -37,5 +37,7 @@ THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
   spec.source = { :git => "https://github.com/VKCOM/vkid-ios-sdk.git", :tag => "#{spec.version}" }
   spec.cocoapods_version = ">= 1.11.2"
   spec.source_files = "VKIDCore/Sources/**/*.swift"
-  
+  spec.pod_target_xcconfig = {
+    'BUILD_LIBRARY_FOR_DISTRIBUTION' => 'YES'
+  }
 end
