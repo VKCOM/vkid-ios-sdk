@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 60;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -16,7 +16,6 @@
 		051962DC2BA39149003E8019 /* UserInfoServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 051962DB2BA39149003E8019 /* UserInfoServiceMock.swift */; };
 		0519638D2BA5B294003E8019 /* RefreshTokensResponse+Success.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0519638C2BA5B294003E8019 /* RefreshTokensResponse+Success.swift */; };
 		051FD2922AF3C7B90082990B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 051FD2942AF3C7B90082990B /* Localizable.strings */; };
-		052754312BE39B7F00291A0D /* String+Scope.swift in Sources */ = {isa = PBXBuildFile; fileRef = 052754302BE39B7F00291A0D /* String+Scope.swift */; };
 		055AD2012B874DF400E48766 /* DeviceIDTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055AD2002B874DF400E48766 /* DeviceIDTests.swift */; };
 		057500D12B0E0635008EEB4B /* PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057500D02B0E0635008EEB4B /* PickerView.swift */; };
 		0591B0252BA9E8C200B18F98 /* DebugSettingsTextFieldCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0591B0242BA9E8C200B18F98 /* DebugSettingsTextFieldCell.swift */; };
@@ -36,7 +35,6 @@
 		176924532BB1C0DC00E98210 /* UserSessionManagerCreateSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 176924502BB1C0DC00E98210 /* UserSessionManagerCreateSessionTests.swift */; };
 		176924542BB1C0DC00E98210 /* UserSessionManagerLogoutSessionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 176924512BB1C0DC00E98210 /* UserSessionManagerLogoutSessionTests.swift */; };
 		176924562BB2F8BF00E98210 /* Entity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 176924552BB2F8BF00E98210 /* Entity.swift */; };
-		1769245A2BB432B100E98210 /* VKIDAllureReport in Frameworks */ = {isa = PBXBuildFile; productRef = 176924592BB432B100E98210 /* VKIDAllureReport */; };
 		1769245E2BB479A600E98210 /* UserSessionManagerTestsDependency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1769245D2BB479A600E98210 /* UserSessionManagerTestsDependency.swift */; };
 		177F4A052B9752A3001EC2CE /* UserSessionDataStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 177F49FA2B9752A3001EC2CE /* UserSessionDataStorageTests.swift */; };
 		177F4A062B9752A3001EC2CE /* KeychainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 177F49FB2B9752A3001EC2CE /* KeychainTests.swift */; };
@@ -50,6 +48,7 @@
 		17CA41892AF1BB93008C81C1 /* VKIDDemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CA41882AF1BB93008C81C1 /* VKIDDemoViewController.swift */; };
 		17CA418C2AF1D755008C81C1 /* MeasureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CA418B2AF1D755008C81C1 /* MeasureView.swift */; };
 		A201B19E2AAB375900E8FA58 /* InfoPlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = A201B19D2AAB375900E8FA58 /* InfoPlist.swift */; };
+		A2188CE62C04E30E009FE82B /* VKIDAllureReport in Frameworks */ = {isa = PBXBuildFile; productRef = A2188CE52C04E30E009FE82B /* VKIDAllureReport */; };
 		A241BDFE2A55DDB10062825F /* VKID in Frameworks */ = {isa = PBXBuildFile; productRef = A241BDFD2A55DDB10062825F /* VKID */; };
 		A241BE002A55DDB10062825F /* VKIDCore in Frameworks */ = {isa = PBXBuildFile; productRef = A241BDFF2A55DDB10062825F /* VKIDCore */; };
 		A24B645D2A9E2C4400E45F3B /* DebugSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A24B645C2A9E2C4400E45F3B /* DebugSettingsViewController.swift */; };
@@ -99,7 +98,6 @@
 		051FD2992AF3CD120082990B /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/Localizable.strings; sourceTree = "<group>"; };
 		051FD29A2AF3CD210082990B /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		051FD29B2AF3CD2E0082990B /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Localizable.strings; sourceTree = "<group>"; };
-		052754302BE39B7F00291A0D /* String+Scope.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Scope.swift"; sourceTree = "<group>"; };
 		055AD2002B874DF400E48766 /* DeviceIDTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeviceIDTests.swift; sourceTree = "<group>"; };
 		057500D02B0E0635008EEB4B /* PickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerView.swift; sourceTree = "<group>"; };
 		0591B0242BA9E8C200B18F98 /* DebugSettingsTextFieldCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugSettingsTextFieldCell.swift; sourceTree = "<group>"; };
@@ -166,7 +164,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A254E63A2ACC61920035D4F7 /* VKIDCore in Frameworks */,
-				1769245A2BB432B100E98210 /* VKIDAllureReport in Frameworks */,
+				A2188CE62C04E30E009FE82B /* VKIDAllureReport in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -351,7 +349,6 @@
 				A24B64C32AA1FD6B00E45F3B /* UIColot+Palette.swift */,
 				175364E22B7D2366008AB285 /* UIImageView+LoadImage.swift */,
 				05BF33A92BDBF61A0060D3B9 /* AuthFlowData+ExchangeAuthCode.swift */,
-				052754302BE39B7F00291A0D /* String+Scope.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -453,7 +450,7 @@
 			name = VKIDKeychainTests;
 			packageProductDependencies = (
 				A254E6392ACC61920035D4F7 /* VKIDCore */,
-				176924592BB432B100E98210 /* VKIDAllureReport */,
+				A2188CE52C04E30E009FE82B /* VKIDAllureReport */,
 			);
 			productName = VKIDKeychainTests;
 			productReference = A23148DB2ACC5B6C0077B442 /* VKIDKeychainTests.xctest */;
@@ -539,6 +536,9 @@
 				tr,
 			);
 			mainGroup = A2E5F5E12A55A65D0079DE1F;
+			packageReferences = (
+				A2188CE42C04E30E009FE82B /* XCLocalSwiftPackageReference "../scripts/testing-infra" */,
+			);
 			productRefGroup = A2E5F5EB2A55A65D0079DE1F /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -628,7 +628,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				A2E5F5F22A55A65D0079DE1F /* AuthViewController.swift in Sources */,
-				052754312BE39B7F00291A0D /* String+Scope.swift in Sources */,
 				A271F71A2B0FD4670015B61C /* OAuthListWidgetCustomizationController.swift in Sources */,
 				A24B64612A9E407B00E45F3B /* AuthViewController+DebugSettings.swift in Sources */,
 				A27EFD332B185245001CF285 /* DebugSettingsStorage.swift in Sources */,
@@ -1010,12 +1009,19 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		A2188CE42C04E30E009FE82B /* XCLocalSwiftPackageReference "../scripts/testing-infra" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../scripts/testing-infra";
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
-		176924592BB432B100E98210 /* VKIDAllureReport */ = {
+		1769245B2BB440B500E98210 /* VKIDAllureReport */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = VKIDAllureReport;
 		};
-		1769245B2BB440B500E98210 /* VKIDAllureReport */ = {
+		A2188CE52C04E30E009FE82B /* VKIDAllureReport */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = VKIDAllureReport;
 		};

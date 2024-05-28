@@ -34,18 +34,18 @@ extension UserSessionImpl: CustomDebugStringConvertible {
         """
         <UserSession>
         oAuthProvider: \(self.oAuthProvider.type.rawValue)
-        accessToken: \(String(describing:self.accessToken).cutting(100))
+        accessToken: \(String(describing:self.accessToken))
 
-        refreshToken: \(String(describing: self.refreshToken).cutting(56))
-        idToken: \(String(describing: self.idToken).cutting(50))
+        refreshToken: \(String(describing: self.refreshToken))
+        idToken: \(String(describing: self.idToken))
 
-        deviceId: \(String(describing: self.data.serverProvidedDeviceId).cutting(50))
+        deviceId: \(String(describing: self.data.serverProvidedDeviceId).cutting(20))
         """
     }
 }
 
 extension String {
-    fileprivate func cutting(_ minLength: UInt) -> String {
+    func cutting(_ minLength: UInt) -> String {
         guard self.count > minLength else {
             return self
         }

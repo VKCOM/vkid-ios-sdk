@@ -34,9 +34,11 @@ public enum OAuth2MigrationError: Error {
     case invalidAccessToken
     case migrationOverdue
     case unknown
+    /// ```PKCESecrets``` были предоставлены без `codeVerifier`.
+    case codeVerifierNotProvided
 }
 
-/// протокол миграции `UserSession` на OAuth2
+/// Протокол миграции ```UserSession``` на OAuth2.1. При миграции ```AccessToken``` получит доступы, которые были выданы ранее. Если ранее доступы не выдавались, токен получит [базовое право доступа `vkid.personal_info`](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id-2/connection/api-integration/api-description#Dostup-prilozheniya-k-dannym-polzovatelya). Доступы 'phone', 'email' не входят в базовый доступ и должны запрашиваться при авторизации. [Подробнее] (https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id-2/connection/ios/oauth-2.1#Nastrojka-dostupov)
 public protocol OAuth2MigrationManager {
     /// Метод миграции сессии с помощью `AccessToken`
     /// - Parameters:
@@ -47,7 +49,7 @@ public protocol OAuth2MigrationManager {
     func migrate(
         from legacyAccessToken: String,
         oAuthProvider: OAuthProvider,
-        flow: AuthConfiguration.Flow,
+        secrets: PKCESecrets?,
         completion: @escaping (Result<UserSession, OAuth2MigrationError>) -> Void
     )
     /// Метод миграции сессии с помощью `UserSession`
@@ -57,7 +59,7 @@ public protocol OAuth2MigrationManager {
     ///   - completion: результат миграции
     func migrate(
         from legacyUserSession: LegacyUserSession,
-        flow: AuthConfiguration.Flow,
+        secrets: PKCESecrets?,
         completion: @escaping (Result<UserSession, OAuth2MigrationError>) -> Void
     )
 }
@@ -71,7 +73,7 @@ extension OAuth2MigrationManager {
         self.migrate(
             from : accessToken,
             oAuthProvider: oAuthProvider,
-            flow: .publicClientFlow(),
+            secrets: nil,
             completion: completion
         )
     }
@@ -82,7 +84,7 @@ extension OAuth2MigrationManager {
     ) {
         self.migrate(
             from: session,
-            flow: .publicClientFlow(),
+            secrets: nil,
             completion: completion
         )
     }
@@ -106,7 +108,7 @@ final class OAuth2MigrationManagerImpl: OAuth2MigrationManager, Component {
 
     func migrate(
         from legacyUserSession: LegacyUserSession,
-        flow: AuthConfiguration.Flow = .publicClientFlow(),
+        secrets: PKCESecrets?,
         completion: @escaping (Result<UserSession, OAuth2MigrationError>) -> Void
     ) {
         if let session = self.deps
@@ -122,7 +124,7 @@ final class OAuth2MigrationManagerImpl: OAuth2MigrationManager, Component {
         self.migrate(
             from: legacyUserSession.accessToken.value,
             oAuthProvider: legacyUserSession.oAuthProvider,
-            flow: flow,
+            secrets: secrets,
             completion: completion
         )
     }
@@ -130,13 +132,13 @@ final class OAuth2MigrationManagerImpl: OAuth2MigrationManager, Component {
     func migrate(
         from legacyAccessToken: String,
         oAuthProvider: OAuthProvider,
-        flow: AuthConfiguration.Flow,
+        secrets: PKCESecrets?,
         completion: @escaping (Result<UserSession, OAuth2MigrationError>) -> Void
     ) {
         self.migrate(
             token: legacyAccessToken,
             oAuthProvider: oAuthProvider,
-            flow: flow,
+            secrets: secrets,
             completion: completion
         )
     }
@@ -144,11 +146,15 @@ final class OAuth2MigrationManagerImpl: OAuth2MigrationManager, Component {
     private func migrate(
         token: String,
         oAuthProvider: OAuthProvider,
-        flow: AuthConfiguration.Flow,
+        secrets: PKCESecrets?,
         completion: @escaping (Result<UserSession, OAuth2MigrationError>) -> Void
     ) {
         do {
-            let pkce = try flow.pkce ?? (try PKCESecrets())
+            let pkce = try secrets ?? (try PKCESecrets())
+            guard let _ = pkce.codeVerifier else {
+                completion(.failure(.codeVerifierNotProvided))
+                return
+            }
             let pkceWallet = PKCESecretsWallet(secrets: pkce)
             self.deps
                 .oAuth2MigrationService
@@ -158,9 +164,10 @@ final class OAuth2MigrationManagerImpl: OAuth2MigrationManager, Component {
                 ) { result in
                     switch result {
                     case .success(let response):
-                        let codeExchanger = flow.codeExchanger ?? CodeExchanger(
-                            deps:
-                            .init(codeExchangingService: self.deps.codeExchangingService),
+                        let codeExchanger = CodeExchanger(
+                            deps: .init(
+                                codeExchangingService: self.deps.codeExchangingService
+                            ),
                             pkceSecrets: pkceWallet
                         )
                         do {

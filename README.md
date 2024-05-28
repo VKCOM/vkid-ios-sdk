@@ -9,8 +9,10 @@
 
 ---
 
-:information_source: Версия VK ID SDK 2.0.0-alpha поддерживает авторизацию по протоколу [OAuth 2.1](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-10), а также способы входа через аккаунты Одноклассников и Mail.ru. Если вы хотите участвовать в тестировании этой версии SDK или узнать о ней подробнее, напишите нам на почту devsupport@corp.vk.com.
+:information_source: Версия VK ID SDK 2.0.0-alpha.2 поддерживает авторизацию по протоколу [OAuth 2.1](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-10), а также способы входа через аккаунты Одноклассников и Mail.ru. Если вы хотите участвовать в тестировании этой версии SDK или узнать о ней подробнее, напишите нам на почту devsupport@corp.vk.com.
 
+Текущая стабильная версия VK ID SDK - [1.3.1](https://github.com/VKCOM/vkid-ios-sdk/releases/tag/1.3.1).
+    
 ---
 
 - [Предварительно](#предварительно)
@@ -40,14 +42,14 @@
 Добавьте VKID как зависимость в ваш `Package.swift`:
 ```swift
 dependencies: [
-    .package(url: "https://github.com/VKCOM/vkid-ios-sdk.git", .exact("2.0.0-alpha"))
+    .package(url: "https://github.com/VKCOM/vkid-ios-sdk.git", .exact("2.0.0-alpha.2"))
 ]
 ```
 
 ### CocoaPods
 Добавьте в ваш `Podfile`:
 ```ruby
-pod 'VKID', '2.0.0-alpha'
+pod 'VKID', '2.0.0-alpha.2'
 ```
 Выполните следующие команды, чтобы установить зависимости:
 ```shell

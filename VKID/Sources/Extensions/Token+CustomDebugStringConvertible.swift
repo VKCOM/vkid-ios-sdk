@@ -34,7 +34,8 @@ extension AccessToken: CustomDebugStringConvertible {
         """
         <AccessToken>
         expirationDate: \(expirationDate)
-        token: \(value.maskingForLogging())
+        scope: \(scope.description)
+        token: \(value.maskingForLogging().cutting(30))
         """
     }
 }
@@ -43,7 +44,8 @@ extension RefreshToken: CustomDebugStringConvertible {
     public var debugDescription: String {
         """
         <RefreshToken>
-        token: \(value.maskingForLogging())
+        scope: \(scope.description)
+        token: \(value.maskingForLogging().cutting(30))
         """
     }
 }
@@ -52,7 +54,7 @@ extension IDToken: CustomDebugStringConvertible {
     public var debugDescription: String {
         """
         <IDToken>
-        token: \(value.maskingForLogging())
+        token: \(value.maskingForLogging().cutting(30))
         """
     }
 }

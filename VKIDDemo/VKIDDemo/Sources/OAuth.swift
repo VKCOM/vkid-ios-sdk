@@ -38,6 +38,7 @@ internal struct OAuth: VKAPINamespace {
             let idToken: String
             let userId: Int
             let state: String
+            let scope: String
         }
 
         struct Parameters: VKAPIDictionaryRepresentable {

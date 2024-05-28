@@ -64,7 +64,7 @@ public struct OneTapBottomSheet: UIViewControllerElement {
     ///   - targetActionText: Текстовки для целевого действия в шторке.
     ///   - oneTapButton: Конфигурация для OneTap.
     ///   - authConfiguration: Конфигурация авторизации.
-    ///   - oAuthConfiguration: Конфигурация OAuth провайдеров, используемых в шторке.
+    ///   - oAuthProviderConfiguration: Конфигурация OAuth провайдеров, используемых в шторке.
     ///   - theme: Цветовая тема шторки.
     ///   - autoDismissOnSuccess:
     ///   Нужно ли скрывать шторку автоматически в случае успешной авторизации.
@@ -75,7 +75,7 @@ public struct OneTapBottomSheet: UIViewControllerElement {
         targetActionText: TargetActionText,
         oneTapButton: AuthButton,
         authConfiguration: AuthConfiguration = AuthConfiguration(),
-        oAuthConfiguration: OAuthProviderConfiguration = OAuthProviderConfiguration(),
+        oAuthProviderConfiguration: OAuthProviderConfiguration = OAuthProviderConfiguration(),
         theme: Theme = .matchingColorScheme(.current),
         autoDismissOnSuccess: Bool = true,
         onCompleteAuth: AuthResultCompletion?
@@ -84,7 +84,7 @@ public struct OneTapBottomSheet: UIViewControllerElement {
         self.targetActionText = targetActionText
         self.oneTapButton = oneTapButton
         self.authConfig = authConfiguration
-        self.oAuthProviderConfig = oAuthConfiguration
+        self.oAuthProviderConfig = oAuthProviderConfiguration
         self.theme = theme
         self.autoDismissOnSuccess = autoDismissOnSuccess
         self.onCompleteAuth = onCompleteAuth

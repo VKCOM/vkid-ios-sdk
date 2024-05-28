@@ -111,6 +111,11 @@ final class UserSessionsViewController: VKIDDemoViewController, UITableViewDataS
             }
             return UISwipeActionsConfiguration(actions: [
                 self.action(tableView: tableView,
+                            title: "Инфо",
+                            session: session,
+                            color: UIColor.lightGray,
+                            handler: self.show(session:completion:)),
+                self.action(tableView: tableView,
                             title: "Обновить данные",
                             session: session,
                             color: UIColor.azure,
@@ -134,30 +139,48 @@ final class UserSessionsViewController: VKIDDemoViewController, UITableViewDataS
             guard let legacySession = vkid?.legacyAuthorizedSessions[indexPath.row] else {
                 return UISwipeActionsConfiguration(actions: [])
             }
-            let migrationAction = UIContextualAction(
-                style: .normal,
-                title: "Мигрировать в OAuth2"
-            ) { _,_,_ in
-                self.vkid?
-                    .oAuth2MigrationManager
-                    .migrate(from: legacySession) { [weak self] result in
-                        tableView.reloadData()
-                        self?.handleMigration(
-                            result: result,
-                            legacyAccessToken: legacySession.accessToken.value
-                        )
-                    }
-            }
-            migrationAction.backgroundColor = .azure
-            return UISwipeActionsConfiguration(actions: [
-                migrationAction,
+            var actions = [
                 self.action(tableView: tableView,
                             title: "Логаут",
                             session: legacySession,
                             color: UIColor.darkGray,
                             handler: self.logout(from:completion:)),
-            ])
+            ]
+            if !self.debugSettings.confidentialFlowEnabled {
+                let migrationAction = UIContextualAction(
+                    style: .normal,
+                    title: "Мигрировать в OAuth2"
+                ) { _,_,_ in
+                    self.migrate(legacySession: legacySession)
+                }
+                migrationAction.backgroundColor = .azure
+                actions.append(migrationAction)
+            }
+            return UISwipeActionsConfiguration(actions: actions)
         }
+    }
+
+    private func migrate(legacySession: LegacyUserSession) {
+        var secrets: PKCESecrets?
+        if self.debugSettings.providedPKCESecretsEnabled {
+            guard let authSecrets = try? PKCESecrets() else {
+                fatalError("PKCE secrets not generated")
+            }
+            secrets = authSecrets
+            print("PKCE Secrets: \(authSecrets)")
+        }
+        self.vkid?
+            .oAuth2MigrationManager
+            .migrate(
+                from: legacySession,
+                secrets: secrets
+            ) { [weak self] result in
+                self?.sessionsTableView.reloadData()
+                self?.handleMigration(
+                    result: result,
+                    legacyAccessToken: legacySession.accessToken.value
+                )
+            }
     }
 
     private func action(
@@ -237,23 +260,23 @@ final class UserSessionsViewController: VKIDDemoViewController, UITableViewDataS
             message: "Выберите действия, которые хотите выполнить над сессией",
             preferredStyle: .actionSheet
         )
-        alertViewController.addAction(
-            UIAlertAction(
-                title: "Мигрировать в OAuth2",
-                style: .destructive
-            ) { [weak self] _ in
-                self?.vkid?.oAuth2MigrationManager.migrate(from: legacySession) { result in
-                    self?.sessionsTableView.reloadData()
-                    self?.handleMigration(result: result, legacyAccessToken: legacySession.accessToken.value)
+        if !self.debugSettings.confidentialFlowEnabled {
+            alertViewController.addAction(
+                UIAlertAction(
+                    title: "Мигрировать в OAuth2",
+                    style: .destructive
+                ) { [weak self] _ in
+                    self?.migrate(legacySession: legacySession)
                 }
-            }
-        )
+            )
+        }
         alertViewController.addAction(
             UIAlertAction(
                 title: "Логаут",
                 style: .destructive
             ) { [weak self] _ in
                 legacySession.logout { result in
+                    self?.sessionsTableView.reloadData()
                     self?.handleLegacyLogout(
                         legacySession: legacySession,
                         result: result
@@ -276,6 +299,16 @@ final class UserSessionsViewController: VKIDDemoViewController, UITableViewDataS
             title: "Действия над сессией",
             message: "Выберите действия, которые хотите выполнить над сессией",
             preferredStyle: .actionSheet
+        )
+        alertViewController.addAction(
+            UIAlertAction(
+                title: "Информация о сессии",
+                style: .destructive
+            ) { [weak self] _ in
+                self?.show(session: session) {
+                    self?.sessionsTableView.reloadData()
+                }
+            }
         )
         alertViewController.addAction(
             UIAlertAction(
@@ -332,6 +365,7 @@ final class UserSessionsViewController: VKIDDemoViewController, UITableViewDataS
 
     private func logout(from legacySession: LegacyUserSession, completion: @escaping () -> Void) {
         legacySession.logout { [weak self] result in
+            self?.sessionsTableView.reloadData()
             self?.handleLegacyLogout(
                 legacySession: legacySession,
                 result: result
@@ -365,6 +399,10 @@ final class UserSessionsViewController: VKIDDemoViewController, UITableViewDataS
             default: break
             }
         }
+    }
+
+    private func show(session: UserSession, completion: @escaping () -> Void) {
+        self.showAlert(message: session.debugDescription, completion: completion)
     }
 
     private func handleMigration(

@@ -30,9 +30,7 @@ import Foundation
 
 /// Определяет основные параметры авторизации
 public struct AuthConfiguration {
-    /// [Права доступа](https://dev.vk.com/ru/reference/access-rights). По умолчанию scopes = nil, в этом случае права доступа будут взяты из
-    /// [настроек приложения](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/application-settings).
-    let scopes: Set<String>?
+    let scope: Scope?
 
     /// Флоу авторизации
     let flow: Flow
@@ -40,15 +38,16 @@ public struct AuthConfiguration {
     /// Создает конфигурацию авторизации
     /// - Parameters:
     ///   - flow: Флоу авторизации Confidential client flow или Public client flow
-    ///   - scopes:
-    ///   [Права доступа](https://dev.vk.com/ru/reference/access-rights) должны совпадать с
-    ///   [настройками приложения](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/application-settings)
+    ///   - scope:
+    ///   Запрашиваемые [права доступа](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id-2/connection/api-integration/api-description#Dostup-prilozheniya-k-dannym-polzovatelya).
+    ///   Запрошенный список прав для приложения не может быть больше, чем разрешенный список в [настройках приложения](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id-2/connection/application-settings)
+    ///   По умолчанию scope = nil, в этом случае будет выдано базовое право доступа `vkid.personal_info`.
     public init (
         flow: Flow = .publicClientFlow(),
-        scopes: Set<String>? = nil
+        scope: Scope? = nil
     ) {
         self.flow = flow
-        self.scopes = scopes
+        self.scope = scope
     }
 }
 

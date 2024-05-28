@@ -44,6 +44,7 @@ internal struct OAuth2: VKAPINamespace {
             let idToken: String
             let userId: Int
             let state: String
+            let scope: String
         }
 
         struct Parameters: VKAPIDictionaryRepresentable {
@@ -74,6 +75,7 @@ internal struct OAuth2: VKAPINamespace {
             let state: String
             let expiresIn: TimeInterval
             let userId: Int
+            let scope: String
         }
 
         struct Parameters: VKAPIDictionaryRepresentable {

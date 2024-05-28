@@ -29,17 +29,25 @@
 import UIKit
 
 internal protocol AlertPresentable {
-    func showAlert(message: String)
+    func showAlert(message: String, completion: (() -> Void)?)
 }
 
 extension AlertPresentable where Self: UIViewController {
     func showAlert(message: String) {
+        self.showAlert(message: message, completion: nil)
+    }
+
+    func showAlert(message: String, completion: (() -> Void)?) {
         let alert = UIAlertController(
             title: "VK ID",
             message: message,
             preferredStyle: .alert
         )
-        alert.addAction(.init(title: "OK", style: .cancel))
+        alert.addAction(
+            .init(title: "OK", style: .cancel) { _ in
+                completion?()
+            }
+        )
         self.present(alert, animated: true)
     }
 }

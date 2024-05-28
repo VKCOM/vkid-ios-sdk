@@ -62,7 +62,8 @@ extension UserSessionData {
     private static func makeRefreshToken(userId: UserID) -> RefreshToken {
         RefreshToken(
             userId: userId,
-            value: UUID().uuidString
+            value: UUID().uuidString,
+            scope: []
         )
     }
 
@@ -74,7 +75,8 @@ extension UserSessionData {
         AccessToken(
             userId: userId,
             value: UUID().uuidString,
-            expirationDate: expirationDate
+            expirationDate: expirationDate,
+            scope: []
         )
     }
 

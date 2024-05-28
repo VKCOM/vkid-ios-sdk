@@ -536,9 +536,9 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
             ),
             authConfiguration: .init(
                 flow: self.createFlow(secrets: self.providedAuthSecrets),
-                scopes: self.debugSettings.scopes.scopesSet
+                scope: Scope(self.debugSettings.scope)
             ),
-            oAuthConfiguration: .init(
+            oAuthProviderConfiguration: .init(
                 alternativeProviders: self.oAuthListWidgetSwitcher.isOn ? [.mail, .ok] : []
             ),
             autoDismissOnSuccess: self.autoDismissSwitcher.isOn,
