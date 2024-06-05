@@ -27,7 +27,7 @@
 //
 
 import UIKit
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 internal final class OAuthListWidgetView: UIView {
     private let oAuthButtons: [UIView]

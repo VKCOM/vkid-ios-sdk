@@ -28,18 +28,18 @@
 
 import Foundation
 
-public protocol URLRequestBuilding {
+package protocol URLRequestBuilding {
     func buildURLRequest(from request: VKAPIRequest) throws -> URLRequest
 }
 
-public final class URLRequestBuilder: URLRequestBuilding {
+package final class URLRequestBuilder: URLRequestBuilding {
     private let hostname: String
 
-    public init(hostname: String) {
+    package init(hostname: String) {
         self.hostname = hostname
     }
 
-    public func buildURLRequest(from request: VKAPIRequest) throws -> URLRequest {
+    package func buildURLRequest(from request: VKAPIRequest) throws -> URLRequest {
         var urlRequest: URLRequest
         let components = self.urlComponents(for: request)
 

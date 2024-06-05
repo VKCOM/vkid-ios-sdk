@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 internal protocol UserSessionDataStorage {
     func readUserSessionData(for userId: UserID) throws -> UserSessionData?

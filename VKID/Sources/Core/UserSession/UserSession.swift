@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 internal protocol UserSessionDelegate: AnyObject {
     func userSession(_ session: UserSession, didLogoutWith result: LogoutResult)

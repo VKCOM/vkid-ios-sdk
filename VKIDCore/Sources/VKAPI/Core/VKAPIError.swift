@@ -28,7 +28,7 @@
 
 import Foundation
 
-public enum VKAPIError: Swift.Error {
+package enum VKAPIError: Swift.Error {
     case unknown
     case noTransportProvided
     case invalidRequest(reason: String)

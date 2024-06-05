@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 internal final class RequestAuthorizationInterceptor: VKAPIRequestInterceptor {
     private let anonymousTokenService: AnonymousTokenService

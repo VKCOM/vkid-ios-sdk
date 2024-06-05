@@ -28,7 +28,7 @@
 
 import Foundation
 
-public protocol VKAPITransport {
+package protocol VKAPITransport {
     func execute<T: VKAPIResponse>(
         request: VKAPIRequest,
         callbackQueue: DispatchQueue,
@@ -37,7 +37,7 @@ public protocol VKAPITransport {
 }
 
 extension VKAPITransport {
-    public func execute<T: VKAPIResponse>(
+    package func execute<T: VKAPIResponse>(
         request: VKAPIRequest,
         completion: @escaping (Result<T, VKAPIError>) -> Void
     ) {
@@ -49,14 +49,14 @@ extension VKAPITransport {
     }
 }
 
-public struct VKAPICallingContext<T: VKAPIMethod> {
+package struct VKAPICallingContext<T: VKAPIMethod> {
     private let transport: VKAPITransport
 
-    public init(transport: VKAPITransport) {
+    package init(transport: VKAPITransport) {
         self.transport = transport
     }
 
-    public func execute(
+    package func execute(
         with parameters: @autoclosure () -> T.Parameters,
         callbackOn callbackQueue: DispatchQueue = .main,
         completion: @escaping (Result<T.Response, VKAPIError>) -> Void
@@ -70,7 +70,7 @@ public struct VKAPICallingContext<T: VKAPIMethod> {
     }
 }
 
-public extension VKAPICallingContext where T.Parameters == Empty {
+package extension VKAPICallingContext where T.Parameters == Empty {
     func execute(
         completion: @escaping (Result<T.Response, VKAPIError>) -> Void
     ) {
@@ -79,34 +79,34 @@ public extension VKAPICallingContext where T.Parameters == Empty {
     }
 }
 
-public protocol VKAPINamespace {}
+package protocol VKAPINamespace {}
 
 @dynamicMemberLookup
-public final class VKAPI<T: VKAPINamespace> {
+package final class VKAPI<T: VKAPINamespace> {
     private let transport: VKAPITransport
 
-    public init(transport: VKAPITransport) {
+    package init(transport: VKAPITransport) {
         self.transport = transport
     }
 
-    public subscript<U: VKAPIMethod>(dynamicMember keyPath: KeyPath<T, U>) -> VKAPICallingContext<U> {
+    package subscript<U: VKAPIMethod>(dynamicMember keyPath: KeyPath<T, U>) -> VKAPICallingContext<U> {
         VKAPICallingContext<U>(transport: self.transport)
     }
 }
 
 @dynamicMemberLookup
-public final class VKAPI2<T1: VKAPINamespace, T2: VKAPINamespace> {
+package final class VKAPI2<T1: VKAPINamespace, T2: VKAPINamespace> {
     private let transport: VKAPITransport
 
-    public init(transport: VKAPITransport) {
+    package init(transport: VKAPITransport) {
         self.transport = transport
     }
 
-    public subscript<U: VKAPIMethod>(dynamicMember keyPath: KeyPath<T1, U>) -> VKAPICallingContext<U> {
+    package subscript<U: VKAPIMethod>(dynamicMember keyPath: KeyPath<T1, U>) -> VKAPICallingContext<U> {
         VKAPICallingContext<U>(transport: self.transport)
     }
 
-    public subscript<U: VKAPIMethod>(dynamicMember keyPath: KeyPath<T2, U>) -> VKAPICallingContext<U> {
+    package subscript<U: VKAPIMethod>(dynamicMember keyPath: KeyPath<T2, U>) -> VKAPICallingContext<U> {
         VKAPICallingContext<U>(transport: self.transport)
     }
 }

@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 internal enum Env {
     internal static let VKIDVersion: Version = .init(VKID_VERSION)

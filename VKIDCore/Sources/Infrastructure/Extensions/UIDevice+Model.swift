@@ -29,7 +29,7 @@
 import UIKit
 
 extension UIDevice {
-    public static let modelName: String = {
+    package static let modelName: String = {
         var systemInfo = utsname()
         uname(&systemInfo)
         return Mirror(reflecting: systemInfo.machine).children.reduce("") { machineName, element in

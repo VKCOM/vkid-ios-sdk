@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 internal protocol LogoutService {
     func logout(from session: UserSession, completion: @escaping (LogoutResult) -> Void)

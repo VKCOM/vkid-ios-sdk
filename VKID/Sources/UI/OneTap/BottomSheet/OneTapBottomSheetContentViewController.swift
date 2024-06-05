@@ -27,7 +27,7 @@
 //
 
 import UIKit
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 internal final class OneTapBottomSheetContentViewController: UIViewController, BottomSheetContent {
     public weak var contentDelegate: BottomSheetContentDelegate?

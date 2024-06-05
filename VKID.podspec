@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name = "VKID"
-  spec.version = "1.3.1"
+  spec.version = "1.3.2"
   spec.summary = "iOS library for VK ID authorization"
   spec.homepage = "https://id.vk.com/business"
   spec.authors = { 'VK ID' => 'devsupport@corp.vk.com' }
@@ -42,6 +42,7 @@ THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
     'VKID-Resources' => ['VKID/Sources/Resources/*.{xcassets,lproj,txt}']
   }
   spec.pod_target_xcconfig = {
-    'BUILD_LIBRARY_FOR_DISTRIBUTION' => 'YES'
+    'BUILD_LIBRARY_FOR_DISTRIBUTION' => 'YES',
+    'SWIFT_PACKAGE_NAME' => 'VKID'
   }
 end

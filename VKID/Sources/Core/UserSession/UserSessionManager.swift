@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 internal protocol UserSessionManager {
     var userSessions: [UserSession] { get }

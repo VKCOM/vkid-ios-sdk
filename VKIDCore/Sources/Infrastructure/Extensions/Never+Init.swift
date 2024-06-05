@@ -29,9 +29,9 @@
 import Foundation
 
 extension Never {
-    public init() {
+    package init() {
         fatalError()
     }
 }
 
-public struct Empty: VKAPIDictionaryRepresentable {}
+package struct Empty: VKAPIDictionaryRepresentable {}

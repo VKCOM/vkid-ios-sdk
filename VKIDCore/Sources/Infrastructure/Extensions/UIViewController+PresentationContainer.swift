@@ -29,7 +29,7 @@
 import UIKit
 
 extension UIViewController {
-    public func relayoutPresentationContainerView() {
+    package func relayoutPresentationContainerView() {
         self.presentationController?.containerView?.setNeedsLayout()
         self.presentationController?.containerView?.layoutIfNeeded()
     }

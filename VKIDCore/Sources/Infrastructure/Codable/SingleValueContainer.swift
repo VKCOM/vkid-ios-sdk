@@ -28,15 +28,15 @@
 
 import Foundation
 
-public struct SingleValueContainer<Value: Codable>: Codable {
-    public var value: Value
+package struct SingleValueContainer<Value: Codable>: Codable {
+    package var value: Value
 
-    public init(from decoder: Decoder) throws {
+    package init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         self.value = try container.decode(Value.self)
     }
 
-    public func encode(to encoder: Encoder) throws {
+    package func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(self.value)
     }

@@ -28,7 +28,7 @@
 
 import Foundation
 import UIKit
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 /// Конфигурация для модальной шторки авторизации
 public struct OneTapBottomSheet: UIViewControllerElement {

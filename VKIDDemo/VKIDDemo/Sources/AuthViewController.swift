@@ -28,7 +28,6 @@
 
 import UIKit
 import VKID
-import VKIDCore
 
 final class AuthViewController: VKIDDemoViewController {
     var debugSettings: DebugSettingsStorage!

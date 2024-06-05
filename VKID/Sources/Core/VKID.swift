@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 /// Отслеживание статуса авторизации
 public protocol VKIDObserver: AnyObject {

@@ -28,7 +28,7 @@
 
 import Foundation
 
-public final class URLSessionTransport: NSObject, VKAPITransport {
+package final class URLSessionTransport: NSObject, VKAPITransport {
     private let urlRequestBuilder: URLRequestBuilding
     private let requestInterceptors: [VKAPIRequestInterceptor]
     private let responseInterceptors: [VKAPIResponseInterceptor]
@@ -55,7 +55,7 @@ public final class URLSessionTransport: NSObject, VKAPITransport {
         )
     }()
 
-    public init(
+    package init(
         urlRequestBuilder: URLRequestBuilding,
         requestInterceptors: [VKAPIRequestInterceptor] = [],
         responseInterceptors: [VKAPIResponseInterceptor] = [],
@@ -74,7 +74,7 @@ public final class URLSessionTransport: NSObject, VKAPITransport {
         self.processingQueue = DispatchQueue(label: "com.vkid.core.transport.processingQueue")
     }
 
-    public func execute<T: VKAPIResponse>(
+    package func execute<T: VKAPIResponse>(
         request: VKAPIRequest,
         callbackQueue: DispatchQueue,
         completion: @escaping (Result<T, VKAPIError>) -> Void
@@ -247,7 +247,7 @@ public final class URLSessionTransport: NSObject, VKAPITransport {
 }
 
 extension URLSessionTransport: URLSessionDelegate {
-    public func urlSession(
+    package func urlSession(
         _ session: URLSession,
         didReceive challenge: URLAuthenticationChallenge,
         completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void

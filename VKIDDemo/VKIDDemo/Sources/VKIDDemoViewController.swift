@@ -28,7 +28,6 @@
 
 import UIKit
 import VKID
-import VKIDCore
 
 class VKIDDemoViewController: UIViewController {
     internal var navigationTitleLabel: UILabel = {

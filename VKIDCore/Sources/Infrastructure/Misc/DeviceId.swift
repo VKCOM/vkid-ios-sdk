@@ -29,14 +29,14 @@
 import Foundation
 import UIKit
 
-public struct DeviceId {
+package struct DeviceId {
     private let uuid: UUID
 
     private init(uuid: UUID) {
         self.uuid = uuid
     }
 
-    public static let currentDeviceId: Self = {
+    package static let currentDeviceId: Self = {
         let ud = UserDefaults.standard
         if let id = ud.storedCurrentDeviceId.flatMap(DeviceId.init(uuid:)) {
             return id
@@ -48,7 +48,7 @@ public struct DeviceId {
 }
 
 extension DeviceId: CustomStringConvertible {
-    public var description: String {
+    package var description: String {
         self.uuid.uuidString
     }
 }

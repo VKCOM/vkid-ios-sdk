@@ -28,16 +28,16 @@
 
 import UIKit
 
-public protocol VisualContent {
+package protocol VisualContent {
     associatedtype Value
     var value: Value { get }
 }
 
-public struct DynamicContent<T: VisualContent>: VisualContent {
+package struct DynamicContent<T: VisualContent>: VisualContent {
     internal var light: T.Value
     internal var dark: T.Value
 
-    public var value: T.Value {
+    package var value: T.Value {
         UIScreen
             .main
             .traitCollection
@@ -46,28 +46,28 @@ public struct DynamicContent<T: VisualContent>: VisualContent {
             self.dark
     }
 
-    public init(light: T.Value, dark: T.Value) {
+    package init(light: T.Value, dark: T.Value) {
         self.light = light
         self.dark = dark
     }
 }
 
-public protocol Color: VisualContent where Value == UIColor {}
-public typealias DynamicColor = DynamicContent<UIColor>
+package protocol Color: VisualContent where Value == UIColor {}
+package typealias DynamicColor = DynamicContent<UIColor>
 extension DynamicContent: Color where Value == UIColor {}
 
 extension UIColor: Color {
-    public var value: UIColor {
+    package var value: UIColor {
         self
     }
 }
 
-public protocol Image: VisualContent where Value == UIImage {}
-public typealias DynamicImage = DynamicContent<UIImage>
+package protocol Image: VisualContent where Value == UIImage {}
+package typealias DynamicImage = DynamicContent<UIImage>
 extension DynamicContent: Image where Value == UIImage {}
 
 extension UIImage: Image {
-    public var value: UIImage {
+    package var value: UIImage {
         self
     }
 }

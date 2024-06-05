@@ -28,36 +28,36 @@
 
 import Foundation
 
-public struct VKAPIRequest {
-    public typealias Parameters = [String: Any]
-    public typealias Headers = [String: String]
+package struct VKAPIRequest {
+    package typealias Parameters = [String: Any]
+    package typealias Headers = [String: String]
 
-    public enum HTTPMethod: String, Equatable {
+    package enum HTTPMethod: String, Equatable {
         case post = "POST"
         case get = "GET"
     }
 
     /// Хост, на который будет отправлен запрос
-    public enum Host: String {
+    package enum Host: String {
         case id, api, oauth
     }
 
-    public enum Authorization {
+    package enum Authorization {
         case none
         case anonymousToken
         case accessToken
     }
 
-    public let id: UUID = .init()
-    public let host: Host
-    public let path: String
-    public let httpMethod: HTTPMethod
-    public var parameters: Parameters
-    public var headers: Headers
-    public let authorization: Authorization
-    public var retryCount: Int = 0
+    package let id: UUID = .init()
+    package let host: Host
+    package let path: String
+    package let httpMethod: HTTPMethod
+    package var parameters: Parameters
+    package var headers: Headers
+    package let authorization: Authorization
+    package var retryCount: Int = 0
 
-    public init(
+    package init(
         host: Host,
         path: String,
         httpMethod: HTTPMethod,
@@ -75,14 +75,14 @@ public struct VKAPIRequest {
 }
 
 extension VKAPIRequest {
-    public mutating func add(parameters: Parameters) {
+    package mutating func add(parameters: Parameters) {
         self.parameters = self.parameters.merging(
             parameters,
             uniquingKeysWith: { $1 }
         )
     }
 
-    public mutating func add(headers: Headers, overwriteIfAlreadyExists: Bool = true) {
+    package mutating func add(headers: Headers, overwriteIfAlreadyExists: Bool = true) {
         self.headers = self.headers.merging(
             headers,
             uniquingKeysWith: { overwriteIfAlreadyExists ? $1 : $0 }

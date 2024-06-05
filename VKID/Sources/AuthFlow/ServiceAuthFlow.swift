@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 internal final class ServiceAuthFlow: Component, AuthFlow {
     struct Dependencies: Dependency {

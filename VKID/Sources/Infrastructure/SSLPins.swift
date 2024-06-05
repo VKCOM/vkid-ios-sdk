@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 extension SSLPinnedDomain {
     internal static let vkcom = Self(

@@ -29,14 +29,14 @@
 import Foundation
 
 extension Bundle {
-    public func bundle(forResource: String, ofType: String) -> Bundle? {
+    package func bundle(forResource: String, ofType: String) -> Bundle? {
         guard let path = self.path(forResource: forResource, ofType: ofType) else {
             return nil
         }
         return Bundle(path: path)
     }
 
-    public static func preferredLocalization() -> String {
+    package static func preferredLocalization() -> String {
         let lang = Bundle.preferredLocalizations(
             from: Bundle.main.localizations,
             forPreferences: Locale.preferredLanguages

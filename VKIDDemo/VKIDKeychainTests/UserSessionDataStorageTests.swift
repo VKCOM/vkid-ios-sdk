@@ -29,6 +29,7 @@
 import VKIDCore
 import XCTest
 @testable import VKID
+@testable import VKIDCore
 
 final class UserSessionDataStorageTests: XCTestCase {
     enum Entity {
