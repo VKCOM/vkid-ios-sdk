@@ -29,26 +29,26 @@
 import Foundation
 import OSLog
 
-public enum LogLevel: String {
+package enum LogLevel: String {
     case debug
     case info
     case warning
     case error
 }
 
-public struct LogMessage: ExpressibleByStringInterpolation {
-    public typealias StringLiteralType = String
-    public typealias ExtendedGraphemeClusterLiteralType = String
-    public typealias UnicodeScalarLiteralType = String
+package struct LogMessage: ExpressibleByStringInterpolation {
+    package typealias StringLiteralType = String
+    package typealias ExtendedGraphemeClusterLiteralType = String
+    package typealias UnicodeScalarLiteralType = String
 
     internal let string: String
 
-    public init(stringLiteral value: String) {
+    package init(stringLiteral value: String) {
         self.string = value
     }
 }
 
-public protocol Logging {
+package protocol Logging {
     func log(level: LogLevel, message: LogMessage)
     func debug(_ msg: LogMessage)
     func info(_ msg: LogMessage)
@@ -57,38 +57,38 @@ public protocol Logging {
 }
 
 extension Logging {
-    public func debug(_ msg: LogMessage) {
+    package func debug(_ msg: LogMessage) {
         self.log(level: .debug, message: msg)
     }
 
-    public func info(_ msg: LogMessage) {
+    package func info(_ msg: LogMessage) {
         self.log(level: .info, message: msg)
     }
 
-    public func warning(_ msg: LogMessage) {
+    package func warning(_ msg: LogMessage) {
         self.log(level: .warning, message: msg)
     }
 
-    public func error(_ msg: LogMessage) {
+    package func error(_ msg: LogMessage) {
         self.log(level: .error, message: msg)
     }
 }
 
-public protocol LoggingBackend: TextOutputStream {}
+package protocol LoggingBackend: TextOutputStream {}
 
-public struct OSLoggingBackend: LoggingBackend {
-    public init() {}
+package struct OSLoggingBackend: LoggingBackend {
+    package init() {}
 
-    public mutating func write(_ string: String) {
+    package mutating func write(_ string: String) {
         os_log("%@", string)
     }
 }
 
-public final class Logger: Logging {
+package final class Logger: Logging {
     private let subsystem: String
     private var backend: LoggingBackend
 
-    public init(
+    package init(
         subsystem: String,
         backend: LoggingBackend = OSLoggingBackend()
     ) {
@@ -96,7 +96,7 @@ public final class Logger: Logging {
         self.backend = backend
     }
 
-    public func log(level: LogLevel, message: LogMessage) {
+    package func log(level: LogLevel, message: LogMessage) {
         self.backend.write("[\(self.subsystem)][\(level.rawValue)] \(message.string)")
     }
 }

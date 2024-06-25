@@ -27,9 +27,9 @@
 //
 
 import Foundation
-import VKIDCore
 import XCTest
 @testable import VKID
+@testable import VKIDCore
 
 class UserFetchingTests: XCTestCase {
     private let transportMock: TransportMock = .init()
@@ -84,16 +84,27 @@ class UserFetchingTests: XCTestCase {
         // given
         let sessionData = UserSessionData.random(withUserData: true)
         let session = self.userSessionManager.makeUserSession(with: sessionData)
-        let updateUser = UserSessionData.random(userId: sessionData.id.value)
+        guard let updateUser = UserSessionData.random(userId: sessionData.id.value).user else {
+            XCTFail("Failed to create random  UserSessionData")
+            return
+        }
         self.transportMock.responseProvider = { request -> Result<VKIDCore.VKAPIResponse, VKIDCore.VKAPIError> in
-            .success(OAuth2.UserInfo.Response.init(from: updateUser.user!))
+            .success(OAuth2.UserInfo.Response.init(
+                user: .init(
+                    firstName: updateUser.firstName,
+                    lastName: updateUser.lastName,
+                    phone: updateUser.phone,
+                    avatar: updateUser.avatarURL?.absoluteString,
+                    email: updateUser.email
+                )
+            ))
         }
         // when
         session.fetchUser { result in
             switch result {
             // then
             case .success(let user):
-                XCTAssertEqual(user, updateUser.user!)
+                XCTAssertEqual(user, updateUser)
             default:
                 XCTFail("Failed to update user info")
             }

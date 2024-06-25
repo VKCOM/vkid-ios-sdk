@@ -33,7 +33,6 @@ final class ControlsViewController: VKIDDemoViewController, UITableViewDataSourc
         case oneTapButton = "OneTapButton"
         case oneTapBottomSheet = "OneTapBottomSheet"
         case oAuthListWidget = "OAuthListWidget"
-        case oneTapButtonWithOAuthListWidget = "OneTapButton with OAuthListWidget"
     }
 
     override var supportsScreenSplitting: Bool { true }
@@ -148,20 +147,6 @@ final class ControlsViewController: VKIDDemoViewController, UITableViewDataSourc
             let controller = OAuthListWidgetCustomizationController(
                 title: "Кастомизация",
                 subtitle: "OAuthListWidget",
-                description: "Настройте параметры конфигурации",
-                debugSettings: self.debugSettings,
-                api: self.api
-            )
-            controller.vkid = self.vkid
-            controller.debugSettings = self.debugSettings
-            self.navigationController?.pushViewController(
-                controller,
-                animated: true
-            )
-        case .oneTapButtonWithOAuthListWidget:
-            let controller = OneTapWithOAuthCustomizationController(
-                title: "Кастомизация",
-                subtitle: "OneTapButton with OAuthListWidget",
                 description: "Настройте параметры конфигурации",
                 debugSettings: self.debugSettings,
                 api: self.api

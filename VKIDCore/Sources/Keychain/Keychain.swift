@@ -28,7 +28,7 @@
 
 import Foundation
 
-public enum KeychainError: Error {
+package enum KeychainError: Error {
     case unknown
     case itemNotFound
     case itemEncodingFailed(Error)
@@ -45,13 +45,13 @@ public enum KeychainError: Error {
     }
 }
 
-public final class Keychain {
+package final class Keychain {
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 
-    public init() {}
+    package init() {}
 
-    public func add<T: Encodable>(
+    package func add<T: Encodable>(
         _ item: T,
         query: Keychain.Query,
         overwriteIfAlreadyExists: Bool = true
@@ -74,7 +74,7 @@ public final class Keychain {
         }
     }
 
-    public func update<T: Encodable>(
+    package func update<T: Encodable>(
         _ item: T,
         query: Keychain.Query,
         addIfNotFound: Bool = false
@@ -99,7 +99,7 @@ public final class Keychain {
         }
     }
 
-    public func fetch<T: Decodable>(query: Keychain.Query) throws -> T? {
+    package func fetch<T: Decodable>(query: Keychain.Query) throws -> T? {
         let rawQuery = query.dictionaryRepresentation as CFDictionary
         var dataRef: AnyObject?
         try self.withCheckingStatus(SecItemCopyMatching(rawQuery, &dataRef))
@@ -111,7 +111,7 @@ public final class Keychain {
         return try self.decode(from: data)
     }
 
-    public func fetchMany<T: Decodable>(query: Keychain.Query) throws -> [T]? {
+    package func fetchMany<T: Decodable>(query: Keychain.Query) throws -> [T]? {
         let rawQuery = query.dictionaryRepresentation as CFDictionary
         var dataRef: AnyObject?
         try self.withCheckingStatus(SecItemCopyMatching(rawQuery, &dataRef))
@@ -130,7 +130,7 @@ public final class Keychain {
         return result
     }
 
-    public func delete(query: Keychain.Query) throws {
+    package func delete(query: Keychain.Query) throws {
         try self.withCheckingStatus(SecItemDelete(query.dictionaryRepresentation as CFDictionary))
     }
 

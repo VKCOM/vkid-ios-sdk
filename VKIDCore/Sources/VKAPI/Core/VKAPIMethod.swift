@@ -28,21 +28,21 @@
 
 import Foundation
 
-public protocol VKAPIMethod {
+package protocol VKAPIMethod {
     associatedtype Response: VKAPIResponse
     associatedtype Parameters: VKAPIDictionaryRepresentable
 
     static func request(with parameters: Parameters, for userId: Int?) -> VKAPIRequest
 }
 
-public protocol VKAPIResponse: Decodable {}
+package protocol VKAPIResponse: Decodable {}
 
-public protocol VKAPIDictionaryRepresentable {
+package protocol VKAPIDictionaryRepresentable {
     var dictionaryRepresentation: [String: Any] { get }
 }
 
 extension VKAPIDictionaryRepresentable {
-    public var dictionaryRepresentation: [String: Any] {
+    package var dictionaryRepresentation: [String: Any] {
         let mirror = Mirror(reflecting: self)
         return mirror.children.reduce(into: [String: Any]()) { partialResult, child in
             if let label = child.label, case Optional<Any>.some(let value) = child.value {

@@ -28,13 +28,26 @@
 
 import Foundation
 
-public protocol StringRawRepresentable: RawRepresentable,
+package protocol StringRawRepresentable: RawRepresentable, Equatable,
 ExpressibleByStringLiteral where StringLiteralType == String {
     init(rawValue: RawValue)
 }
 
-extension StringRawRepresentable {
-    public init(stringLiteral value: StringLiteralType) where RawValue == StringLiteralType {
+extension StringRawRepresentable where RawValue == StringLiteralType {
+    package init(stringLiteral value: StringLiteralType) {
         self.init(rawValue: value)
+    }
+}
+
+package protocol StringRawRepresentableCodingKeys: StringRawRepresentable, CodingKey {}
+
+extension StringRawRepresentableCodingKeys where RawValue == StringLiteralType {
+    package var intValue: Int? { nil }
+    package var stringValue: String { self.rawValue }
+
+    package init?(intValue: Int) { nil }
+
+    package init(stringValue: String) {
+        self.init(rawValue: stringValue)
     }
 }

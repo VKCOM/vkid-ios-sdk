@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 internal struct OAuth2: VKAPINamespace {
     fileprivate enum GrantType: String {

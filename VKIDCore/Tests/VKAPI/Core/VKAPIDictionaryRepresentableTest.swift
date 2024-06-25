@@ -32,7 +32,7 @@ import XCTest
 final class VKAPIDictionaryRepresentableTest: XCTestCase {
     private class TestClass: VKAPIDictionaryRepresentable {
         open var test_String: String?
-        public var tEsTBoolVariable: Bool
+        package var tEsTBoolVariable: Bool
         internal var TESTInt: Int
         private var privateTestInt: Int?
 
@@ -47,7 +47,7 @@ final class VKAPIDictionaryRepresentableTest: XCTestCase {
     }
 
     private struct TestStruct: VKAPIDictionaryRepresentable {
-        public var test_Bool_Variable: Bool?
+        package var test_Bool_Variable: Bool?
         internal var tEsTInt: Int
         private var PRIVATETestInt: Int?
 

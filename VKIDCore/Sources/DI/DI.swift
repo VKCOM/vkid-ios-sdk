@@ -28,9 +28,9 @@
 
 import Foundation
 
-public protocol Dependency {}
+package protocol Dependency {}
 
-public protocol Component {
+package protocol Component {
     associatedtype DependencyType: Dependency
 
     var deps: DependencyType { get }

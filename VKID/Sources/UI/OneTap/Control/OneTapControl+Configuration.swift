@@ -28,7 +28,7 @@
 
 import Foundation
 import UIKit
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 extension OneTapControl {
     internal struct Configuration {

@@ -90,7 +90,7 @@ class VKIDDemoViewController: UIViewController {
     var providedAuthSecrets: PKCESecrets?
 
     var vkid: VKID?
-    var api: VKAPI<OAuth>?
+    var api: API?
     var debugSettings: DebugSettingsStorage
 
     var appearance: Appearance {
@@ -118,7 +118,7 @@ class VKIDDemoViewController: UIViewController {
         description: String,
         navigationTitle: String? = nil,
         debugSettings: DebugSettingsStorage,
-        api: VKAPI<OAuth>?
+        api: API?
     ) {
         self.debugSettings = debugSettings
         self.api = api
@@ -336,8 +336,9 @@ extension VKIDDemoViewController: AuthCodeExchanging {
             codeVerifier = authCodeCodeVerifier
         }
         let state = UUID().uuidString
+
         // Only for debug purposes
-        self.api?.exchangeAuthCode.execute(with: .init(
+        self.api?.exchangeAuthCode(.init(
             code: authCode.code,
             codeVerifier: codeVerifier,
             redirectUri: authCode.redirectURI,
@@ -352,7 +353,28 @@ extension VKIDDemoViewController: AuthCodeExchanging {
                     completion(.failure(AuthError.unknown))
                     return
                 }
-                completion(.success(.init(from: response, serverProvidedDeviceId: authCode.deviceId)))
+                let expirationDate: Date = response.expiresIn > 0 ?
+                    Date().addingTimeInterval(response.expiresIn) :
+                    .distantFuture
+                let userId = UserID(value: response.userId)
+                completion(.success(.init(
+                    accessToken: .init(
+                        userId: userId,
+                        value: response.accessToken,
+                        expirationDate: expirationDate,
+                        scope: Scope(response.scope)
+                    ),
+                    refreshToken: .init(
+                        userId: userId,
+                        value: response.refreshToken,
+                        scope: Scope(response.scope)
+                    ),
+                    idToken: .init(
+                        userId: userId,
+                        value: response.idToken
+                    ),
+                    deviceId: authCode.deviceId
+                )))
             case .failure(let error):
                 completion(.failure(error))
             }

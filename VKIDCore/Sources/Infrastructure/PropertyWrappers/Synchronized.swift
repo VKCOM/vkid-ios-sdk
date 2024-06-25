@@ -29,11 +29,11 @@
 import Foundation
 
 @propertyWrapper
-public struct Synchronized<T> {
+package struct Synchronized<T> {
     private let lock = RWLock()
     private var _value: T
 
-    public var wrappedValue: T {
+    package var wrappedValue: T {
         get {
             self.lock.readLock()
             defer { self.lock.unlock() }
@@ -46,15 +46,15 @@ public struct Synchronized<T> {
         }
     }
 
-    public init(wrappedValue: T) {
+    package init(wrappedValue: T) {
         self._value = wrappedValue
     }
 
-    public func access<V>(_ block: (T) throws -> V) rethrows -> V {
+    package func access<V>(_ block: (T) throws -> V) rethrows -> V {
         try block(self.wrappedValue)
     }
 
-    public mutating func mutate<V>(_ block: (inout T) throws -> V) rethrows -> V {
+    package mutating func mutate<V>(_ block: (inout T) throws -> V) rethrows -> V {
         self.lock.writeLock()
         defer {
             self.lock.unlock()

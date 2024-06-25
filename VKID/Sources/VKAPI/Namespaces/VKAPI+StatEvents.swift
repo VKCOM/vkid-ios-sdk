@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 internal struct StatEvents: VKAPINamespace {
     struct StatEventsResponse: VKAPIResponse {

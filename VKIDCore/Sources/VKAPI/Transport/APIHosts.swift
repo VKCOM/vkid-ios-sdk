@@ -28,12 +28,12 @@
 
 import Foundation
 
-public struct APIHosts {
+package struct APIHosts {
     private let id: String
     private let oauth: String
     private let api: String
 
-    public init(template: String? = nil, hostname: String) {
+    package init(template: String? = nil, hostname: String) {
         func format(host: VKAPIRequest.Host) -> String {
             guard let template, !template.isEmpty else {
                 return "\(host.rawValue).\(hostname)"
@@ -45,7 +45,7 @@ public struct APIHosts {
         self.api = format(host: .api)
     }
 
-    public func getHostBy(requestHost: VKAPIRequest.Host) -> String {
+    package func getHostBy(requestHost: VKAPIRequest.Host) -> String {
         switch requestHost {
         case .api:
             return self.api

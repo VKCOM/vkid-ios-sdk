@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 /// Отслеживание статуса авторизации
 public protocol VKIDObserver: AnyObject {
@@ -127,7 +127,7 @@ public final class VKID {
         self.observers.add(
             self.rootContainer.vkidAnalytics
         )
-        self.rootContainer.analytics.sdkInit.send()
+        self.rootContainer.techAnalytcs.sdkInit.send()
     }
 
     public func add(observer: VKIDObserver) {
@@ -154,9 +154,11 @@ public final class VKID {
     /// - Parameters:
     ///   - authConfig: настройки флоу авторизации
     ///   - presenter: объект, отвечающий за показ экранов авторизации
+    ///   - oAuthProvider: OAuth провайдер
     ///   - completion: коллбэк с результатом авторизации
     public func authorize(
         with authConfig: AuthConfiguration = AuthConfiguration(),
+        oAuthProvider: OAuthProvider = .vkid,
         using presenter: UIKitPresenter,
         completion: @escaping AuthResultCompletion
     ) {
@@ -165,7 +167,7 @@ public final class VKID {
                 launchedBy: .service
             ),
             authConfig: authConfig,
-            oAuthProviderConfig: .init(),
+            oAuthProviderConfig: .init(primaryProvider: oAuthProvider),
             presenter: presenter,
             completion: completion
         )
@@ -175,6 +177,7 @@ public final class VKID {
     /// - Parameters:
     ///   - authConext: информация о текущей авторизации.
     ///   - authConfig: настройки флоу авторизации.
+    ///   - oAuthProviderConfig: Конфигурация OAuth провайдеров
     ///   - presenter: объект, отвечающий за показ экранов авторизации.
     ///   - completion: коллбэк с результатом авторизации.
     internal func authorize(
@@ -241,7 +244,7 @@ public final class VKID {
             return
         }
 
-        self.rootContainer.vkidAnalytics.context = authContext
+        self.rootContainer.vkidAnalytics.authContext = authContext
 
         switch extendedAuthConfig.oAuthProvider.type {
         case .vkid:

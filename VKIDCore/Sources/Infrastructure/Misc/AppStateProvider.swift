@@ -28,12 +28,12 @@
 
 import UIKit
 
-public protocol AppStateProvider {
+package protocol AppStateProvider {
     var state: UIApplication.State { get }
 }
 
 extension UIApplication: AppStateProvider {
-    public var state: UIApplication.State {
+    package var state: UIApplication.State {
         UIApplication.shared.applicationState
     }
 }

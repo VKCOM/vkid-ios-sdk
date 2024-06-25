@@ -28,7 +28,7 @@
 
 import Foundation
 import UIKit
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 /// Конфигурация для модальной шторки авторизации
 public struct OneTapBottomSheet: UIViewControllerElement {
@@ -95,6 +95,7 @@ public struct OneTapBottomSheet: UIViewControllerElement {
             for: OneTapButton(
                 authConfiguration: self.authConfig,
                 oAuthProviderConfiguration: self.oAuthProviderConfig,
+                screen: .oneTapBottomSheet,
                 appearance: .init(
                     title: .init(
                         primary: self.targetActionText.oneTapButtonTitle,

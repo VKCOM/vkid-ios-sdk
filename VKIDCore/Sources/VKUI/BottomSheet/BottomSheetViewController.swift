@@ -30,7 +30,7 @@ import Foundation
 import UIKit
 
 /// Протокол для контента шторки
-public protocol BottomSheetContent: AnyObject {
+package protocol BottomSheetContent: AnyObject {
     /// Делегат для оповещения контейнера об изменившихся размерах контента
     var contentDelegate: BottomSheetContentDelegate? { get set }
 
@@ -42,36 +42,36 @@ public protocol BottomSheetContent: AnyObject {
 
 /// Дефолтная реализация для расчета размера контента
 extension BottomSheetContent {
-    public func preferredContentSize(withParentContainerSize parentSize: CGSize) -> CGSize {
+    package func preferredContentSize(withParentContainerSize parentSize: CGSize) -> CGSize {
         parentSize
     }
 }
 
 /// Делегат для оповещения контейнера об изменившихся размерах контента
-public protocol BottomSheetContentDelegate: AnyObject {
+package protocol BottomSheetContentDelegate: AnyObject {
     /// Сообщаем контейнеру, что размер контента изменился
     /// - Parameter content: отображаемый контент
     func bottomSheetContentDidInvalidateContentSize(_ content: BottomSheetContent)
 }
 
 /// Тип для контроллера с контентом внутри шторки
-public typealias BottomSheetContentViewController = UIViewController & BottomSheetContent
+package typealias BottomSheetContentViewController = UIViewController & BottomSheetContent
 
 /// Набор методов для оповещения о закрытии шторки
-public protocol BottomSheetViewControllerDelegate: AnyObject {
+package protocol BottomSheetViewControllerDelegate: AnyObject {
     func bottomSheetViewControllerShouldDismiss(_ controller: BottomSheetViewController) -> Bool
     func bottomSheetViewControllerDidDismiss(_ controller: BottomSheetViewController)
 }
 
 /// Конфигурация лейаута шторки
-public struct BottomSheetLayoutConfiguration {
+package struct BottomSheetLayoutConfiguration {
     /// Радиус скругления углов шторки
-    public var cornerRadius: CGFloat
+    package var cornerRadius: CGFloat
 
     /// Отступы от краев родительского контейнера в дополнение к его safeAreaInsets
-    public var edgeInsets: UIEdgeInsets
+    package var edgeInsets: UIEdgeInsets
 
-    public init(cornerRadius: CGFloat, edgeInsets: UIEdgeInsets) {
+    package init(cornerRadius: CGFloat, edgeInsets: UIEdgeInsets) {
         self.cornerRadius = cornerRadius
         self.edgeInsets = edgeInsets
     }
@@ -79,18 +79,18 @@ public struct BottomSheetLayoutConfiguration {
 
 /// Контейнер для отображения шторки
 open class BottomSheetViewController: UIViewController, BottomSheetContent {
-    public weak var delegate: BottomSheetViewControllerDelegate?
-    public weak var contentDelegate: BottomSheetContentDelegate?
+    package weak var delegate: BottomSheetViewControllerDelegate?
+    package weak var contentDelegate: BottomSheetContentDelegate?
 
     private let _contentViewController: BottomSheetContentViewController
     private let _transitioningDelegate: BottomSheetTransitioningDelegate
 
-    public let layoutConfiguration: BottomSheetLayoutConfiguration
+    package let layoutConfiguration: BottomSheetLayoutConfiguration
 
     /// Инициализирует контейнер с указанным контроллером для отображения контента
     /// - Parameter contentViewController: контроллер для отображения контента шторки
     /// - Parameter layoutConfiguration: конфигурация лейаута шторки
-    public init(
+    package init(
         contentViewController: BottomSheetContentViewController,
         layoutConfiguration: BottomSheetLayoutConfiguration
     ) {
@@ -115,7 +115,7 @@ open class BottomSheetViewController: UIViewController, BottomSheetContent {
         self.addContentViewController(self._contentViewController)
     }
 
-    public func preferredContentSize(withParentContainerSize parentSize: CGSize) -> CGSize {
+    package func preferredContentSize(withParentContainerSize parentSize: CGSize) -> CGSize {
         self._contentViewController.preferredContentSize(withParentContainerSize: parentSize)
     }
 }
@@ -135,7 +135,7 @@ extension BottomSheetViewController {
 }
 
 extension BottomSheetViewController: BottomSheetContentDelegate {
-    public func bottomSheetContentDidInvalidateContentSize(_ content: BottomSheetContent) {
+    package func bottomSheetContentDidInvalidateContentSize(_ content: BottomSheetContent) {
         self.relayoutPresentationContainerView()
     }
 }

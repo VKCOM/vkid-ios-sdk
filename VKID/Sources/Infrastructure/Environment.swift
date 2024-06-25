@@ -27,11 +27,26 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 internal enum Env {
     internal static let VKIDVersion: Version = .init(VKID_VERSION)
     internal static let VKAPIVersion: Version = .init(VKAPI_VERSION)
     internal static let apiHost = "vk.com"
     internal static var customDomain: String?
+    internal static var packageManager: PackageManager = {
+        #if SWIFT_PACKAGE
+        .spm
+        #elseif VKID_COCOAPODS
+        .cocoapods
+        #else
+        .other
+        #endif
+    }()
+}
+
+internal enum PackageManager: String {
+    case spm
+    case cocoapods
+    case other
 }

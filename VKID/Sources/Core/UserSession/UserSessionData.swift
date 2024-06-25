@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 /// Данные сессии пользователя
 internal struct UserSessionData {

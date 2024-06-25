@@ -28,43 +28,35 @@
 
 import Foundation
 
-public protocol AnalyticsTypeItemNamespace {}
-
-public protocol AnalyticsUserInfoProvider {
-    var user: AnalyticsUser? { get }
-}
+package protocol AnalyticsTypeItemNamespace {}
 
 @dynamicMemberLookup
-public struct Analytics<
+package struct Analytics<
     TypeItemNamespace: AnalyticsTypeItemNamespace
 > {
-    public struct Dependencies {
+    package struct Dependencies {
         let service: AnalyticsService
-        let userInfoProvider: AnalyticsUserInfoProvider
 
-        public init(
-            service: AnalyticsService,
-            userInfoProvider: AnalyticsUserInfoProvider
+        package init(
+            service: AnalyticsService
         ) {
             self.service = service
-            self.userInfoProvider = userInfoProvider
         }
     }
 
     private let deps: Dependencies
 
-    public init(deps: Dependencies) {
+    package init(deps: Dependencies) {
         self.deps = deps
     }
 
-    public subscript<EventFactory: AnalyticsEventTypeAction>(
+    package subscript<EventFactory: AnalyticsEventTypeAction>(
         dynamicMember keyPath: KeyPath<TypeItemNamespace, EventFactory>
     ) -> AnalyticsCallingContext<EventFactory> {
         AnalyticsCallingContext<EventFactory>(
             deps: .init(
                 eventContext: .init(
-                    screen: .nowhere,
-                    user: self.deps.userInfoProvider.user
+                    screen: .nowhere
                 ),
                 service: self.deps.service
             )

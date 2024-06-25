@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 internal final class CodeExchanger: AuthCodeExchanging {
     struct Dependencies: Dependency {

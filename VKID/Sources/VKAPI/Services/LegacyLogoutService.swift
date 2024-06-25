@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 protocol LegacyLogoutService {
     func logout(accessToken: String, completion: @escaping (LogoutResult) -> Void)

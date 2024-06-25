@@ -28,7 +28,7 @@
 
 import Foundation
 import UIKit
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 internal enum AuthProviderError: Error {
     case failedToOpenProvider
@@ -108,6 +108,7 @@ internal final class AuthByProviderFlow: Component, AuthFlow {
                     authCodeResponse: response,
                     redirectURI: redirectURL(
                         for: self.deps.appCredentials.clientId,
+                        in: self.deps.authContext,
                         scope: self.deps.authConfig.scope
                     ).absoluteString,
                     pkceSecrets: self.deps.authConfig.pkceSecrets,

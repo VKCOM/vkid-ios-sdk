@@ -28,12 +28,12 @@
 
 import Foundation
 
-public struct Version {
-    public var major: UInt
-    public var minor: UInt
-    public var patch: UInt
+package struct Version {
+    package var major: UInt
+    package var minor: UInt
+    package var patch: UInt
 
-    public init(major: UInt, minor: UInt, patch: UInt) {
+    package init(major: UInt, minor: UInt, patch: UInt) {
         self.major = major
         self.minor = minor
         self.patch = patch
@@ -41,7 +41,7 @@ public struct Version {
 }
 
 extension Version {
-    public init(_ versionString: String) {
+    package init(_ versionString: String) {
         let components = versionString
             .split(
                 separator: ".",
@@ -63,7 +63,7 @@ extension Version {
 }
 
 extension Version: CustomStringConvertible {
-    public var description: String {
+    package var description: String {
         "\(self.major).\(self.minor).\(self.patch)"
     }
 }

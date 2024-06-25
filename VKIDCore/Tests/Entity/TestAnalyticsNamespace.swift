@@ -27,19 +27,40 @@
 //
 
 import Foundation
-@testable import VKID
+@testable import VKIDCore
 
-extension OAuth2.UserInfo.Response {
-    init(from user: User) {
-        self.init(
-            user:
+/// Тестовое пространство событий
+struct TestAnalyticsNamespace: AnalyticsTypeItemNamespace {
+    /// Тестовое событие
+    var testEvent: TestAnalyticsEvent { Never() }
+
+    /// Фабричный метод тестового события
+    struct TestAnalyticsEvent: AnalyticsEventTypeAction {
+        static var key: String = .random
+
+        static func typeAction(with parameters: CustomParameters, context: AnalyticsEventContext) -> TypeAction {
+            Self.typeAction(parameters: parameters)
+        }
+
+        static func typeAction(parameters: CustomParameters) -> TypeAction {
             .init(
-                firstName: user.firstName,
-                lastName: user.lastName,
-                phone: user.phone,
-                avatar: user.avatarURL?.absoluteString,
-                email: user.email
+                type: .init(stringLiteral: Self.key),
+                value: parameters
             )
-        )
+        }
+
+        static func updateVariables() {
+            Self.key = .random
+        }
+    }
+
+    /// Подтип тестового события
+    struct CustomParameters: Encodable {
+        let string: String
+        let integer: Int
+
+        static var random: Self {
+            Self(string: .random, integer: .random32)
+        }
     }
 }

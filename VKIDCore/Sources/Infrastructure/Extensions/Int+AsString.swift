@@ -29,7 +29,7 @@
 import Foundation
 
 extension Int {
-    public var asString: String {
+    package var asString: String {
         String(self)
     }
 }

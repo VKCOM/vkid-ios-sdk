@@ -27,7 +27,7 @@
 //
 
 extension KeyedDecodingContainer {
-    public func decodeIfExist<T>(
+    package func decodeIfExist<T>(
         _ type: T.Type,
         forKey key: KeyedDecodingContainer<K>.Key,
         defaultValue: T

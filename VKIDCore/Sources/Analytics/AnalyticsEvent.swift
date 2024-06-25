@@ -34,16 +34,18 @@ protocol AnalyticsEvent: Encodable {
 }
 
 /// Абстракция, хранящая закодированное событие
-public struct AnalyticsEncodedEvent {
+package struct AnalyticsEncodedEvent {
     private static let encoder: JSONEncoder = {
         let encoder = JSONEncoder()
         encoder.keyEncodingStrategy = .convertToSnakeCase
+        encoder.outputFormatting = .sortedKeys
         return encoder
     }()
 
-    public let id: Int
+    /// Идентификатор события
+    package let id: Int
     /// Закодированное в json событие
-    public let jsonString: String
+    package let jsonString: String
 
     init?(_ event: AnalyticsEvent) {
         guard
@@ -59,7 +61,7 @@ public struct AnalyticsEncodedEvent {
 }
 
 extension Array where Element == AnalyticsEncodedEvent {
-    public var jsonString: String {
+    package var jsonString: String {
         "[\(self.map { $0.jsonString }.joined(separator: ","))]"
     }
 }

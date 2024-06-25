@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 protocol Storable: Equatable, Codable {
     var id: UserID { get }

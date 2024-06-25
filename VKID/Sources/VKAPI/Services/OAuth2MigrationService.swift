@@ -28,7 +28,7 @@
 
 import Foundation
 
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 protocol OAuth2MigrationService {
     func migrate(

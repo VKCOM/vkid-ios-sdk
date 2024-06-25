@@ -39,7 +39,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     private let debugSettings = DebugSettingsStorage()
 
-    var api: VKAPI<OAuth>?
+    var api: API?
 
     func application(
         _ application: UIApplication,
@@ -72,7 +72,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         let tabBarController = UITabBarController()
-        self.makeAPI(clientId: clientId)
+        self.api = API(debugSettings: self.debugSettings)
         tabBarController.viewControllers = [
             self.makeAuthViewController(),
             self.makeCustomizationViewController(),
@@ -98,7 +98,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let bundleVersion = Bundle.main.infoDictionary?[kCFBundleVersionKey as String] ?? ""
         let authViewController = AuthViewController(
             title: "Авторизация VKID",
-            subtitle: "Вход с помощью OneTapButton",
+            subtitle: "Вход с помощью VKID",
             description: "Нажмите на кнопку, чтобы начать авторизацию",
             navigationTitle: "VKID Version: \(VKID.sdkVersion)\nBuild: \(bundleVersion)",
             debugSettings: self.debugSettings,
@@ -156,28 +156,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         )
         return UINavigationController(
             rootViewController: userSessionsViewController
-        )
-    }
-
-    private func makeAPI(clientId: String) {
-        let urlRequestBuilder = URLRequestBuilder(
-            apiHosts: .init(
-                template: self.debugSettings.customDomainTemplate,
-                hostname: "vk.com"
-            )
-        )
-        self.api = VKAPI<OAuth>(
-            transport: URLSessionTransport(
-                urlRequestBuilder: urlRequestBuilder,
-                genericParameters: .init(
-                    deviceId: DeviceId.currentDeviceId.description,
-                    clientId: clientId,
-                    apiVersion: Version(VKID.apiVersion),
-                    vkidVersion: Version(VKID.sdkVersion)
-                ),
-                defaultHeaders: [:],
-                sslPinningConfiguration: SSLPinningConfiguration(domains: [])
-            )
         )
     }
 }

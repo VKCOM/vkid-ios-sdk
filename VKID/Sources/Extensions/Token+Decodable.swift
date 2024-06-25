@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 extension AccessToken: Decodable {
     public init(from decoder: Decoder) throws {

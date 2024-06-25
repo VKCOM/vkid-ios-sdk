@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2023 - present, LLC “V Kontakte”
+// Copyright (c) 2024 - present, LLC “V Kontakte”
 //
 // 1. Permission is hereby granted to any person obtaining a copy of this Software to
 // use the Software without charge.
@@ -26,14 +26,5 @@
 // THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
 //
 
-import CoreGraphics
-
-extension CGSize: Comparable {
-    public static func < (lhs: CGSize, rhs: CGSize) -> Bool {
-        lhs.width < rhs.width && lhs.height < rhs.height
-    }
-
-    public static func >(lhs: CGSize, rhs: CGSize) -> Bool {
-        lhs.width > rhs.width && lhs.height > rhs.height
-    }
-}
+#include? "VKIDDemo.xcconfig"
+#include "../../Pods/Target Support Files/Pods-VKIDCocoapodsDemo/Pods-VKIDCocoapodsDemo.debug.xcconfig"

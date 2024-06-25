@@ -29,39 +29,6 @@
 import Foundation
 import VKIDCore
 
-internal struct OAuth: VKAPINamespace {
-    struct ExchangeAuthCode: VKAPIMethod {
-        struct Response: VKAPIResponse {
-            let accessToken: String
-            let expiresIn: TimeInterval
-            let refreshToken: String
-            let idToken: String
-            let userId: Int
-            let state: String
-            let scope: String
-        }
-
-        struct Parameters: VKAPIDictionaryRepresentable {
-            let code: String
-            let codeVerifier: String
-            let grantType = "authorization_code"
-            let redirectUri: String
-            let state: String
-            let deviceId: String
-            let clientId: String
-            let serviceToken: String // Only for debug confidential flow
-        }
-
-        static func request(with parameters: Parameters, for userId: Int?) -> VKAPIRequest {
-            VKAPIRequest(
-                host: .id,
-                path: "/oauth2/auth",
-                httpMethod: .post,
-                parameters: parameters.dictionaryRepresentation,
-                authorization: .none
-            )
-        }
-    }
-
-    var exchangeAuthCode: ExchangeAuthCode { Never() }
+extension TypeSAKSessionsEventItem.Step {
+    static let vkidSDKInit: Self = "vkid_sdk_init"
 }

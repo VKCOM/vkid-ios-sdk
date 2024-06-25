@@ -27,7 +27,7 @@
 //
 
 import UIKit
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 internal final class OneTapBottomSheetTopBar: UIView {
     internal struct Configuration {

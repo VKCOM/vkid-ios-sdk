@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 /// Авторизованная сессия пользователя.
 public protocol UserSession: CustomDebugStringConvertible {
@@ -197,8 +197,10 @@ internal final class UserSessionImpl: UserSession {
                     return
                 }
                 if case .success(let refreshTokenResult) = result {
-                    self.data.refreshToken = refreshTokenResult.refreshToken
-                    self.data.accessToken = refreshTokenResult.accessToken
+                    var data = self.data
+                    data.refreshToken = refreshTokenResult.refreshToken
+                    data.accessToken = refreshTokenResult.accessToken
+                    self.data = data
                 }
                 self.delegate?.userSession(self, didRefreshAccessTokenWith: result)
                 completion(

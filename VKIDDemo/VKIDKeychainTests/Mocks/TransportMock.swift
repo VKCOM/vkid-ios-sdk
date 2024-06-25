@@ -27,7 +27,7 @@
 //
 
 import Foundation
-import VKIDCore
+@testable import VKIDCore
 @testable import VKID
 
 final class TransportMock : VKAPITransport {

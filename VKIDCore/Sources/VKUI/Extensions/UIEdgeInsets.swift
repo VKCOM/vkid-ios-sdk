@@ -29,7 +29,7 @@
 import UIKit
 
 extension UIEdgeInsets {
-    public init(symmetric: CGFloat) {
+    package init(symmetric: CGFloat) {
         self.init(
             top: symmetric,
             left: symmetric,
@@ -38,7 +38,7 @@ extension UIEdgeInsets {
         )
     }
 
-    public init(vertical: CGFloat, horizontal: CGFloat) {
+    package init(vertical: CGFloat, horizontal: CGFloat) {
         self.init(
             top: vertical,
             left: horizontal,

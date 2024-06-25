@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 internal protocol UserSessionManager {
     var userSessions: [UserSessionImpl] { get }
@@ -193,33 +193,13 @@ extension UserSessionManagerImpl: UserSessionDelegate {
         _ session: UserSessionImpl,
         didRefreshAccessTokenWith result: Result<RefreshTokenData, TokenRefreshingError>
     ) {
-        self.mutateSessions { sessions, strongSelf in
-            var refreshResult: TokenRefreshingResult
-            switch result {
-            case .success(let refreshTokenResult):
-                if let storedSession = sessions.first(
-                    where: { $0.userId == refreshTokenResult.accessToken.userId }
-                ) {
-                    storedSession.data.accessToken = refreshTokenResult.accessToken
-                    storedSession.data.refreshToken = refreshTokenResult.refreshToken
-                    strongSelf.writeSessionDataToStorage(storedSession.data)
-                } else {
-                    self.deps.logger.error("Error: session not found while refreshing")
-                }
-                refreshResult = .success((
-                    refreshTokenResult.accessToken,
-                    refreshTokenResult.refreshToken
-                ))
-            case.failure(let error):
-                refreshResult = .failure(error)
+        self.delegate?.userSessionManager(
+            self,
+            didRefreshAccessTokenIn: session,
+            with: result.flatMap {
+                .success(($0.accessToken, $0.refreshToken))
             }
-
-            strongSelf.delegate?.userSessionManager(
-                strongSelf,
-                didRefreshAccessTokenIn: session,
-                with: refreshResult
-            )
-        }
+        )
     }
 
     internal func userSession(_ session: UserSessionImpl, didUpdate data: UserSessionData) {
@@ -241,22 +221,7 @@ extension UserSessionManagerImpl: UserSessionDelegate {
     }
 
     func userSession(_ session: UserSessionImpl, didUpdateUserWith result: Result<User, UserFetchingError>) {
-        self.mutateSessions { sessions, strongSelf in
-            var userFetchingResult: UserFetchingResult
-            switch result {
-            case .success(let user):
-                if let storedSession = sessions.first(where: { $0.userId == user.id }) {
-                    storedSession.data.user = user
-                    strongSelf.writeSessionDataToStorage(storedSession.data)
-                } else {
-                    strongSelf.deps.logger.error("Error: session not found while user info update")
-                }
-                userFetchingResult = .success(user)
-            case .failure(let error):
-                userFetchingResult = .failure(error)
-            }
-            strongSelf.delegate?.userSessionManager(strongSelf, didUpdateUserIn: session, with: userFetchingResult)
-        }
+        self.delegate?.userSessionManager(self, didUpdateUserIn: session, with: result)
     }
 
     private func mutateSessions(block: (inout [UserSessionImpl], UserSessionManagerImpl)-> Void) {

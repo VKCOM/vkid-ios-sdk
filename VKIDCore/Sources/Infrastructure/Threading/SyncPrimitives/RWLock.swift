@@ -28,10 +28,10 @@
 
 import Foundation
 
-public final class RWLock {
+package final class RWLock {
     private var _lock = pthread_rwlock_t()
 
-    public init() {
+    package init() {
         let errCode = pthread_rwlock_init(&self._lock, nil)
         precondition(errCode == 0, "Failed to initialize rwlock: \(errCode)")
     }
@@ -41,21 +41,21 @@ public final class RWLock {
         precondition(errCode == 0, "Failed to destroy rwlock: \(errCode)")
     }
 
-    public func readLock() {
+    package func readLock() {
         let errCode = pthread_rwlock_rdlock(&self._lock)
         precondition(errCode == 0, "Failed to lock rwlock on reading: \(errCode)")
     }
 
-    public func writeLock() {
+    package func writeLock() {
         let errCode = pthread_rwlock_wrlock(&self._lock)
         precondition(errCode == 0, "Failed to lock rwlock on writing: \(errCode)")
     }
 
-    public func lock() {
+    package func lock() {
         self.writeLock()
     }
 
-    public func unlock() {
+    package func unlock() {
         let errCode = pthread_rwlock_unlock(&self._lock)
         precondition(errCode == 0, "Failed to unlock rwlock: \(errCode)")
     }

@@ -28,7 +28,7 @@
 
 import Foundation
 import UIKit
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 internal final class RootContainer {
     private let appCredentials: AppCredentials
@@ -188,19 +188,19 @@ internal final class RootContainer {
             logger: self.logger
         )
     )
-    internal lazy var analytics = Analytics<TypeRegistrationItemNamespace>(
+    internal lazy var productAnalytics = Analytics<TypeRegistrationItemNamespace>(
         deps: .init(
-            service: self.analyticsService,
-            userInfoProvider: UserInfoProvider(
-                deps: .init(
-                    userSessionManager: self.userSessionManager
-                )
-            )
+            service: self.analyticsService
+        )
+    )
+    internal lazy var techAnalytcs = Analytics<TypeSAKSessionsEventItemNamespace>(
+        deps: .init(
+            service: self.analyticsService
         )
     )
     internal lazy var vkidAnalytics = VKIDAnalytics(
         deps: .init(
-            analytics: self.analytics
+            analytics: self.productAnalytics
         )
     )
 
@@ -269,7 +269,7 @@ extension RootContainer: AuthFlowBuilder {
                 appCredentials: self.appCredentials,
                 authConfig: authConfig,
                 authContext: authContext,
-                analytics: self.analytics,
+                analytics: self.productAnalytics,
                 pkceGenerator: PKCESecretsS256Generator(),
                 responseParser: self.responseParser,
                 authURLBuilder: self.authURLBuilder,

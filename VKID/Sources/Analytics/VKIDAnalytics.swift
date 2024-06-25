@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 /// Аналитика авторизации через VKID.
 internal final class VKIDAnalytics: VKIDObserver {
@@ -38,80 +38,81 @@ internal final class VKIDAnalytics: VKIDObserver {
     }
 
     /// Контекст авторизации.
-    internal var context: AuthContext
+    internal var authContext: AuthContext
     /// Зависимости аналитики авторизации.
     private var deps: Dependencies
 
     init(deps: Dependencies) {
         self.deps = deps
-        self.context = .init(launchedBy: .service)
+        self.authContext = .init(launchedBy: .service)
     }
 
     func vkid(_ vkid: VKID, didStartAuthUsing oAuth: OAuthProvider) {
-        switch self.context.launchedBy {
+        let analyticsContext: (inout AnalyticsEventContext) -> AnalyticsEventContext = { ctx in
+            ctx.screen = Screen(screen: self.authContext.screen)
+            return ctx
+        }
+
+        switch self.authContext.launchedBy {
         case .oneTapBottomSheetRetry:
-            self.deps.analytics.retryAuthTap.context(
-                .init(screen: .floatingOneTap)
-            ).send(
-                .init(
-                    uniqueSessionId: self.context.uniqueSessionId
+            self.deps.analytics.retryAuthTap
+                .context { ctx in
+                    ctx.screen = .floatingOneTap
+                    return ctx
+                }
+                .send(
+                    .init(
+                        uniqueSessionId: self.authContext.uniqueSessionId
+                    )
                 )
-            )
         case .oneTapButton(let provider, let buttonKind):
             switch provider.type {
             case .vkid:
-                switch self.context.screen {
+                switch self.authContext.screen {
                 case .multibrandingWidget:
                     self.deps.analytics.vkButtonTap
-                        .context(
-                            .init(screen: self.context.screen)
-                        )
+                        .context(analyticsContext)
                         .send(
                             .init(
                                 buttonType: .init(kind: buttonKind),
-                                uniqueSessionId: self.context.uniqueSessionId
+                                uniqueSessionId: self.authContext.uniqueSessionId
                             )
                         )
                 case .oneTapBottomSheet, .nowhere:
                     self.deps.analytics.oneTapButtonNoUserTap
-                        .context(
-                            .init(screen: self.context.screen)
-                        )
+                        .context(analyticsContext)
                         .send(
                             .init(
                                 buttonType: .init(kind: buttonKind),
-                                uniqueSessionId: self.context.uniqueSessionId
+                                uniqueSessionId: self.authContext.uniqueSessionId
                             )
                         )
                 }
 
             case .ok:
                 self.deps.analytics.okButtonTap
-                    .context(
-                        .init(screen: self.context.screen)
-                    )
+                    .context(analyticsContext)
                     .send(
                         .init(
                             buttonType: .init(kind: buttonKind),
-                            uniqueSessionId: self.context.uniqueSessionId
+                            uniqueSessionId: self.authContext.uniqueSessionId
                         )
                     )
             case .mail:
                 self.deps.analytics.mailButtonTap
-                    .context(
-                        .init(screen: self.context.screen)
-                    )
+                    .context(analyticsContext)
                     .send(
                         .init(
                             buttonType: .init(kind: buttonKind),
-                            uniqueSessionId: self.context.uniqueSessionId
+                            uniqueSessionId: self.authContext.uniqueSessionId
                         )
                     )
             }
         case .service:
-            self.deps.analytics.customAuth.send(
+            self.deps.analytics.customAuthStart.send(
                 .init(
-                    uniqueSessionId: self.context.uniqueSessionId
+                    uniqueSessionId: self.authContext.uniqueSessionId,
+                    oAuthProvider: oAuth
                 )
             )
         }
@@ -121,76 +122,27 @@ internal final class VKIDAnalytics: VKIDObserver {
         if case .success = result {
             self.sendAnalyticsSuccessAuth()
         } else if case .failure = result {
-            self.sendAnalyticsFailureAuth()
+            self.sendAnalyticsFailureAuth(in: oAuth)
         }
     }
 
     /// Отправляет аналитику при успешной авторизации.
     internal func sendAnalyticsSuccessAuth() {
-        switch self.context.launchedBy {
-        case .oneTapBottomSheetRetry:
-            break
-        case .oneTapButton(let provider, let kind):
-            if provider != .vkid {
-                self.deps.analytics.authByOAuth
-                    .context(
-                        .init(screen: self.context.screen)
-                    )
-                    .send(
-                        .init(
-                            provider: provider,
-                            uniqueSessionId: self.context.uniqueSessionId,
-                            kind: kind
-                        )
-                    )
-            } else if self.context.screen == .oneTapBottomSheet {
-                self.deps.analytics.authByFloatingOneTap.context(
-                    .init(screen: self.context.screen)
-                ).send()
+        self.deps.analytics.screenProceed
+            .context { ctx in
+                ctx.screen = .authorizationWindow
+                return ctx
             }
-        case .service:
-            break
-        }
+            .send()
     }
 
     /// Отправляет аналитику при неудачной авторизации.
-    internal func sendAnalyticsFailureAuth() {
-        switch self.context.launchedBy {
-        case .oneTapBottomSheetRetry:
-            break
-        case .oneTapButton(let provider, let kind):
-            switch provider.type {
-            case .vkid:
-                switch self.context.screen {
-                case .nowhere, .multibrandingWidget:
-                    self.deps.analytics.oneTapButtonNoUserAuthError.send(
-                        .init(
-                            buttonType: .init(kind: kind),
-                            uniqueSessionId: self.context.uniqueSessionId
-                        )
-                    )
-                case .oneTapBottomSheet:
-                    self.deps.analytics.alertAuthError.context(
-                        .init(screen: .floatingOneTap)
-                    ).send()
-                }
-            case .ok, .mail:
-                self.deps.analytics.multibrandingAuthError
-                    .context(
-                        .init(screen: self.context.screen)
-                    )
-                    .send(
-                        .init(
-                            uniqueSessionId: self.context.uniqueSessionId
-                        )
-                    )
-            }
-        case .service:
-            self.deps.analytics.errorCustomAuth.send(
-                .init(
-                    uniqueSessionId: self.context.uniqueSessionId
-                )
+    internal func sendAnalyticsFailureAuth(in oAuth: OAuthProvider) {
+        self.deps.analytics.sdkAuthError.send(
+            .init(
+                context: self.authContext,
+                provider: oAuth
             )
-        }
+        )
     }
 }

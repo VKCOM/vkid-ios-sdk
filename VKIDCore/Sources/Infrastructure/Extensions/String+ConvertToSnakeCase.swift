@@ -30,7 +30,7 @@ import Foundation
 
 extension String {
     /// https://github.com/apple/swift/blob/88b093e9d77d6201935a2c2fb13f27d961836777/stdlib/public/Darwin/Foundation/JSONEncoder.swift#L160
-    var convertedToSnakeCase: String {
+    package var convertedToSnakeCase: String {
         guard !self.isEmpty else { return self }
 
         var words: [Range<String.Index>] = []

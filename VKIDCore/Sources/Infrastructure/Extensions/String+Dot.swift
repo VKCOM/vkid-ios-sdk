@@ -27,7 +27,7 @@
 //
 
 extension String? {
-    public var appendingDot: String? {
+    package var appendingDot: String? {
         guard let self else {
             return self
         }

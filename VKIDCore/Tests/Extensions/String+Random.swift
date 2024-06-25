@@ -26,20 +26,10 @@
 // THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
 //
 
-@testable import VKID
+import Foundation
 
-extension OAuth2.RefreshToken.Response {
-    static func create(
-        userSessionData data: UserSessionData,
-        state: String
-    ) -> OAuth2.RefreshToken.Response {
-        .init(
-            refreshToken: data.refreshToken.value,
-            accessToken: data.accessToken.value,
-            state: state,
-            expiresIn: 3600,
-            userId: data.id.value,
-            scope: ""
-        )
+extension String {
+    static var random: String {
+        UUID().uuidString
     }
 }

@@ -27,7 +27,7 @@
 //
 
 import UIKit
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 internal struct TypeRegistrationItemNamespace: AnalyticsTypeItemNamespace {
     enum ButtonType: String {
@@ -41,6 +41,18 @@ internal struct TypeRegistrationItemNamespace: AnalyticsTypeItemNamespace {
             case .logoOnly:
                 self = .icon
             }
+        }
+    }
+
+    struct AuthErrorParameters {
+        let authErrorFrom: String
+        let uniqueSessionId: String
+        let oAuthProvider: OAuthProvider?
+
+        init(context: AuthContext, provider: OAuthProvider) {
+            self.authErrorFrom = context.flowSource
+            self.uniqueSessionId = context.uniqueSessionId
+            self.oAuthProvider = provider
         }
     }
 
@@ -95,54 +107,70 @@ internal struct TypeRegistrationItemNamespace: AnalyticsTypeItemNamespace {
         }
     }
 
-    struct ScreenProceedParameters {
+    struct AppearanceParameters {
         let language: String?
         let themeType: String
         let textType: String
 
         init(
-            language: Appearance.Locale,
+            language: Appearance.Locale?,
             themeType: Appearance.ColorScheme,
             textType: OneTapBottomSheet.TargetActionType
         ) {
-            self.language = language.rawLocale
-            self.themeType = themeType.resolveSystemToActualScheme().rawValue
+            self.language = language?.rawLocale
 
-            switch textType {
+            self.themeType = switch themeType {
+            case .system:
+                themeType.resolveSystemToActualScheme().rawValue
+            case .light, .dark:
+                themeType.rawValue
+            }
+
+            self.textType = switch textType {
             case .signIn:
-                self.textType = "service_sign_in"
+                "service_sign_in"
             case .signInToService:
-                self.textType = "account_sign_in"
+                "account_sign_in"
             case .registerForEvent:
-                self.textType = "event_reg"
+                "event_reg"
             case .applyFor:
-                self.textType = "request"
+                "request"
             case .orderCheckout:
-                self.textType = "vkid_order_placing"
+                "vkid_order_placing"
             case .orderCheckoutAtService:
-                self.textType = "service_order_placing"
+                "service_order_placing"
             }
         }
     }
 
+    struct CustomAuthStartParameters {
+        let uniqueSessionId: String
+        let oAuthProvider: OAuthProvider
+
+        init(
+            uniqueSessionId: String,
+            oAuthProvider: OAuthProvider
+        ) {
+            self.uniqueSessionId = uniqueSessionId
+            self.oAuthProvider = oAuthProvider
+        }
+    }
+
     // MARK: - General
-    var screenProceed: ScreenProceed { Never() }
+    var screenProceed: ScreenProceed<Empty> { Never() }
+    var screenProceedWithTheme: ScreenProceed<AppearanceParameters> { Never() }
     var authProviderUsed: AuthProviderUsed { Never() }
     var noAuthProvider: NoAuthProvider { Never() }
-    var customAuth: CustomAuth { Never() }
-    var errorCustomAuth: ErrorCustomAuth { Never() }
-    var sdkInit: SDKInit { Never() }
+    var customAuthStart: CustomAuthStart { Never() }
+    var sdkAuthError: SDKAuthError { Never() }
 
     // MARK: - OneTapButton
     var oneTapButtonNoUserShow: OneTapButtonNoUserShowEvent { Never() }
     var oneTapButtonNoUserTap: OneTapButtonNoUserTapEvent { Never() }
-    var oneTapButtonNoUserAuthError: OneTapButtonNoUserAuthError { Never() }
 
     // MARK: - FloatingOneTap / OneTapBottomSheet
-    var authByFloatingOneTap: AuthByFloatingOneTap { Never() }
     var dataLoading: DataLoading { Never() }
     var retryAuthTap: RetryAuthTap { Never() }
-    var alertAuthError: AlertAuthError { Never() }
 
     // MARK: - ThreeInOne / Multibranding
     var multibrandingOAuthAdded: MultibrandingOAuthAdded { Never() }
@@ -152,17 +180,34 @@ internal struct TypeRegistrationItemNamespace: AnalyticsTypeItemNamespace {
     var vkButtonTap: VKButtonTap { Never() }
     var okButtonTap: OkButtonTap { Never() }
     var mailButtonTap: MailButtonTap { Never() }
-    var authByOAuth: AuthByOAuth { Never() }
-    var multibrandingAuthError: MultibrandingAuthError { Never() }
 
     // MARK: - General
-    struct ScreenProceed: AnalyticsEventTypeAction {
-        static func typeAction(with parameters: ScreenProceedParameters, context: AnalyticsEventContext) -> TypeAction {
+    struct ScreenProceed<Parameters>: AnalyticsEventTypeAction {
+        typealias Parameters = Parameters
+
+        static func typeAction(with parameters: Parameters, context: AnalyticsEventContext) -> VKIDCore.TypeAction {
+            switch parameters {
+            case let parameters as AppearanceParameters:
+                Self.typeAction(with: parameters, context: context)
+            default:
+                Self.typeAction(context: context)
+            }
+        }
+
+        static func typeAction(with parameters: AppearanceParameters, context: AnalyticsEventContext) -> TypeAction {
             TypeAction(
                 typeRegistrationItem: typeRegistrationItem(
                     eventType: .screenProceed,
                     parameters: parameters,
                     context: context
+                )
+            )
+        }
+
+        static func typeAction(context: AnalyticsEventContext) -> TypeAction {
+            TypeAction(
+                typeRegistrationItem: typeRegistrationItem(
+                    eventType: .screenProceed
                 )
             )
         }
@@ -188,11 +233,14 @@ internal struct TypeRegistrationItemNamespace: AnalyticsTypeItemNamespace {
         }
     }
 
-    struct CustomAuth: AnalyticsEventTypeAction {
-        static func typeAction(with parameters: UniqueSessionParameters, context: AnalyticsEventContext) -> TypeAction {
+    struct CustomAuthStart: AnalyticsEventTypeAction {
+        static func typeAction(
+            with parameters: CustomAuthStartParameters,
+            context: AnalyticsEventContext
+        ) -> TypeAction {
             TypeAction(
                 typeRegistrationItem: typeRegistrationItem(
-                    eventType: .customAuth,
+                    eventType: .customAuthStart,
                     parameters: parameters,
                     context: context
                 )
@@ -200,23 +248,13 @@ internal struct TypeRegistrationItemNamespace: AnalyticsTypeItemNamespace {
         }
     }
 
-    struct ErrorCustomAuth: AnalyticsEventTypeAction {
-        static func typeAction(with parameters: UniqueSessionParameters, context: AnalyticsEventContext) -> TypeAction {
+    struct SDKAuthError: AnalyticsEventTypeAction {
+        static func typeAction(with parameters: AuthErrorParameters, context: AnalyticsEventContext) -> TypeAction {
             TypeAction(
                 typeRegistrationItem: typeRegistrationItem(
-                    eventType: .errorCustomAuth,
+                    eventType: .sdkAuthError,
                     parameters: parameters,
                     context: context
-                )
-            )
-        }
-    }
-
-    struct SDKInit: AnalyticsEventTypeAction {
-        static func typeAction(with parameters: Empty, context: AnalyticsEventContext) -> TypeAction {
-            TypeAction(
-                typeRegistrationItem: typeRegistrationItem(
-                    eventType: .sdkInit
                 )
             )
         }
@@ -247,29 +285,6 @@ internal struct TypeRegistrationItemNamespace: AnalyticsTypeItemNamespace {
         }
     }
 
-    struct OneTapButtonNoUserAuthError: AnalyticsEventTypeAction {
-        static func typeAction(with parameters: DefaultParameters, context: AnalyticsEventContext) -> TypeAction {
-            TypeAction(
-                typeRegistrationItem: typeRegistrationItem(
-                    eventType: .oneTapButtonNoUserAuthError,
-                    parameters: parameters,
-                    context: context
-                )
-            )
-        }
-    }
-
-    // MARK: - FloatingOneTap / OneTapBottomSheet
-    struct AuthByFloatingOneTap: AnalyticsEventTypeAction {
-        static func typeAction(with parameters: Empty, context: AnalyticsEventContext) -> TypeAction {
-            TypeAction(
-                typeRegistrationItem: typeRegistrationItem(
-                    eventType: .authByFloatingOneTap
-                )
-            )
-        }
-    }
-
     struct DataLoading: AnalyticsEventTypeAction {
         static func typeAction(with parameters: Empty, context: AnalyticsEventContext) -> TypeAction {
             TypeAction(
@@ -287,16 +302,6 @@ internal struct TypeRegistrationItemNamespace: AnalyticsTypeItemNamespace {
                     eventType: .retryAuthTap,
                     parameters: parameters,
                     context: context
-                )
-            )
-        }
-    }
-
-    struct AlertAuthError: AnalyticsEventTypeAction {
-        static func typeAction(with parameters: Empty, context: AnalyticsEventContext) -> TypeAction {
-            TypeAction(
-                typeRegistrationItem: typeRegistrationItem(
-                    eventType: .alertAuthError
                 )
             )
         }
@@ -386,28 +391,6 @@ internal struct TypeRegistrationItemNamespace: AnalyticsTypeItemNamespace {
             )
         }
     }
-
-    struct AuthByOAuth: AnalyticsEventTypeAction {
-        static func typeAction(with parameters: OAuthServiceParameters, context: AnalyticsEventContext) -> TypeAction {
-            TypeAction(
-                typeRegistrationItem: typeRegistrationItem(
-                    eventType: .authByOAuth,
-                    parameters: parameters,
-                    context: context
-                )
-            )
-        }
-    }
-
-    struct MultibrandingAuthError: AnalyticsEventTypeAction {
-        static func typeAction(with parameters: UniqueSessionParameters, context: AnalyticsEventContext) -> TypeAction {
-            TypeAction(
-                typeRegistrationItem: typeRegistrationItem(
-                    eventType: .multibrandingAuthError
-                )
-            )
-        }
-    }
 }
 
 extension TypeRegistrationItemNamespace {
@@ -427,14 +410,32 @@ extension TypeRegistrationItemNamespace {
 
     static func typeRegistrationItem(
         eventType: TypeRegistrationItem.EventType,
-        parameters: ScreenProceedParameters,
+        parameters: AuthErrorParameters,
+        context: AnalyticsEventContext
+    ) -> TypeRegistrationItem {
+        var typeRegistrationItem = self.typeRegistrationItem(
+            eventType: eventType,
+            error: .sdkAuthError
+        )
+        typeRegistrationItem.addField(authErrorFrom: parameters.authErrorFrom)
+        typeRegistrationItem.addField(uniqueSessionId: parameters.uniqueSessionId)
+
+        if let oAuthProvider = parameters.oAuthProvider {
+            typeRegistrationItem.addField(oAuthProvider: oAuthProvider)
+        }
+
+        return typeRegistrationItem
+    }
+
+    static func typeRegistrationItem(
+        eventType: TypeRegistrationItem.EventType,
+        parameters: AppearanceParameters,
         context: AnalyticsEventContext
     ) -> TypeRegistrationItem {
         var typeRegistrationItem = self.typeRegistrationItem(eventType: eventType)
-        typeRegistrationItem.fields += [
-            .init(name: .themeType, value: parameters.themeType),
-            .init(name: .textType, value: parameters.textType),
-        ]
+
+        typeRegistrationItem.addField(themeType: parameters.themeType)
+        typeRegistrationItem.addField(textType: parameters.textType)
 
         if let language = parameters.language {
             typeRegistrationItem.addField(language: language)
@@ -506,9 +507,27 @@ extension TypeRegistrationItemNamespace {
 
         return typeRegistrationItem
     }
+
+    static func typeRegistrationItem(
+        eventType: TypeRegistrationItem.EventType,
+        parameters: CustomAuthStartParameters,
+        context: AnalyticsEventContext
+    ) -> TypeRegistrationItem {
+        var typeRegistrationItem = self.typeRegistrationItem(eventType: eventType)
+        typeRegistrationItem.addField(uniqueSessionId: parameters.uniqueSessionId)
+        typeRegistrationItem.addField(oAuthProvider: parameters.oAuthProvider)
+
+        return typeRegistrationItem
+    }
 }
 
 extension TypeRegistrationItem {
+    fileprivate mutating func addField(authErrorFrom: String) {
+        self.fields.append(
+            .init(name: .init(rawValue: authErrorFrom), value: "true")
+        )
+    }
+
     fileprivate mutating func addField(buttonType: TypeRegistrationItemNamespace.ButtonType) {
         self.fields.append(
             .init(name: .buttonType, value: buttonType.rawValue)
@@ -523,19 +542,31 @@ extension TypeRegistrationItem {
 
     fileprivate mutating func addField(oAuthProvider: OAuthProvider) {
         self.fields.append(
-            .init(name: .oAuthService, value: oAuthProvider.type.endingWithRuIfNeeded)
+            .init(name: .oAuthService, value: oAuthProvider.type.rawValue)
         )
     }
 
     fileprivate mutating func addField(oAuthProvider: OAuthProvider, value: Bool) {
         self.fields.append(
-            .init(name: .init(rawValue: oAuthProvider.type.clearName), value: value ? "1" : "0")
+            .init(name: .init(rawValue: oAuthProvider.type.rawValue), value: value ? "1" : "0")
         )
     }
 
     fileprivate mutating func addField(language: String) {
         self.fields.append(
             .init(name: .language, value: language)
+        )
+    }
+
+    fileprivate mutating func addField(themeType: String) {
+        self.fields.append(
+            .init(name: .themeType, value: themeType)
+        )
+    }
+
+    fileprivate mutating func addField(textType: String) {
+        self.fields.append(
+            .init(name: .textType, value: textType)
         )
     }
 }

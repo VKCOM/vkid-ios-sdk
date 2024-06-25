@@ -28,7 +28,7 @@
 
 import UIKit
 
-public final class ConstraintBuilder {
+package final class ConstraintBuilder {
     private weak var superview: UIView?
     private weak var subview: UIView?
 
@@ -39,7 +39,7 @@ public final class ConstraintBuilder {
 }
 
 extension ConstraintBuilder {
-    public func pinToEdges(withInsets insets: UIEdgeInsets = .zero) {
+    package func pinToEdges(withInsets insets: UIEdgeInsets = .zero) {
         guard let superview, let subview else {
             return
         }
@@ -63,7 +63,7 @@ extension ConstraintBuilder {
         ])
     }
 
-    public func pinSize(_ size: CGSize) {
+    package func pinSize(_ size: CGSize) {
         guard let subview else {
             return
         }
@@ -75,7 +75,7 @@ extension ConstraintBuilder {
 }
 
 extension UIView {
-    public func addSubview(
+    package func addSubview(
         _ subview: UIView,
         constraintBuilder: (ConstraintBuilder) -> Void
     ) {
@@ -89,7 +89,7 @@ extension UIView {
         )
     }
 
-    public func buildConstraint(_ builder: (ConstraintBuilder) -> Void) {
+    package func buildConstraint(_ builder: (ConstraintBuilder) -> Void) {
         guard let superview else {
             return
         }

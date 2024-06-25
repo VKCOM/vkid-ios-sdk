@@ -28,22 +28,31 @@
 
 import XCTest
 @testable import VKID
+@testable import VKIDAllureReport
 @testable import VKIDCore
 
 final class VKIDSSLPinningTests: XCTestCase {
+    private let testCaseMeta = Allure.TestCase.MetaInformation(
+        owner: .vkidTester,
+        layer: .integration,
+        product: .VKIDSDK,
+        feature: "SSL пиннинг"
+    )
     private var api: VKAPI<Auth>!
     private var appCredentials: AppCredentials!
+    private var packageManager: String = "unknown"
 
     override func setUpWithError() throws {
         let env = ProcessInfo.processInfo.environment
         guard
             let clientId = env["VKID_DEMO_IOS_CLIENT_ID"],
-            let clientSecret = env["VKID_DEMO_IOS_CLIENT_SECRET"]
+            let clientSecret = env["VKID_DEMO_IOS_CLIENT_SECRET"],
+            let envPackageManager = env["PACKAGE_MANAGER"]
         else {
-            XCTFail("VKID_DEMO_IOS_CLIENT_ID and VKID_DEMO_IOS_CLIENT_SECRET are not provided")
+            XCTFail("PACKAGE_MANAGER, VKID_DEMO_IOS_CLIENT_ID and VKID_DEMO_IOS_CLIENT_SECRET are not provided")
             return
         }
-
+        self.packageManager = envPackageManager
         self.appCredentials = AppCredentials(
             clientId: clientId,
             clientSecret: clientSecret
@@ -72,46 +81,64 @@ final class VKIDSSLPinningTests: XCTestCase {
     }
 
     func testRequestIsCancelledIfTrafficIsSniffed() {
+        Allure.report(
+            .init(
+                name: "[\(self.packageManager)] Если трафик сниффится, то запрос отменяется",
+                meta: self.testCaseMeta
+            )
+        )
         let requestCompleted = self.expectation(description: "Request completed")
-
-        self.api
-            .getAnonymousToken
-            .execute(with: .init(
-                anonymousToken: nil,
-                clientId: self.appCredentials.clientId,
-                clientSecret: self.appCredentials.clientSecret
-            )) { result in
-                switch result {
-                case .failure(.cancelled):
-                    XCTAssertTrue(true, "Expected behaviour, request cancelled.")
-                default:
-                    XCTFail("Request should be cancelled")
+        when("Отправка запроса для проверки пиннинга") {
+            self.api
+                .getAnonymousToken
+                .execute(with: .init(
+                    anonymousToken: nil,
+                    clientId: self.appCredentials.clientId,
+                    clientSecret: self.appCredentials.clientSecret
+                )) { result in
+                    then("Проверяем, что если траффик сниффится, то запрос отменяется") {
+                        switch result {
+                        case .failure(.cancelled):
+                            XCTAssertTrue(true, "Expected behaviour, request cancelled.")
+                        default:
+                            XCTFail("Request should be cancelled")
+                        }
+                        requestCompleted.fulfill()
+                    }
                 }
-                requestCompleted.fulfill()
-            }
 
-        self.wait(for: [requestCompleted], timeout: 60)
+            self.wait(for: [requestCompleted], timeout: 60)
+        }
     }
 
     func testRequestIsSucceededIfTrafficIsNotSniffed() {
+        Allure.report(
+            .init(
+                name: "[\(self.packageManager)] Если трафик НЕ сниффится, то запрос выполняется",
+                meta: self.testCaseMeta
+            )
+        )
         let requestCompleted = self.expectation(description: "Request completed")
 
-        self.api
-            .getAnonymousToken
-            .execute(with: .init(
-                anonymousToken: nil,
-                clientId: self.appCredentials.clientId,
-                clientSecret: self.appCredentials.clientSecret
-            )) { result in
-                switch result {
-                case .success:
-                    XCTAssertTrue(true, "Expected behaviour, request successfully completed.")
-                default:
-                    XCTFail("Request should complete successfully")
+        when("Отправка запроса для проверки успешного выполнения") {
+            self.api
+                .getAnonymousToken
+                .execute(with: .init(
+                    anonymousToken: nil,
+                    clientId: self.appCredentials.clientId,
+                    clientSecret: self.appCredentials.clientSecret
+                )) { result in
+                    then("Проверяем, что если траффик НЕ сниффится, то запрос выполняется") {
+                        switch result {
+                        case .success:
+                            XCTAssertTrue(true, "Expected behaviour, request successfully completed.")
+                        default:
+                            XCTFail("Request should complete successfully")
+                        }
+                        requestCompleted.fulfill()
+                    }
                 }
-                requestCompleted.fulfill()
-            }
-
-        self.wait(for: [requestCompleted], timeout: 60)
+            self.wait(for: [requestCompleted], timeout: 60)
+        }
     }
 }

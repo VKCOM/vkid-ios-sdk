@@ -74,7 +74,7 @@ public struct AppCredentials {
     }
 }
 
-/// Конфигурация внешнего вида визуальных элементов VK ID
+/// Конфигурация внешнего вида визуальных элементов VK ID. Контролы всегда локализуются по языку приложения/системы.
 public struct Appearance {
     /// Цветовая схема интерфейса
     public enum ColorScheme: String, CaseIterable {
@@ -114,6 +114,10 @@ public struct Appearance {
     public var colorScheme: ColorScheme
     public var locale: Locale
 
+    /// Инициализация конфигурации внешнего вида визуальных элементов VKID
+    /// - Parameters:
+    ///   - colorScheme: Цветовая схема интерфейса
+    ///   - locale: Локализация, которая будет применена на странице авторизации в вебвью. Контролы всегда локализуются по языку приложения/системы.
     public init(
         colorScheme: ColorScheme = .system,
         locale: Locale = .system

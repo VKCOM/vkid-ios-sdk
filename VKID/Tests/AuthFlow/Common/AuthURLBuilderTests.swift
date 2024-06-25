@@ -72,12 +72,12 @@ final class AuthURLBuilderTests: XCTestCase {
                 credentials: self.credentials
             )
             let expectedQueryItems = commonQueryItems + [
-                .uuid(uniqueSessionId: self.context.uniqueSessionId),
                 .authProviderMethod,
                 .init(
                     name: "redirect_uri",
                     value: redirectURL(
                         for: self.credentials.clientId,
+                        in: self.context,
                         scope: self.scope
                     ).absoluteString
                 ),
@@ -125,12 +125,12 @@ final class AuthURLBuilderTests: XCTestCase {
                 credentials: credentials
             )
             let expectedQueryItems = commonQueryItems + [
-                .uuid(uniqueSessionId: context.uniqueSessionId),
                 .authProviderMethod,
                 .init(
                     name: "redirect_uri",
                     value: redirectURL(
                         for: credentials.clientId,
+                        in: context,
                         scope: self.scope
                     ).absoluteString
                 ),
@@ -177,7 +177,6 @@ final class AuthURLBuilderTests: XCTestCase {
             let expectedQueryItems = commonQueryItems + [
                 .scheme("dark"),
                 .langId("0"),
-                .uuid(uniqueSessionId: self.context.uniqueSessionId),
                 .provider(oAuth: oAuth),
                 .codeChallengeMethod(try self.secrets.codeChallengeMethod.rawValue),
                 .deviceId(DeviceId.currentDeviceId.description),
@@ -187,7 +186,8 @@ final class AuthURLBuilderTests: XCTestCase {
                 .init(
                     name: "redirect_uri",
                     value: redirectURL(
-                        for: self.credentials.clientId
+                        for: self.credentials.clientId,
+                        in: self.context
                     ).absoluteString
                 ),
             ]
@@ -242,7 +242,6 @@ final class AuthURLBuilderTests: XCTestCase {
             let expectedQueryItems = commonQueryItems + [
                 .scheme("light"),
                 .langId("3"),
-                .uuid(uniqueSessionId: context.uniqueSessionId),
                 .provider(oAuth: oAuth),
                 .codeChallengeMethod(try secrets.codeChallengeMethod.rawValue),
                 .deviceId(DeviceId.currentDeviceId.description),
@@ -252,7 +251,8 @@ final class AuthURLBuilderTests: XCTestCase {
                 .init(
                     name: "redirect_uri",
                     value: redirectURL(
-                        for: credentials.clientId
+                        for: credentials.clientId,
+                        in: context
                     ).absoluteString
                 ),
             ]

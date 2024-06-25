@@ -14,6 +14,10 @@ DerivedData/
 .swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
 .netrc
 
+### Cocoapods
+VKIDDemo/Pods/
+VKIDDemo/Podfile.lock
+
 ### VKIDDemo
 VKIDDemo/VKIDDemo/Configurations/VKIDAppCredentials.xcconfig
 

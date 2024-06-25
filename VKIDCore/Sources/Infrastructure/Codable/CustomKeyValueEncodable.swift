@@ -28,16 +28,16 @@
 
 import Foundation
 
-public struct CustomKeyValueEncodable<CodingKeys: CodingKey>: Encodable {
+package struct CustomKeyValueEncodable<CodingKeys: CodingKey>: Encodable {
     let key: CodingKeys
     let value: Encodable
 
-    public init(key: CodingKeys, value: Encodable) {
+    package init(key: CodingKeys, value: Encodable) {
         self.key = key
         self.value = value
     }
 
-    public func encode(to encoder: Encoder) throws {
+    package func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(self.value, forKey: self.key)
     }

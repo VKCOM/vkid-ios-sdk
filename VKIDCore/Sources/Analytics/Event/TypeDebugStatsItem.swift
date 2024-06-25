@@ -29,18 +29,18 @@
 import Foundation
 
 /// Конечное событие (записывается в таблицу DebugStats)
-public struct TypeDebugStatsItem: Encodable {
+package struct TypeDebugStatsItem: Encodable {
     // MARK: - Основные поля
     /// Тип события
-    public var eventType: String
+    package var eventType: String
     /// Описание события
-    public var description: String
+    package var description: String
     /// Цифровое описание события
-    public var descriptionNumeric: Int
+    package var descriptionNumeric: Int
     /// Кастомный json
-    public var json: String
+    package var json: String
 
-    public init(eventType: String, description: String, descriptionNumeric: Int, json: String) {
+    package init(eventType: String, description: String, descriptionNumeric: Int, json: String) {
         self.eventType = eventType
         self.description = description
         self.descriptionNumeric = descriptionNumeric

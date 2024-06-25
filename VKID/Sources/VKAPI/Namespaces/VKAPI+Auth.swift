@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 internal struct Auth: VKAPINamespace {
     struct GetAnonymousToken: VKAPIMethod {

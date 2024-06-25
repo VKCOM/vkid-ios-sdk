@@ -29,7 +29,7 @@
 import Foundation
 
 extension String {
-    public func maskingForLogging() -> String {
+    package func maskingForLogging() -> String {
         guard !self.isEmpty else {
             return self
         }

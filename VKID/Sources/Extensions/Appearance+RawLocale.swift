@@ -29,7 +29,7 @@
 import Foundation
 
 extension Appearance.Locale {
-    internal var preferredLocale: Self? {
+    static var preferredLocale: Self? {
         guard let lang = NSLocale.preferredLanguages.first?.prefix(2) else {
             return nil
         }
@@ -58,7 +58,7 @@ extension Appearance.Locale {
     internal var rawLocale: String? {
         switch self {
         case .system:
-            return self.preferredLocale.flatMap { $0.rawLocale }
+            return Self.preferredLocale.flatMap { $0.rawLocale }
         case .ru:
             return "0"
         case .uk:

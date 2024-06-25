@@ -94,7 +94,7 @@ final class UserSessionInfoTableViewCell: UITableViewCell {
 
     var smallLightAttributes: [NSAttributedString.Key: Any] = [
         .font: UIFont.systemFont(ofSize: 12, weight: .light),
-        .foregroundColor: UIColor(resource: .colorTextAccent),
+        .foregroundColor: UIColor(resource: .colorTextSecondary),
     ]
 
     var userSession: SessionData?
@@ -139,6 +139,10 @@ final class UserSessionInfoTableViewCell: UITableViewCell {
         switch provider {
         case OAuthProvider.vkid:
             image = UIImage(resource: .vkIdLogo)
+        case OAuthProvider.ok:
+            image = UIImage(resource: .okRuLogo)
+        case OAuthProvider.mail:
+            image = UIImage(resource: .mailRuLogo)
         default:
             break
         }

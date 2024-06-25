@@ -29,11 +29,11 @@
 import Foundation
 
 extension Never {
-    public init() {
+    package init() {
         fatalError()
     }
 }
 
-public struct Empty: VKAPIDictionaryRepresentable {
-    public init() {}
+package struct Empty: VKAPIDictionaryRepresentable {
+    package init() {}
 }

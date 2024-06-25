@@ -29,7 +29,7 @@
 import Foundation
 import UIKit
 
-public struct DeviceId {
+package struct DeviceId {
     private let uuid: UUID
     private static var _deviceId: DeviceId?
 
@@ -37,7 +37,7 @@ public struct DeviceId {
         self.uuid = uuid
     }
 
-    public static var currentDeviceId: Self {
+    package static var currentDeviceId: Self {
         if let deviceId = Self._deviceId {
             return deviceId
         }
@@ -83,7 +83,7 @@ public struct DeviceId {
 }
 
 extension DeviceId: CustomStringConvertible {
-    public var description: String {
+    package var description: String {
         self.uuid.uuidString
     }
 }

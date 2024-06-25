@@ -28,15 +28,15 @@
 
 import Foundation
 
-public struct SSLPinnedDomain {
-    public let domain: String
-    public let pins: Set<Data>
+package struct SSLPinnedDomain {
+    package let domain: String
+    package let pins: Set<Data>
 
     /// Создает SSLPinnedDomain с указанными `domain` и `pins`
     /// - Parameters:
     ///   - domain: домен для пининга
     ///   - pins: base64-encoded SHA-256 хеши публичных ключей сертификатов
-    public init(domain: String, pins: Set<String>) {
+    package init(domain: String, pins: Set<String>) {
         self.domain = domain
         self.pins = Set(
             pins.compactMap {
@@ -46,18 +46,18 @@ public struct SSLPinnedDomain {
     }
 }
 
-public struct SSLPinningConfiguration {
+package struct SSLPinningConfiguration {
     private let domains: [String: SSLPinnedDomain]
 
-    public init(domains: [SSLPinnedDomain]) {
+    package init(domains: [SSLPinnedDomain]) {
         self.domains = domains.reduce(into: [:]) { partialResult, domain in
             partialResult[domain.domain] = domain
         }
     }
 
-    public static let pinningDisabled = Self(domains: [])
+    package static let pinningDisabled = Self(domains: [])
 
-    public func isDomainPinned(_ domain: String) -> Bool {
+    package func isDomainPinned(_ domain: String) -> Bool {
         if let pinned = self.domains[domain] {
             return !pinned.pins.isEmpty
         }
@@ -67,7 +67,7 @@ public struct SSLPinningConfiguration {
         return false
     }
 
-    public func isValidPin(_ pin: Data, for domain: String) -> Bool {
+    package func isValidPin(_ pin: Data, for domain: String) -> Bool {
         if let pinned = self.domains[domain] {
             return pinned.pins.contains(pin)
         }
