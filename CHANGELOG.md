@@ -3,6 +3,16 @@
 > **Note**\
 > Описание основных изменений в релизах VK ID SDK. Наш SDK следует [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.0 - 2024-06-25
+
+### Added
+- Поддержка авторизации по протоколу [OAuth 2.1](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-10)
+- Поддержка входа через акаунты Одноклассников и Mail.ru
+- Возможность устанавливать провайдера авторизации при вызове `VKID.authorize`
+
+### Changed
+- **Breaking changes:** изменения в публичных интерфейсах `AuthConfiguration`, `OAuthListWidget`, `OneTapButton`, `OneTapBottomSheet`.
+
 ## 1.3.2 - 2024-06-05
 
 ### Fixed

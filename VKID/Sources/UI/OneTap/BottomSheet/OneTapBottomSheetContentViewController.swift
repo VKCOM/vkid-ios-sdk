@@ -27,7 +27,7 @@
 //
 
 import UIKit
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 internal final class OneTapBottomSheetContentViewController: UIViewController, BottomSheetContent {
     public weak var contentDelegate: BottomSheetContentDelegate?
@@ -158,14 +158,14 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        self.vkid.rootContainer.analytics.screenProceed
-            .context(
+        self.vkid.rootContainer.productAnalytics.screenProceedWithTheme
+            .context { ctx in
+                ctx.screen = .floatingOneTap
+                return ctx
+            }
+            .send(
                 .init(
-                    screen: .floatingOneTap
-                )
-            ).send(
-                .init(
-                    language: self.vkid.appearance.locale,
+                    language: Appearance.Locale.preferredLocale,
                     themeType: self.theme.colorScheme,
                     textType: self.targetActionText.type
                 )
@@ -261,9 +261,12 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
                 self.contentPlaceholderView.layoutIfNeeded()
             }
 
-            self.vkid.rootContainer.analytics.dataLoading.context(
-                .init(screen: .floatingOneTap)
-            ).send()
+            self.vkid.rootContainer.productAnalytics.dataLoading
+                .context { ctx in
+                    ctx.screen = .floatingOneTap
+                    return ctx
+                }
+                .send()
 
             UIView.transition(
                 with: self.contentPlaceholderView,

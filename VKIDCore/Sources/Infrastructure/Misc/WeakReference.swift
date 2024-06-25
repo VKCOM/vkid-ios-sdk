@@ -28,40 +28,40 @@
 
 import Foundation
 
-public struct WeakReference<T> {
+package struct WeakReference<T> {
     private weak var _ref: AnyObject?
 
-    public var value: T? {
+    package var value: T? {
         self._ref as? T
     }
 
-    public init(_ ref: AnyObject?) {
+    package init(_ ref: AnyObject?) {
         precondition(ref is T, "Incorrect type. Value is expected to be of \(T.self) type")
         self._ref = ref
     }
 }
 
 /// Not thread-safe for now
-public struct WeakObservers<T> {
+package struct WeakObservers<T> {
     private var observers: [WeakReference<T>] = []
 
-    public init() {}
+    package init() {}
 
-    public mutating func add(_ observer: T) {
+    package mutating func add(_ observer: T) {
         self.observers.append(WeakReference(observer as AnyObject))
     }
 
-    public mutating func remove(_ observer: T) {
+    package mutating func remove(_ observer: T) {
         if let idx = index(of: observer) {
             self.observers.remove(at: idx)
         }
     }
 
-    public nonmutating func contains(_ observer: T) -> Bool {
+    package nonmutating func contains(_ observer: T) -> Bool {
         self.index(of: observer) != nil
     }
 
-    public nonmutating func notify(_ block: (T) -> Void) {
+    package nonmutating func notify(_ block: (T) -> Void) {
         self.observers.forEach {
             if let o = $0.value {
                 block(o)

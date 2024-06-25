@@ -44,27 +44,9 @@ public struct OAuthProvider: Equatable, Codable, CaseIterable {
     public static let mail = Self(type: .mail)
 
     internal enum _Type: String, Equatable, Codable {
-        case vkid
-        case ok
-        case mail
-
-        var clearName: String {
-            switch self {
-            case .vkid:
-                self.rawValue.replacingOccurrences(of: "id", with: "")
-            case .ok, .mail:
-                self.rawValue
-            }
-        }
-
-        var endingWithRuIfNeeded: String {
-            switch self {
-            case .vkid:
-                self.rawValue
-            case .ok, .mail:
-                self.rawValue + "_ru"
-            }
-        }
+        case vkid = "vkid"
+        case ok = "ok_ru"
+        case mail = "mail_ru"
     }
 
     internal let type: _Type
@@ -76,7 +58,7 @@ public struct OAuthProvider: Equatable, Codable, CaseIterable {
 
 /// Описывает конфигурацию OAuth провайдеров для авторизации
 public struct OAuthProviderConfiguration {
-    /// Основной провайдер авторизации. На данный момент таким провайдером может быть только vkid.
+    /// Основной провайдер авторизации.
     public let primaryProvider: OAuthProvider
 
     /// Альтернативные провайдеры авторизации

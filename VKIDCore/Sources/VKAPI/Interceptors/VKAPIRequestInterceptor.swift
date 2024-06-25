@@ -28,7 +28,7 @@
 
 import Foundation
 
-public protocol VKAPIRequestInterceptor {
+package protocol VKAPIRequestInterceptor {
     func intercept(
         request: VKAPIRequest,
         completion: @escaping (Result<VKAPIRequest, VKAPIError>) -> Void
@@ -36,7 +36,7 @@ public protocol VKAPIRequestInterceptor {
 }
 
 extension Array: VKAPIRequestInterceptor where Element == VKAPIRequestInterceptor {
-    public func intercept(
+    package func intercept(
         request: VKAPIRequest,
         completion: @escaping (Result<VKAPIRequest, VKAPIError>) -> Void
     ) {

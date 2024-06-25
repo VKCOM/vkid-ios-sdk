@@ -51,17 +51,22 @@ shut_down_proxy () {
 }
 
 run_test () {
-	echo "testing $1"
+	echo "testing $1 with package manager $2"
 	echo "'SIMID is $SIMID'"
 
 	local src_root="$(git rev-parse --show-toplevel)"
+	SCHEME="VKIDDemo"
+	if [ $2 = "cocoapods" ]; then
+		SCHEME="VKIDCocoapodsDemo"
+	fi
+	export TEST_RUNNER_PACKAGE_MANAGER=$2
 
 	arch -x86_64 xcodebuild \
-	-project $src_root/VKIDDemo/VKIDDemo.xcodeproj \
-	-scheme VKIDDemo \
+	-workspace $src_root/VKIDDemo/VKIDDemo.xcworkspace \
+	-scheme $SCHEME \
 	-testPlan SSLPinning \
 	-destination id=$SIMID -destination-timeout 120 \
-	clean test -only-testing:VKIDSSLPinningTests/VKIDSSLPinningTests/$1 >& "$1.log.txt"
+	clean test -only-testing:VKIDSSLPinningTests/VKIDSSLPinningTests/$1 >& "$2 $1.log.txt"
 	
 	local RESULT="$?"
 	if [[ "$RESULT" -eq 0 ]]; then
@@ -143,10 +148,13 @@ echo "pushing proxy certificate authority to simulators"
 xcrun simctl boot "$SIMID"
 xcrun simctl keychain "$SIMID" add-root-cert "$CERT"
 
-run_test testRequestIsCancelledIfTrafficIsSniffed
+run_test testRequestIsCancelledIfTrafficIsSniffed spm
+run_test testRequestIsCancelledIfTrafficIsSniffed cocoapods
 
 shut_down_proxy
 
-run_test testRequestIsSucceededIfTrafficIsNotSniffed
+run_test testRequestIsSucceededIfTrafficIsNotSniffed spm
+run_test testRequestIsSucceededIfTrafficIsNotSniffed cocoapods
+
 
 echo "all tests succeeded"

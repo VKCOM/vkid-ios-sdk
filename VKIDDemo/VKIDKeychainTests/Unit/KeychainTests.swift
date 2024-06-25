@@ -26,8 +26,8 @@
 // THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
 //
 
-import VKIDCore
 import XCTest
+@testable import VKIDCore
 
 struct SensitiveData: Codable, Equatable {
     var id = UUID()

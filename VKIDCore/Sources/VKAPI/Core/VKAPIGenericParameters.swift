@@ -28,13 +28,13 @@
 
 import Foundation
 
-public struct VKAPIGenericParameters: VKAPIDictionaryRepresentable {
+package struct VKAPIGenericParameters: VKAPIDictionaryRepresentable {
     var deviceId: String
     var clientId: String
     var apiVersion: Version
     var vkidVersion: Version
 
-    public var dictionaryRepresentation: [String : Any] {
+    package var dictionaryRepresentation: [String : Any] {
         [
             "device_id": self.deviceId,
             "client_id": self.clientId,
@@ -43,7 +43,7 @@ public struct VKAPIGenericParameters: VKAPIDictionaryRepresentable {
         ]
     }
 
-    public init(
+    package init(
         deviceId: String,
         clientId: String,
         apiVersion: Version,

@@ -28,8 +28,8 @@
 
 import UIKit
 
-public enum UserAgent {
-    public static var `default`: String = {
+package enum UserAgent {
+    package static var `default`: String = {
         String(format: "%@/%@ (%@, %@ %@, %@, Scale/%.1f)",
                Bundle.main.bundleIdentifier ?? "unknown",
                Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "",

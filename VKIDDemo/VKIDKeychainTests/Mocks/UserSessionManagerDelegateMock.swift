@@ -39,9 +39,12 @@ final class UserSessionManagerDelegateMock: UserSessionManagerDelegate {
         _ manager: UserSessionManager,
         didRefreshAccessTokenIn session: UserSessionImpl,
         with result: TokenRefreshingResult
-    ) {}
+    ) {
+        self.didRefreshToken?(manager, session, result)
+    }
 
     var didLogout: ((UserSessionManager, UserSessionImpl, LogoutResult) -> Void)?
+    var didRefreshToken: ((UserSessionManager, UserSessionImpl, TokenRefreshingResult) -> Void)?
 
     func userSessionManager(
         _ manager: UserSessionManager,

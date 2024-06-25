@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 /// Контекст метода авторизации
 internal struct AuthContext: Equatable {
@@ -37,6 +37,23 @@ internal struct AuthContext: Equatable {
     let screen: Screen
     /// Источник вызова авторизации
     let launchedBy: AuthorizationSource
+
+    /// Источник вызова, текстовое представление
+    var flowSource: String {
+        switch self.launchedBy {
+        case .oneTapBottomSheetRetry, .oneTapButton:
+            switch self.screen {
+            case .multibrandingWidget:
+                "from_multibranding"
+            case .oneTapBottomSheet:
+                "from_floating_one_tap"
+            case .nowhere:
+                "from_one_tap"
+            }
+        case .service:
+            "from_custom_auth"
+        }
+    }
 
     internal init(
         uniqueSessionId: String = UUID().uuidString,
@@ -61,15 +78,12 @@ internal struct AuthContext: Equatable {
     }
 }
 
-extension AnalyticsEventContext {
+extension Screen {
     internal init(screen: AuthContext.Screen) {
-        switch screen {
-        case .multibrandingWidget:
-            self.init(screen: Screen.multibrandingWidget)
-        case .oneTapBottomSheet:
-            self.init(screen: Screen.floatingOneTap)
-        case .nowhere:
-            self.init(screen: Screen.nowhere)
+        self = switch screen {
+        case .multibrandingWidget: .multibrandingWidget
+        case .oneTapBottomSheet: .floatingOneTap
+        case .nowhere: .nowhere
         }
     }
 }

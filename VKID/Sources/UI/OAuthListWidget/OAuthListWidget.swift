@@ -27,6 +27,7 @@
 //
 
 import UIKit
+import VKIDCore
 
 /// Конфигурация виджета списка OAuth-ов
 public struct OAuthListWidget: UIViewElement {
@@ -72,13 +73,36 @@ public struct OAuthListWidget: UIViewElement {
         presenter: UIKitPresenter = .newUIWindow,
         onCompleteAuth: AuthResultCompletion?
     ) {
+        self.init(
+            oAuthProviders: oAuthProviders,
+            authConfiguration: authConfiguration,
+            buttonConfiguration: buttonConfiguration,
+            screen: .multibrandingWidget,
+            theme: theme,
+            presenter: presenter,
+            onCompleteAuth: onCompleteAuth
+        )
+    }
+
+    internal init(
+        oAuthProviders: [OAuthProvider],
+        authConfiguration: AuthConfiguration = AuthConfiguration(),
+        buttonConfiguration: ButtonConfiguration = .init(
+            height: .medium(),
+            cornerRadius: LayoutConstants.defaultCornerRadius
+        ),
+        screen: AuthContext.Screen = .multibrandingWidget,
+        theme: Theme = .matchingColorScheme(.current),
+        presenter: UIKitPresenter = .newUIWindow,
+        onCompleteAuth: AuthResultCompletion?
+    ) {
         self.oAuthProviders = oAuthProviders
         self.authConfig = authConfiguration
         self.buttonConfiguration = buttonConfiguration
+        self.screen = screen
         self.theme = theme
         self.presenter = presenter
         self.onCompleteAuth = onCompleteAuth
-        self.screen = .multibrandingWidget
     }
 
     public func _uiView(factory: Factory) -> UIView {
@@ -97,10 +121,11 @@ public struct OAuthListWidget: UIViewElement {
             )
         }
 
-        factory.rootContainer.analytics.multibrandingOAuthAdded
-            .context(
-                .init(screen: self.screen)
-            )
+        factory.rootContainer.productAnalytics.multibrandingOAuthAdded
+            .context { ctx in
+                ctx.screen = Screen(screen: self.screen)
+                return ctx
+            }
             .send(
                 .init(providers: self.oAuthProviders)
             )
@@ -125,10 +150,16 @@ public struct OAuthListWidget: UIViewElement {
                 for: oAuthProviderConfiguration.primaryProvider,
                 colorScheme: theme.colorScheme
             ),
-            layout: .regular(
-                height: config.height,
-                cornerRadius: config.cornerRadius
-            ),
+            layout: self.oAuthProviders.count > 1 ?
+                .logoOnly(
+                    size: config.height,
+                    cornerRadius: config.cornerRadius
+                ) :
+                .regular(
+                    height: config.height,
+                    cornerRadius: config.cornerRadius
+                )
+            ,
             presenter: presenter,
             onTap: nil,
             onCompleteAuth: onCompleteAuth

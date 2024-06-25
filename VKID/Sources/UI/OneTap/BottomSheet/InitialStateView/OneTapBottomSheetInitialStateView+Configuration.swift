@@ -27,7 +27,7 @@
 //
 
 import UIKit
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 extension OneTapBottomSheetInitialStateView {
     internal struct Configuration {

@@ -47,7 +47,7 @@ extension CALayer {
     }
 
     /// Включаем восстановление анимаций, при переходе приложения из фонового в активный режим.
-    public func shouldRestoreAnimationsOnBecomeActive(_ value: Bool, for keys: Set<String>) {
+    package func shouldRestoreAnimationsOnBecomeActive(_ value: Bool, for keys: Set<String>) {
         if value {
             defer { layerAnimationBackup?.add(keys: keys) }
 

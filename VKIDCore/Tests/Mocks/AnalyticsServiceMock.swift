@@ -27,33 +27,12 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
-/// Провайдер информации о пользователе.
-internal struct UserInfoProvider: AnalyticsUserInfoProvider {
-    internal struct Dependencies {
-        /// Менеджер сессий.
-        let userSessionManager: UserSessionManager
-    }
+final class AnalyticsServiceMock: AnalyticsService {
+    var onSend: (([AnalyticsEncodedEvent], AnalyticsEventContext) -> Void)?
 
-    /// Информация о пользователе.
-    var user: AnalyticsUser? {
-        guard let session = self.deps.userSessionManager.currentAuthorizedSession else {
-            return nil
-        }
-
-        return AnalyticsUser(
-            sessionId: session.userId.value,
-            accessToken: session.accessToken.value
-        )
-    }
-
-    /// Зависимости провайдера информации о пользователе.
-    private var deps: Dependencies
-
-    /// Инициализация провайдера информации о пользователе.
-    /// - Parameter deps: Зависимости.
-    init(deps: Dependencies) {
-        self.deps = deps
+    func send(events: [AnalyticsEncodedEvent], context: AnalyticsEventContext) {
+        self.onSend?(events, context)
     }
 }

@@ -28,7 +28,7 @@
 
 import Foundation
 
-public protocol AnalyticsEventTypeAction {
+package protocol AnalyticsEventTypeAction {
     associatedtype Parameters
 
     static func typeAction(with parameters: Parameters, context: AnalyticsEventContext) -> TypeAction

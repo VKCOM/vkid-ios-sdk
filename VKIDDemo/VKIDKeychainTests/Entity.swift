@@ -27,8 +27,8 @@
 //
 
 import Foundation
-import VKIDCore
 @testable import VKID
+@testable import VKIDCore
 
 enum Entity {
     static let appCredentials = AppCredentials(

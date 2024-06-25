@@ -9,10 +9,8 @@
 
 ---
 
-:information_source: Версия VK ID SDK 2.0.0-alpha.2 поддерживает авторизацию по протоколу [OAuth 2.1](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-10), а также способы входа через аккаунты Одноклассников и Mail.ru. Если вы хотите участвовать в тестировании этой версии SDK или узнать о ней подробнее, напишите нам на почту devsupport@corp.vk.com.
+:information_source: Версия VK ID SDK 2.0.0 поддерживает авторизацию по протоколу [OAuth 2.1](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-10), а также способы входа через аккаунты Одноклассников и Mail.ru.
 
-Текущая стабильная версия VK ID SDK - [1.3.2](https://github.com/VKCOM/vkid-ios-sdk/releases/tag/1.3.2).
-    
 ---
 
 - [Предварительно](#предварительно)
@@ -20,15 +18,15 @@
 - [Установка](#установка)
     - [Swift Package Manager](#swift-package-manager)
     - [CocoaPods](#cocoapods)
-- [Авторизация по кнопке OneTap](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id-2/connection/ios/onetap)
-- [Шторка авторизации](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id-2/connection/ios/floating-onetap)
-- [Пользовательские сессии](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id-2/connection/ios/sessions)
+- [Авторизация по кнопке OneTap](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/ios/onetap)
+- [Шторка авторизации](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/ios/floating-onetap)
+- [Пользовательские сессии](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/ios/sessions)
 - [Демонстрация](#демонстрация)
 - [Документация](https://vkcom.github.io/vkid-ios-sdk/documentation/vkid/)
 
 ## Предварительно
 
-Общий план интеграции и в целом что такое VK ID можно прочитать [здесь](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id-2/intro/start-page).
+Общий план интеграции и в целом что такое VK ID можно прочитать [здесь](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/intro/plan).
 
 Чтобы подключить VK ID SDK, сначала получите ID приложения (app_id) и защищенный ключ (client_secret). Для этого создайте приложение в [кабинете подключения VK ID](https://id.vk.com/business/go).
 
@@ -42,14 +40,14 @@
 Добавьте VKID как зависимость в ваш `Package.swift`:
 ```swift
 dependencies: [
-    .package(url: "https://github.com/VKCOM/vkid-ios-sdk.git", .exact("2.0.0-alpha.2"))
+    .package(url: "https://github.com/VKCOM/vkid-ios-sdk.git", .upToNextMajor(from: "2.0.0"))
 ]
 ```
 
 ### CocoaPods
 Добавьте в ваш `Podfile`:
 ```ruby
-pod 'VKID', '2.0.0-alpha.2'
+pod 'VKID', '~> 2.0.0'
 ```
 Выполните следующие команды, чтобы установить зависимости:
 ```shell

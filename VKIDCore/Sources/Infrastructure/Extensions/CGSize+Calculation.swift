@@ -29,48 +29,48 @@
 import UIKit
 
 extension CGSize {
-    public static func +(lhs: CGSize, rhs: CGSize) -> CGSize {
+    package static func +(lhs: CGSize, rhs: CGSize) -> CGSize {
         .init(width: lhs.width + rhs.width, height: lhs.height + rhs.height)
     }
 
-    public static func -(lhs: CGSize, rhs: CGSize) -> CGSize {
+    package static func -(lhs: CGSize, rhs: CGSize) -> CGSize {
         .init(width: lhs.width - rhs.width, height: lhs.height - rhs.height)
     }
 
-    public static func *(lhs: CGSize, rhs: CGSize) -> CGSize {
+    package static func *(lhs: CGSize, rhs: CGSize) -> CGSize {
         .init(width: lhs.width * rhs.width, height: lhs.height * rhs.height)
     }
 
-    public static func /(lhs: CGSize, rhs: CGSize) -> CGSize {
+    package static func /(lhs: CGSize, rhs: CGSize) -> CGSize {
         .init(width: lhs.width / rhs.width, height: lhs.height / rhs.height)
     }
 
-    public static func +(lhs: CGSize, rhs: CGFloat) -> CGSize {
+    package static func +(lhs: CGSize, rhs: CGFloat) -> CGSize {
         .init(width: lhs.width + rhs, height: lhs.height + rhs)
     }
 
-    public static func -(lhs: CGSize, rhs: CGFloat) -> CGSize {
+    package static func -(lhs: CGSize, rhs: CGFloat) -> CGSize {
         .init(width: lhs.width - rhs, height: lhs.height - rhs)
     }
 
-    public static func *(lhs: CGSize, rhs: CGFloat) -> CGSize {
+    package static func *(lhs: CGSize, rhs: CGFloat) -> CGSize {
         .init(width: lhs.width * rhs, height: lhs.height * rhs)
     }
 
-    public static func /(lhs: CGSize, rhs: CGFloat) -> CGSize {
+    package static func /(lhs: CGSize, rhs: CGFloat) -> CGSize {
         .init(width: lhs.width / rhs, height: lhs.height / rhs)
     }
 }
 
 extension CGSize {
-    public static func +(lhs: CGSize, rhs: UIEdgeInsets) -> CGSize {
+    package static func +(lhs: CGSize, rhs: UIEdgeInsets) -> CGSize {
         .init(
             width: lhs.width + rhs.left + rhs.right,
             height: lhs.height + rhs.top + rhs.bottom
         )
     }
 
-    public static func -(lhs: CGSize, rhs: UIEdgeInsets) -> CGSize {
+    package static func -(lhs: CGSize, rhs: UIEdgeInsets) -> CGSize {
         .init(
             width: lhs.width - rhs.left - rhs.right,
             height: lhs.height - rhs.top - rhs.bottom

@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 extension VKAPIRequest {
     mutating func addBearerToken(_ token: String) {

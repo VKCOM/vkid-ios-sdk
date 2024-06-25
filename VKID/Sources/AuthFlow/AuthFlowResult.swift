@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 internal typealias AuthFlowResult = Result<AuthFlowData, AuthFlowError>
 internal typealias AuthFlowResultCompletion = (AuthFlowResult) -> Void

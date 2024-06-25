@@ -123,16 +123,17 @@ final class UserSessionsViewController: VKIDDemoViewController, UITableViewDataS
                 self.action(tableView: tableView,
                             title: "Обновить токен",
                             session: session,
-                            color: UIColor.gray)
+                            color: UIColor.systemGreen)
                 { session, completion in
                     session.getFreshAccessToken(forceRefresh: true) { [weak self] result in
                         self?.handleRefresh(session: session, result: result)
+                        tableView.reloadData()
                     }
                 },
                 self.action(tableView: tableView,
                             title: "Логаут",
                             session: session,
-                            color: UIColor.darkGray,
+                            color: UIColor.systemRed,
                             handler: self.logout(from:completion:)),
             ])
         } else {
@@ -143,7 +144,7 @@ final class UserSessionsViewController: VKIDDemoViewController, UITableViewDataS
                 self.action(tableView: tableView,
                             title: "Логаут",
                             session: legacySession,
-                            color: UIColor.darkGray,
+                            color: UIColor.systemRed,
                             handler: self.logout(from:completion:)),
             ]
             if !self.debugSettings.confidentialFlowEnabled {
@@ -264,7 +265,7 @@ final class UserSessionsViewController: VKIDDemoViewController, UITableViewDataS
             alertViewController.addAction(
                 UIAlertAction(
                     title: "Мигрировать в OAuth2",
-                    style: .destructive
+                    style: .default
                 ) { [weak self] _ in
                     self?.migrate(legacySession: legacySession)
                 }
@@ -303,7 +304,7 @@ final class UserSessionsViewController: VKIDDemoViewController, UITableViewDataS
         alertViewController.addAction(
             UIAlertAction(
                 title: "Информация о сессии",
-                style: .destructive
+                style: .default
             ) { [weak self] _ in
                 self?.show(session: session) {
                     self?.sessionsTableView.reloadData()
@@ -312,18 +313,8 @@ final class UserSessionsViewController: VKIDDemoViewController, UITableViewDataS
         )
         alertViewController.addAction(
             UIAlertAction(
-                title: "Логаут",
-                style: .destructive
-            ) { [weak self] _ in
-                self?.logout(from: session) {
-                    self?.sessionsTableView.reloadData()
-                }
-            }
-        )
-        alertViewController.addAction(
-            UIAlertAction(
                 title: "Обновить токен",
-                style: .destructive
+                style: .default
             ) { [weak self] _ in
                 self?.refreshToken(in: session) { result in
                     self?.handleRefresh(session: session, result: result)
@@ -334,9 +325,19 @@ final class UserSessionsViewController: VKIDDemoViewController, UITableViewDataS
         alertViewController.addAction(
             UIAlertAction(
                 title: "Oбновить данные",
-                style: .destructive
+                style: .default
             ) { [weak self] _ in
                 self?.fetchUser(in: session) {
+                    self?.sessionsTableView.reloadData()
+                }
+            }
+        )
+        alertViewController.addAction(
+            UIAlertAction(
+                title: "Логаут",
+                style: .destructive
+            ) { [weak self] _ in
+                self?.logout(from: session) {
                     self?.sessionsTableView.reloadData()
                 }
             }

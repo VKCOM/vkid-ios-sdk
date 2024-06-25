@@ -28,31 +28,16 @@
 
 import Foundation
 
-public struct AnalyticsUser {
-    public let sessionId: Int
-    public let accessToken: String
+package struct AnalyticsEventContext: Equatable {
+    package var screen: Screen
 
-    public init(sessionId: Int, accessToken: String) {
-        self.sessionId = sessionId
-        self.accessToken = accessToken
-    }
-}
-
-public struct AnalyticsEventContext {
-    public let screen: Screen
-    public let user: AnalyticsUser?
-
-    public init(
-        screen: Screen = .nowhere,
-        user: AnalyticsUser? = nil
-    ) {
+    package init(screen: Screen = .nowhere) {
         self.screen = screen
-        self.user = user
     }
 }
 
 /// Окружение типизированного события.
-public struct AnalyticsCallingContext<EventTypeAction: AnalyticsEventTypeAction> {
+package struct AnalyticsCallingContext<EventTypeAction: AnalyticsEventTypeAction> {
     /// Зависимости окружения типизированного события
     internal struct Dependencies {
         /// Контекст события
@@ -79,25 +64,40 @@ public struct AnalyticsCallingContext<EventTypeAction: AnalyticsEventTypeAction>
 
     /// Создаем новое окружение типизированного события,
     /// у которого будет переопределен контекст события.
+    /// - Parameter changedContext: Контекст события с текущими значениями (имеется возможность их изменить).
+    /// - Returns: Новое окружение типизированного события
+    /// с переопределенным контекстом события.
+    package func context(_ changedContext: (inout AnalyticsEventContext) -> AnalyticsEventContext) -> Self {
+        var eventContext = self.deps.eventContext
+
+        return Self(
+            deps: self.deps.copy(
+                with: changedContext(&eventContext)
+            )
+        )
+    }
+
+    /// Создаем новое окружение типизированного события,
+    /// у которого будет переопределен контекст события.
     /// - Parameter eventContext: Контекст события.
     /// - Returns: Новое окружение типизированного события
     /// с переопределенным контекстом события.
-    public func context(_ eventContext: AnalyticsEventContext) -> Self {
+    package func context(_ context: AnalyticsEventContext) -> Self {
         Self(
             deps: self.deps.copy(
-                with: eventContext
+                with: context
             )
         )
     }
 
     /// Отправка события с явно заданным типом, не имеющим параметры
-    public func send() where EventTypeAction.Parameters == Empty {
+    package func send() where EventTypeAction.Parameters == Empty {
         self.send(.init())
     }
 
     /// Отправка события с явно заданным типом, со своими параметрами
     /// - Parameter parameters: Параметры события
-    public func send(_ parameters: EventTypeAction.Parameters) {
+    package func send(_ parameters: EventTypeAction.Parameters) {
         let typeAction = EventTypeAction.typeAction(
             with: parameters,
             context: self.deps.eventContext

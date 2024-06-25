@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 /// Сервис отправки событий аналитики.
 internal final class AnalyticsServiceImpl: AnalyticsService {

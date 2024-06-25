@@ -28,7 +28,7 @@
 
 import Foundation
 import UIKit
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 internal protocol AuthURLBuilder {
     func buildProviderAuthURL(
@@ -62,11 +62,11 @@ internal final class AuthURLBuilderImpl: AuthURLBuilder {
         deviceId: String
     ) throws -> URL {
         let queryItems: [URLQueryItem] = [
-            .uuid(uniqueSessionId: authContext.uniqueSessionId),
             .authProviderMethod,
             .redirectURI(
                 redirectURL(
                     for: credentials.clientId,
+                    in: authContext,
                     scope: scope
                 ).absoluteString
             ),
@@ -96,7 +96,6 @@ internal final class AuthURLBuilderImpl: AuthURLBuilder {
         }
         var queryItems: [URLQueryItem] = appearance.urlQueryItems
         queryItems += [
-            .uuid(uniqueSessionId: authContext.uniqueSessionId),
             .provider(oAuth: oAuthProvider),
             .codeChallengeMethod(codeChallengeMethod),
             .deviceId(deviceId),
@@ -105,7 +104,8 @@ internal final class AuthURLBuilderImpl: AuthURLBuilder {
             .scope(scope ?? ""),
             .redirectURI(
                 redirectURL(
-                    for: credentials.clientId
+                    for: credentials.clientId,
+                    in: authContext
                 ).absoluteString
             ),
         ]
@@ -161,14 +161,46 @@ internal final class AuthURLBuilderImpl: AuthURLBuilder {
     }
 }
 
-internal func redirectURL(for clientId: String, scope: String? = nil) -> URL {
+internal func redirectURL(for clientId: String, in context: AuthContext, scope: String? = nil) -> URL {
+    struct OAuth2Parameters: Encodable {
+        static let encoder: JSONEncoder = {
+            let encoder = JSONEncoder()
+            encoder.keyEncodingStrategy = .convertToSnakeCase
+            encoder.outputFormatting = .sortedKeys
+            return encoder
+        }()
+
+        struct StatsInfo: Encodable {
+            let sessionId: String
+            let flowSource: String
+        }
+
+        let scope: String?
+        let statsInfo: StatsInfo
+
+        init(scope: String?, sessionId: String, flowSource: String) {
+            self.scope = scope
+            self.statsInfo = .init(
+                sessionId: sessionId,
+                flowSource: flowSource
+            )
+        }
+    }
+
     var components = URLComponents(string: "vk\(clientId)://\(Env.apiHost)/blank.html")!
-    if let scope, let jsonData = try? JSONSerialization.data(withJSONObject: ["scope": scope]) {
-        let params = String(data: jsonData.base64EncodedData(), encoding: .utf8)
-        components.queryItems = [.init(name: "oauth2_params", value: params)]
-    } else {
-        // stub value to enable OAuth2 by query item name
-        components.queryItems = [.oAuth2Params("oauth2")]
+
+    let flowSource = context.flowSource
+
+    let oAuth2Params = OAuth2Parameters(
+        scope: scope,
+        sessionId: context.uniqueSessionId,
+        flowSource: flowSource
+    )
+
+    if let jsonData = try? OAuth2Parameters.encoder.encode(oAuth2Params) {
+        components.queryItems = [
+            .oAuth2Params(String(data: jsonData.base64EncodedData(), encoding: .utf8)),
+        ]
     }
 
     return components.url!
@@ -225,17 +257,10 @@ extension UIUserInterfaceStyle {
 extension URLQueryItem {
     internal static let authProviderMethod = Self(name: "vkconnect_auth_provider_method", value: "external_auth")
 
-    internal static func uuid(uniqueSessionId: String) -> Self {
-        Self(
-            name: "uuid",
-            value: uniqueSessionId
-        )
-    }
-
     internal static func provider(oAuth: OAuthProvider) -> Self {
         Self(
             name: "provider",
-            value: oAuth.type.endingWithRuIfNeeded
+            value: oAuth.type.rawValue
         )
     }
 
@@ -309,7 +334,7 @@ extension URLQueryItem {
         )
     }
 
-    internal static func oAuth2Params(_ oAuth2Params: String) -> Self {
+    internal static func oAuth2Params(_ oAuth2Params: String?) -> Self {
         Self(
             name: "oauth2_params",
             value: oAuth2Params

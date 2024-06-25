@@ -86,7 +86,7 @@ internal final class SSLPinningValidator: SSLPinningValidating {
         from cert: SecCertificate
     ) -> ServerCertificatePublicKey? {
         guard
-            // Transforming public key to Data and getting attributes.
+            // Transforming package key to Data and getting attributes.
             let publicKey = SecCertificateCopyKey(cert),
             let publicKeyData = SecKeyCopyExternalRepresentation(
                 publicKey,
@@ -95,7 +95,7 @@ internal final class SSLPinningValidator: SSLPinningValidating {
             let publicKeyAttributes = SecKeyCopyAttributes(
                 publicKey
             ) as? [AnyHashable: Any],
-            // Extracting the type and size of the public key to find out which asn1 header to use.
+            // Extracting the type and size of the package key to find out which asn1 header to use.
             let publicKeyType = publicKeyAttributes[kSecAttrType] as? String,
             let publicKeySize = publicKeyAttributes[kSecAttrKeySizeInBits] as? Int
         else {

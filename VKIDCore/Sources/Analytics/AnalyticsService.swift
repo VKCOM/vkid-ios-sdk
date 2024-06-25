@@ -28,6 +28,6 @@
 
 import Foundation
 
-public protocol AnalyticsService {
+package protocol AnalyticsService {
     func send(events: [AnalyticsEncodedEvent], context: AnalyticsEventContext)
 }

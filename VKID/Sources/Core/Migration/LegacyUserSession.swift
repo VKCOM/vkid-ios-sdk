@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 internal protocol LegacyUserSessionDelegate: AnyObject {
     func legacyUserSession(_ legacySession: LegacyUserSession, didLogoutWith result: LogoutResult)

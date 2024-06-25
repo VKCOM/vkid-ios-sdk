@@ -29,65 +29,65 @@
 import Foundation
 
 /// Событие регистрации, записывается в таблицу Registrations
-public struct TypeRegistrationItem: Encodable {
+package struct TypeRegistrationItem: Encodable {
     // MARK: - Основные поля
     /// Тип события в процессе регистрации
-    public let eventType: EventType
+    package let eventType: EventType
     /// Ошибка авторизации/регистрации
-    public let error: Error?
+    package let error: Error?
     /// Поля события регистрации
-    public var fields: [FieldItem]
+    package var fields: [FieldItem]
 
     // MARK: - Дополнительные поля
     /// Источник/Инициатор флоу
-    public var flowSource: String?
+    package var flowSource: String?
 
     /// Инициализация элемента события аналитики.
     /// - Parameters:
     ///   - eventType: тип события.
     ///   - error: ошибка авторизации/регистрации.
     ///   - fields: поля события аналитики.
-    public init(eventType: EventType, error: Error? = nil, fields: [FieldItem]) {
+    package init(eventType: EventType, error: Error? = nil, fields: [FieldItem]) {
         self.eventType = eventType
         self.error = error
         self.fields = fields
     }
 
     /// Типы событий регистрации
-    public struct EventType: StringRawRepresentable, Encodable {
-        public var rawValue: String
+    package struct EventType: StringRawRepresentable, Encodable {
+        package var rawValue: String
 
-        public init(rawValue: String) {
+        package init(rawValue: String) {
             self.rawValue = rawValue
         }
     }
 
     /// Ошибки авторизации/регистрации
-    public struct Error: StringRawRepresentable, Encodable {
-        public var rawValue: String
+    package struct Error: StringRawRepresentable, Encodable {
+        package var rawValue: String
 
-        public init(rawValue: String) {
+        package init(rawValue: String) {
             self.rawValue = rawValue
         }
     }
 
     /// Поле событий регистрации..
-    public struct FieldItem: Encodable {
+    package struct FieldItem: Encodable {
         /// Имя поля
         let name: Name
         /// Значение поля
         let value: String?
 
-        public init(name: Name, value: String?) {
+        package init(name: Name, value: String?) {
             self.name = name
             self.value = value
         }
 
         /// Поля событий регистрации
-        public struct Name: StringRawRepresentable, Encodable {
-            public var rawValue: String
+        package struct Name: StringRawRepresentable, Encodable {
+            package var rawValue: String
 
-            public init(rawValue: String) {
+            package init(rawValue: String) {
                 self.rawValue = rawValue
             }
         }

@@ -29,15 +29,15 @@
 import Foundation
 
 extension Array {
-    public func contains(byReference ref: Element) -> Bool {
+    package func contains(byReference ref: Element) -> Bool {
         self.index(ofReference: ref) != nil
     }
 
-    public func index(ofReference ref: Element) -> Self.Index? {
+    package func index(ofReference ref: Element) -> Self.Index? {
         self.firstIndex { $0 as AnyObject === ref as AnyObject }
     }
 
-    public mutating func removeByReference(_ ref: Element) {
+    package mutating func removeByReference(_ ref: Element) {
         self.removeAll {
             $0 as AnyObject === ref as AnyObject
         }

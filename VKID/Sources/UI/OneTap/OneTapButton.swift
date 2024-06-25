@@ -27,7 +27,7 @@
 //
 
 import UIKit
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 /// Конфигурация OneTapButton
 public struct OneTapButton: UIViewElement {
@@ -92,7 +92,7 @@ public struct OneTapButton: UIViewElement {
         appearance: Appearance = Appearance(),
         layout: Layout = .regular(),
         presenter: UIKitPresenter = .newUIWindow,
-        authConfiguration: AuthConfiguration,
+        authConfiguration: AuthConfiguration = AuthConfiguration(),
         onCompleteAuth: AuthResultCompletion?
     ) {
         self.init(
@@ -237,6 +237,7 @@ public struct OneTapButton: UIViewElement {
                     height: self.layout.height,
                     cornerRadius: self.layout.cornerRadius
                 ),
+                screen: self.screen,
                 theme: .matchingColorScheme(self.appearance.theme.colorScheme),
                 presenter: self.presenter ?? .newUIWindow,
                 onCompleteAuth: self.onCompleteAuth
@@ -246,24 +247,25 @@ public struct OneTapButton: UIViewElement {
     }
 
     private func sendShowAnalytics(using factory: Factory) {
+        let analyticsContext: (inout AnalyticsEventContext) -> AnalyticsEventContext = { ctx in
+            ctx.screen = Screen(screen: self.screen)
+            return ctx
+        }
+
         switch self.oAuthProviderConfig.primaryProvider.type {
         case .vkid:
             switch self.screen {
             case .multibrandingWidget:
-                factory.rootContainer.analytics.vkButtonShow
-                    .context(
-                        .init(screen: self.screen)
-                    )
+                factory.rootContainer.productAnalytics.vkButtonShow
+                    .context(analyticsContext)
                     .send(
                         .init(
                             buttonType: .init(kind: self.layout.kind)
                         )
                     )
             case .nowhere, .oneTapBottomSheet:
-                factory.rootContainer.analytics.oneTapButtonNoUserShow
-                    .context(
-                        .init(screen: self.screen)
-                    )
+                factory.rootContainer.productAnalytics.oneTapButtonNoUserShow
+                    .context(analyticsContext)
                     .send(
                         .init(
                             buttonType: .init(kind: self.layout.kind)
@@ -271,20 +273,16 @@ public struct OneTapButton: UIViewElement {
                     )
             }
         case .ok:
-            factory.rootContainer.analytics.okButtonShow
-                .context(
-                    .init(screen: self.screen)
-                )
+            factory.rootContainer.productAnalytics.okButtonShow
+                .context(analyticsContext)
                 .send(
                     .init(
                         buttonType: .init(kind: self.layout.kind)
                     )
                 )
         case .mail:
-            factory.rootContainer.analytics.mailButtonShow
-                .context(
-                    .init(screen: self.screen)
-                )
+            factory.rootContainer.productAnalytics.mailButtonShow
+                .context(analyticsContext)
                 .send(
                     .init(
                         buttonType: .init(kind: self.layout.kind)

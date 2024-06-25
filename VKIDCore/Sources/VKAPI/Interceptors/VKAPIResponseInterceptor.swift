@@ -28,7 +28,7 @@
 
 import Foundation
 
-public protocol VKAPIResponseInterceptor {
+package protocol VKAPIResponseInterceptor {
     func intercept<T>(
         response: Result<T, VKAPIError>,
         from request: VKAPIRequest,
@@ -36,14 +36,14 @@ public protocol VKAPIResponseInterceptor {
     ) where T : VKAPIResponse
 }
 
-public enum VKAPIResponseInterceptionResult<T: VKAPIResponse> {
+package enum VKAPIResponseInterceptionResult<T: VKAPIResponse> {
     case `continue`(request: VKAPIRequest, response: Result<T, VKAPIError>)
     case retry(request: VKAPIRequest)
     case interrupt(error: VKAPIError)
 }
 
 extension Array: VKAPIResponseInterceptor where Element == VKAPIResponseInterceptor {
-    public func intercept<T>(
+    package func intercept<T>(
         response: Result<T, VKAPIError>,
         from request: VKAPIRequest,
         completion: @escaping (VKAPIResponseInterceptionResult<T>) -> Void

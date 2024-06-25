@@ -29,7 +29,7 @@
 import Foundation
 
 extension URL {
-    public func isVKUrl() -> Bool {
+    package func isVKUrl() -> Bool {
         host?.hasPrefix("vk.") ?? false
     }
 }

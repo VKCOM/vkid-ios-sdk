@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 /// Результат авторизации
 public typealias AuthResult = Result<UserSession, AuthError>

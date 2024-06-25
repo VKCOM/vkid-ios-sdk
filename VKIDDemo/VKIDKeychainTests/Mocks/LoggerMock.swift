@@ -26,7 +26,7 @@
 // THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
 //
 
-import VKIDCore
+@testable import VKIDCore
 
 struct LoggerMock: Logging {
     func log(level: LogLevel, message: LogMessage) { /* Do nothing */ }

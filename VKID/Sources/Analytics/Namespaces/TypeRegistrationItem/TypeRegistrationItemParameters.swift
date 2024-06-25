@@ -27,27 +27,23 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 extension TypeRegistrationItem.EventType {
     // MARK: - General
     static let screenProceed: Self = "screen_proceed"
     static let authProviderUsed: Self = "auth_provider_used"
     static let noAuthProvider: Self = "no_auth_provider"
-    static let customAuth: Self = "custom_auth"
-    static let errorCustomAuth: Self = "error_custom_auth"
-    static let sdkInit: Self = "sdk_init"
+    static let customAuthStart: Self = "custom_auth_start"
+    static let sdkAuthError: Self = "sdk_auth_error"
 
     // MARK: - OneTapButton
     static let oneTapButtonNoUserShow: Self = "onetap_button_no_user_show"
     static let oneTapButtonNoUserTap: Self = "onetap_button_no_user_tap"
-    static let oneTapButtonNoUserAuthError: Self = "onetap_button_no_user_auth_error"
 
     // MARK: - FloatingOneTap / OneTapBottomSheet
-    static let authByFloatingOneTap: Self = "auth_by_floating_one_tap"
     static let dataLoading: Self = "data_loading"
     static let retryAuthTap: Self = "retry_auth_tap"
-    static let alertAuthError: Self = "alert_auth_error"
 
     // MARK: - ThreeInOne / Multibranding
     static let multibrandingOAuthAdded: Self = "multibranding_oauth_added"
@@ -57,8 +53,6 @@ extension TypeRegistrationItem.EventType {
     static let vkButtonTap: Self = "vk_button_tap"
     static let okButtonTap: Self = "ok_button_tap"
     static let mailButtonTap: Self = "mail_button_tap"
-    static let authByOAuth: Self = "auth_by_oauth"
-    static let multibrandingAuthError: Self = "multibranding_auth_error"
 }
 
 extension TypeRegistrationItem.FieldItem.Name {
@@ -71,8 +65,11 @@ extension TypeRegistrationItem.FieldItem.Name {
     static let oAuthService: Self = "oauth_service"
     static let ok: Self = "ok"
     static let mail: Self = "mail"
+    static let fromOneTap: Self = "from_one_tap"
+    static let fromFloatingOneTap: Self = "from_floating_one_tap"
+    static let fromMultibranding: Self = "from_multibranding"
 }
 
 extension TypeRegistrationItem.Error {
-    static let authError: Self = "auth_error"
+    static let sdkAuthError: Self = "sdk_auth_error"
 }

@@ -27,7 +27,7 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 internal protocol UserInfoService {
     func fetchUserData(in session: UserSession, completion: @escaping (Result<User, UserFetchingError>) -> Void)

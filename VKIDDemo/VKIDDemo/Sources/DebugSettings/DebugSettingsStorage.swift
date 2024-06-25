@@ -36,6 +36,8 @@ final class DebugSettingsStorage {
         case confidentialFlowEnabled = "com.vkid.debug.confidentialFlowEnabled"
         case serviceToken = "com.vkid.debug.serviceToken"
         case scope = "com.vkid.debug.scope"
+        case authViewUI = "com.vkid.debug.authViewUI"
+        case oAuthProviders = "com.vkid.debug.oAuthProviders"
     }
 
     private let userDefaults = UserDefaults.standard
@@ -92,6 +94,34 @@ final class DebugSettingsStorage {
             self.userDefaults.setValue(
                 newValue,
                 forKey: Keys.confidentialFlowEnabled.rawValue
+            )
+        }
+    }
+
+    var authViewUI: Int {
+        get {
+            (self.userDefaults.value(
+                forKey: Keys.authViewUI.rawValue
+            ) as? Int) ?? 1
+        }
+        set {
+            self.userDefaults.setValue(
+                newValue,
+                forKey: Keys.authViewUI.rawValue
+            )
+        }
+    }
+
+    var oAuthProviders: Int {
+        get {
+            (self.userDefaults.value(
+                forKey: Keys.oAuthProviders.rawValue
+            ) as? Int) ?? 0
+        }
+        set {
+            self.userDefaults.setValue(
+                newValue,
+                forKey: Keys.oAuthProviders.rawValue
             )
         }
     }

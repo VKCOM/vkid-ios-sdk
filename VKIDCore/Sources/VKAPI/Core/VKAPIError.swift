@@ -28,13 +28,13 @@
 
 import Foundation
 
-public enum InvalidRequestReason {
-    case invalidRefreshToken
-    case invalidURL
-    case unknown
-}
+package enum VKAPIError: Swift.Error {
+    package enum InvalidRequestReason {
+        case invalidRefreshToken
+        case invalidURL
+        case unknown
+    }
 
-public enum VKAPIError: Swift.Error {
     case unknown
     case noTransportProvided
     case invalidRequest(reason: InvalidRequestReason)

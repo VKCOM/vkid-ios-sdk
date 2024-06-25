@@ -26,32 +26,5 @@
 // THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
 //
 
-import Foundation
-import VKID
-
-extension AuthFlowData {
-    init(from response: OAuth.ExchangeAuthCode.Response, serverProvidedDeviceId: String) {
-        let expirationDate: Date = response.expiresIn > 0 ?
-            Date().addingTimeInterval(response.expiresIn) :
-            .distantFuture
-        let scope = Scope(response.scope)
-        self.init(
-            accessToken: .init(
-                userId: .init(value: response.userId),
-                value: response.accessToken,
-                expirationDate: expirationDate,
-                scope: scope
-            ),
-            refreshToken: .init(
-                userId: .init(value: response.userId),
-                value: response.refreshToken,
-                scope: scope
-            ),
-            idToken: .init(
-                userId: .init(value: response.userId),
-                value: response.idToken
-            ),
-            deviceId: serverProvidedDeviceId
-        )
-    }
-}
+#include? "VKIDDemo.xcconfig"
+#include "../../Pods/Target Support Files/Pods-VKIDCocoapodsDemo/Pods-VKIDCocoapodsDemo.release.xcconfig"

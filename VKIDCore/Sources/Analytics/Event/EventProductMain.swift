@@ -28,7 +28,7 @@
 
 import Foundation
 
-public struct EventProductMain: Encodable, AnalyticsEvent {
+package struct EventProductMain: Encodable, AnalyticsEvent {
     /// Идентификатор события
     let id: Int
     /// Дата создания события (в микросекундах)
@@ -45,14 +45,14 @@ public struct EventProductMain: Encodable, AnalyticsEvent {
     /// Транзитивное action событие
     let typeAction: TypeAction
 
-    public init(id: Int, timestamp: String, screen: Screen, typeAction: TypeAction) {
+    package init(id: Int, timestamp: String, screen: Screen, typeAction: TypeAction) {
         self.id = id
         self.timestamp = timestamp
         self.screen = screen
         self.typeAction = typeAction
     }
 
-    public init(screen: Screen, typeAction: TypeAction) {
+    package init(screen: Screen, typeAction: TypeAction) {
         self.init(
             id: Int.random32,
             timestamp: AbsoluteTime.currentMicrosecondsAsString,
@@ -62,22 +62,18 @@ public struct EventProductMain: Encodable, AnalyticsEvent {
     }
 
     /// Тип транзитивного события
-    public enum TransitiveEventType: String, Encodable {
+    package enum TransitiveEventType: String, Encodable {
         case typeAction = "type_action"
     }
 }
 
 /// Имя исходного экрана
-public struct Screen: RawRepresentable, ExpressibleByStringLiteral, Encodable {
-    public static let nowhere: Self = "nowhere"
+package struct Screen: StringRawRepresentable, Encodable {
+    package static let nowhere: Self = "nowhere"
 
-    public var rawValue: String
+    package var rawValue: String
 
-    public init(rawValue: String) {
+    package init(rawValue: String) {
         self.rawValue = rawValue
-    }
-
-    public init(stringLiteral value: StringLiteralType) {
-        self.rawValue = value
     }
 }

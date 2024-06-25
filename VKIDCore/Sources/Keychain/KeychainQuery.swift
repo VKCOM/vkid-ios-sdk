@@ -34,7 +34,7 @@ internal protocol KeychainQueryDictionaryRepresentable {
 }
 
 extension Keychain {
-    public struct Query: KeychainQueryDictionaryRepresentable, ExpressibleByArrayLiteral {
+    package struct Query: KeychainQueryDictionaryRepresentable, ExpressibleByArrayLiteral {
         private var items: [Item]
 
         var dictionaryRepresentation: [CFString : Any] {
@@ -43,30 +43,30 @@ extension Keychain {
             }
         }
 
-        public init(items: [Item]) {
+        package init(items: [Item]) {
             self.items = items
         }
 
-        public init(arrayLiteral elements: Item...) {
+        package init(arrayLiteral elements: Item...) {
             self.init(items: elements)
         }
 
-        public mutating func append(_ item: Item) {
+        package mutating func append(_ item: Item) {
             self.items.append(item)
         }
 
-        public func appending(_ item: Item) -> Self {
+        package func appending(_ item: Item) -> Self {
             self.appending([item])
         }
 
-        public func appending(_ items: [Item]) -> Self {
+        package func appending(_ items: [Item]) -> Self {
             Self(items: self.items + items)
         }
     }
 }
 
 extension Keychain.Query {
-    public struct Item: KeychainQueryDictionaryRepresentable {
+    package struct Item: KeychainQueryDictionaryRepresentable {
         private let key: CFString
         private let value: Any
 
@@ -82,77 +82,77 @@ extension Keychain.Query {
 }
 
 extension Keychain.Query.Item {
-    public static func itemClass(_ cls: Keychain.Query.ItemClass) -> Keychain.Query.Item {
+    package static func itemClass(_ cls: Keychain.Query.ItemClass) -> Keychain.Query.Item {
         .init(key: kSecClass, value: cls.rawValue)
     }
 
-    public static func attributeAccount(_ account: String) -> Keychain.Query.Item {
+    package static func attributeAccount(_ account: String) -> Keychain.Query.Item {
         .init(key: kSecAttrAccount, value: account)
     }
 
-    public static func attributeService(_ service: String) -> Keychain.Query.Item {
+    package static func attributeService(_ service: String) -> Keychain.Query.Item {
         .init(key: kSecAttrService, value: service)
     }
 
-    public static func returnData(_ flag: Bool) -> Keychain.Query.Item {
+    package static func returnData(_ flag: Bool) -> Keychain.Query.Item {
         .init(
             key: kSecReturnData,
             value: (flag ? kCFBooleanTrue : kCFBooleanFalse) as Any
         )
     }
 
-    public static func accessible(_ attr: Keychain.Query.Accessible) -> Keychain.Query.Item {
+    package static func accessible(_ attr: Keychain.Query.Accessible) -> Keychain.Query.Item {
         .init(key: kSecAttrAccessible, value: attr.rawValue)
     }
 
-    public static func matchLimit(_ limit: Keychain.Query.MatchLimit) -> Keychain.Query.Item {
+    package static func matchLimit(_ limit: Keychain.Query.MatchLimit) -> Keychain.Query.Item {
         .init(key: kSecMatchLimit, value: limit.rawValue)
     }
 
-    public static func valueData(_ data: Data) -> Keychain.Query.Item {
+    package static func valueData(_ data: Data) -> Keychain.Query.Item {
         .init(key: kSecValueData, value: data)
     }
 
-    public static func accessGroup(_ group: String) -> Keychain.Query.Item {
+    package static func accessGroup(_ group: String) -> Keychain.Query.Item {
         .init(key: kSecAttrAccessGroup, value: group)
     }
 }
 
 extension Keychain.Query {
-    public struct ItemClass: RawRepresentable {
-        public private(set) var rawValue: CFString
+    package struct ItemClass: RawRepresentable {
+        package private(set) var rawValue: CFString
 
-        public init(rawValue: CFString) {
+        package init(rawValue: CFString) {
             self.rawValue = rawValue
         }
 
-        public static let genericPassword = Self(rawValue: kSecClassGenericPassword)
-        public static let internetPassword = Self(rawValue: kSecClassInternetPassword)
-        public static let certificate = Self(rawValue: kSecClassCertificate)
+        package static let genericPassword = Self(rawValue: kSecClassGenericPassword)
+        package static let internetPassword = Self(rawValue: kSecClassInternetPassword)
+        package static let certificate = Self(rawValue: kSecClassCertificate)
     }
 
-    public struct Accessible: RawRepresentable {
-        public private(set) var rawValue: CFString
+    package struct Accessible: RawRepresentable {
+        package private(set) var rawValue: CFString
 
-        public init(rawValue: CFString) {
+        package init(rawValue: CFString) {
             self.rawValue = rawValue
         }
 
-        public static let whenUnlocked = Self(rawValue: kSecAttrAccessibleWhenUnlocked)
-        public static let afterFirstUnlock = Self(rawValue: kSecAttrAccessibleAfterFirstUnlock)
-        public static let whenUnlockedThisDeviceOnly = Self(rawValue: kSecAttrAccessibleWhenUnlockedThisDeviceOnly)
-        public static let afterFirstUnlockThisDeviceOnly =
+        package static let whenUnlocked = Self(rawValue: kSecAttrAccessibleWhenUnlocked)
+        package static let afterFirstUnlock = Self(rawValue: kSecAttrAccessibleAfterFirstUnlock)
+        package static let whenUnlockedThisDeviceOnly = Self(rawValue: kSecAttrAccessibleWhenUnlockedThisDeviceOnly)
+        package static let afterFirstUnlockThisDeviceOnly =
             Self(rawValue: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly)
     }
 
-    public struct MatchLimit: RawRepresentable {
-        public private(set) var rawValue: CFString
+    package struct MatchLimit: RawRepresentable {
+        package private(set) var rawValue: CFString
 
-        public init(rawValue: CFString) {
+        package init(rawValue: CFString) {
             self.rawValue = rawValue
         }
 
-        public static let one = Self(rawValue: kSecMatchLimitOne)
-        public static let all = Self(rawValue: kSecMatchLimitAll)
+        package static let one = Self(rawValue: kSecMatchLimitOne)
+        package static let all = Self(rawValue: kSecMatchLimitAll)
     }
 }

@@ -29,13 +29,13 @@
 import Foundation
 
 /// Транзитивное action событие
-public struct TypeAction: Encodable {
+package struct TypeAction: Encodable {
     /// Тип конечного события
     let type: ActionType
     /// Конечное событие
     let typeItem: CustomKeyValueEncodable<ActionType>
 
-    public init(type: ActionType, value: Encodable) {
+    package init(type: ActionType, value: Encodable) {
         self.type = type
         self.typeItem = .init(
             key: type,
@@ -43,7 +43,7 @@ public struct TypeAction: Encodable {
         )
     }
 
-    public func encode(to encoder: any Encoder) throws {
+    package func encode(to encoder: any Encoder) throws {
         var typeItemContainer = encoder.singleValueContainer()
         try typeItemContainer.encode(self.typeItem)
 
@@ -51,23 +51,34 @@ public struct TypeAction: Encodable {
         try typeContainer.encode(self.type, forKey: .type)
     }
 
-    public enum CodingKeys: String, CodingKey {
+    package enum CodingKeys: String, CodingKey {
         case type
     }
 
-    public enum ActionType: String, Encodable, CodingKey {
-        case typeRegistrationItem = "type_registration_item"
-        case typeDebugStatsItem = "type_debug_stats_item"
+    package struct ActionType: StringRawRepresentableCodingKeys, Encodable {
+        static let typeRegistrationItem: Self = "type_registration_item"
+        static let typeDebugStatsItem: Self = "type_debug_stats_item"
+        static let typeSAKSessionsEventItem: Self = "type_sak_sessions_event_item"
+
+        package var rawValue: String
+
+        package init(rawValue: String) {
+            self.rawValue = rawValue
+        }
     }
 }
 
 /// Инициализация typeAction с определенным конечным событием
 extension TypeAction {
-    public init(typeRegistrationItem: TypeRegistrationItem) {
+    package init(typeRegistrationItem: TypeRegistrationItem) {
         self.init(type: .typeRegistrationItem, value: typeRegistrationItem)
     }
 
-    public init(typeDebugStatsItem: TypeDebugStatsItem) {
+    package init(typeSAKSessionsEventItem: TypeSAKSessionsEventItem) {
+        self.init(type: .typeSAKSessionsEventItem, value: typeSAKSessionsEventItem)
+    }
+
+    package init(typeDebugStatsItem: TypeDebugStatsItem) {
         self.init(type: .typeDebugStatsItem, value: typeDebugStatsItem)
     }
 }

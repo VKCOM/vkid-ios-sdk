@@ -98,7 +98,7 @@ extension UIPanGestureRecognizer {
         self.view?.bounds.height ?? 0.1
     }
 
-    public static func project(
+    package static func project(
         _ velocity: CGFloat,
         onto position: CGFloat,
         decelerationRate: UIScrollView.DecelerationRate = .normal

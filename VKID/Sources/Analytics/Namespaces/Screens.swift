@@ -27,9 +27,10 @@
 //
 
 import Foundation
-@_implementationOnly import VKIDCore
+import VKIDCore
 
 extension Screen {
     static let multibrandingWidget: Self = "multibranding_widget"
     static let floatingOneTap: Self = "floating_one_tap"
+    static let authorizationWindow: Self = "authorization_window"
 }

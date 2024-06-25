@@ -33,9 +33,10 @@ import VKID
 final class OneTapButtonCustomizationController: VKIDDemoViewController {
     override var supportsScreenSplitting: Bool { true }
 
-    var config: OneTapButtonConfiguration = .init(
+    lazy var config: OneTapButtonConfiguration = .init(
+        alternativeProviders: [],
         oneTapButtonStyle: .primary(),
-        oneTapButtonTheme: .matchingColorScheme(.system),
+        oneTapButtonTheme: .matchingColorScheme(self.appearance.colorScheme),
         oneTapButtonHeight: .large(.h48),
         oneTapButtonCornerRadius: 5,
         oneTapButtonKind: .regular
@@ -192,9 +193,30 @@ final class OneTapButtonCustomizationController: VKIDDemoViewController {
         let slider = UISlider()
         slider.addTarget(self, action: #selector(self.cornerRadiusSliderChanged), for: .allEvents)
         slider.minimumValue = 0
-        slider.maximumValue = Float(self.currentButton?.frame.height ?? 0)
+        slider.maximumValue = Float(self.config.oneTapButtonHeight.rawValue / 2)
         slider.translatesAutoresizingMaskIntoConstraints = false
         return slider
+    }()
+
+    lazy var oAuthProviderSegmentControlLabel: UILabel = {
+        let label = UILabel()
+        label.text = "OAuthProviders"
+        label.font = .systemFont(ofSize: 20, weight: .semibold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    lazy var oAuthProviderSegmentControl: UISegmentedControl = {
+        let segmentControl = UISegmentedControl()
+        segmentControl.insertSegment(withTitle: "nothing", at: 0, animated: false)
+        segmentControl.insertSegment(withTitle: "ok", at: 1, animated: false)
+        segmentControl.insertSegment(withTitle: "mail", at: 2, animated: false)
+        segmentControl.insertSegment(withTitle: "ok + mail", at: 3, animated: false)
+
+        segmentControl.addTarget(self, action: #selector(self.oAuthProviderSegmentControlChanged), for: .allEvents)
+        segmentControl.selectedSegmentIndex = 0
+        segmentControl.translatesAutoresizingMaskIntoConstraints = false
+        return segmentControl
     }()
 
     lazy var buttonContainerView: UIView = {
@@ -220,6 +242,8 @@ final class OneTapButtonCustomizationController: VKIDDemoViewController {
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
+
+    var offsetConstraint: NSLayoutConstraint!
 
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -290,8 +314,44 @@ final class OneTapButtonCustomizationController: VKIDDemoViewController {
     }
 
     @objc
+    func oAuthProviderSegmentControlChanged() {
+        switch self.oAuthProviderSegmentControl.selectedSegmentIndex {
+        case 0:
+            self.config.alternativeProviders = []
+            self.styleSegmentControl.isEnabled = true
+            self.kindSegmentControl.isEnabled = true
+        case 1:
+            self.config.alternativeProviders = [.ok]
+            self.styleSegmentControl.isEnabled = false
+            self.kindSegmentControl.isEnabled = false
+        case 2:
+            self.config.alternativeProviders = [.mail]
+            self.styleSegmentControl.isEnabled = false
+            self.kindSegmentControl.isEnabled = false
+        case 3:
+            self.config.alternativeProviders = [.ok, .mail]
+            self.styleSegmentControl.isEnabled = false
+            self.kindSegmentControl.isEnabled = false
+        default:
+            break
+        }
+        self.widthSliderChanged()
+        self.updateOneTapButton()
+    }
+
+    @objc
     func widthSliderChanged() {
-        self.widthSlider.value = ceil(self.widthSlider.value)
+        if self.config.alternativeProviders.isEmpty {
+            self.widthSlider.minimumValue = .zero
+        } else {
+            self.widthSlider.minimumValue = 200
+        }
+
+        self.widthSlider.value = min(
+            max(self.widthSlider.minimumValue, ceil(self.widthSlider.value)),
+            self.widthSlider.maximumValue
+        )
+
         self.widthSliderLabel.text = self.widthSliderLabelText
         self.updateOneTapButton()
     }
@@ -322,18 +382,13 @@ final class OneTapButtonCustomizationController: VKIDDemoViewController {
 
         self.config.oneTapButtonHeight = layoutHeight
         self.heightSliderLabel.text = self.heightSliderLabelText
+        self.offsetConstraint.constant = 164 + self.config.oneTapButtonHeight.rawValue
         self.updateOneTapButton()
     }
 
     private func updateConfigurationSettings() {
-        if let button = self.currentButton {
-            self.cornerRadiusSlider.maximumValue = Float(
-                min(
-                    button.frame.size.height / 2,
-                    button.frame.size.width / 2
-                )
-            )
-        }
+        self.cornerRadiusSlider.maximumValue = Float(self.config.oneTapButtonHeight.rawValue / 2)
+
         self.config.oneTapButtonCornerRadius = CGFloat(
             min(
                 max(self.cornerRadiusSlider.minimumValue, self.cornerRadiusSlider.value),
@@ -366,6 +421,11 @@ final class OneTapButtonCustomizationController: VKIDDemoViewController {
     }
 
     private func setupConstraints() {
+        self.offsetConstraint = self.scrollView.topAnchor.constraint(
+            equalTo: self.descriptionLabel.bottomAnchor,
+            constant: 164 + self.config.oneTapButtonHeight.rawValue
+        )
+
         self.twoColumnLayoutConstraints = [
             self.scrollView.topAnchor.constraint(
                 equalTo: self.rightSideContentView.safeAreaLayoutGuide.topAnchor
@@ -388,9 +448,7 @@ final class OneTapButtonCustomizationController: VKIDDemoViewController {
             ),
         ]
         self.oneColumnLayoutConstraints = [
-            self.scrollView.topAnchor.constraint(
-                equalTo: self.descriptionLabel.bottomAnchor, constant: 164
-            ),
+            self.offsetConstraint,
             self.scrollView.leadingAnchor.constraint(
                 equalTo: self.view.leadingAnchor
             ),
@@ -439,6 +497,9 @@ final class OneTapButtonCustomizationController: VKIDDemoViewController {
 
         self.contentView.addSubview(self.cornerRadiusLabel)
         self.contentView.addSubview(self.cornerRadiusSlider)
+
+        self.contentView.addSubview(self.oAuthProviderSegmentControlLabel)
+        self.contentView.addSubview(self.oAuthProviderSegmentControl)
 
         NSLayoutConstraint.activate([
             self.buttonContainerView.topAnchor.constraint(
@@ -661,7 +722,32 @@ final class OneTapButtonCustomizationController: VKIDDemoViewController {
             self.widthSlider.heightAnchor.constraint(
                 equalToConstant: 30
             ),
-            self.widthSlider.bottomAnchor.constraint(
+
+            // MARK: - oAuthProviderSegmentControl
+
+            self.oAuthProviderSegmentControlLabel.topAnchor.constraint(
+                equalTo: self.widthSlider.bottomAnchor, constant: 64
+            ),
+            self.oAuthProviderSegmentControlLabel.leadingAnchor.constraint(
+                equalTo: self.contentView.leadingAnchor, constant: 16
+            ),
+            self.oAuthProviderSegmentControlLabel.trailingAnchor.constraint(
+                equalTo: self.contentView.trailingAnchor, constant: -16
+            ),
+            self.oAuthProviderSegmentControlLabel.heightAnchor.constraint(
+                equalToConstant: 30
+            ),
+
+            self.oAuthProviderSegmentControl.topAnchor.constraint(
+                equalTo: self.oAuthProviderSegmentControlLabel.bottomAnchor, constant: 16
+            ),
+            self.oAuthProviderSegmentControl.leadingAnchor.constraint(
+                equalTo: self.contentView.leadingAnchor, constant: 16
+            ),
+            self.oAuthProviderSegmentControl.trailingAnchor.constraint(
+                equalTo: self.contentView.trailingAnchor, constant: -16
+            ),
+            self.oAuthProviderSegmentControl.bottomAnchor.constraint(
                 equalTo: self.contentView.bottomAnchor, constant: -16
             ),
         ])
@@ -693,6 +779,8 @@ extension OneTapButtonCustomizationController {
 }
 
 internal struct OneTapButtonConfiguration {
+    var alternativeProviders: [OAuthProvider] = []
+
     var oneTapButtonStyle: OneTapButton.Appearance.Style
 
     var oneTapButtonTheme: OneTapButton.Appearance.Theme
@@ -704,15 +792,26 @@ internal struct OneTapButtonConfiguration {
     var oneTapButtonKind: OneTapButton.Layout.Kind
 
     var oneTapButton: OneTapButton {
-        OneTapButton(
-            appearance: self.oneTapButtonAppearance,
-            layout: self.oneTapButtonLayout
-        ) { control in
-            if control.isAnimating {
-                control.stopAnimating()
-            } else {
-                control.startAnimating()
+        if self.alternativeProviders.isEmpty {
+            return OneTapButton(
+                appearance: self.oneTapButtonAppearance,
+                layout: self.oneTapButtonLayout
+            ) { control in
+                if control.isAnimating {
+                    control.stopAnimating()
+                } else {
+                    control.startAnimating()
+                }
             }
+        } else {
+            return OneTapButton(
+                height: self.oneTapButtonHeight,
+                cornerRadius: self.oneTapButtonCornerRadius,
+                theme: self.oneTapButtonTheme,
+                authConfiguration: .init(),
+                oAuthProviderConfiguration: .init(alternativeProviders: self.alternativeProviders),
+                onCompleteAuth: nil
+            )
         }
     }
 
