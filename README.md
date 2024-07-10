@@ -14,10 +14,10 @@
 ---
 
 - [Предварительно](#предварительно)
-- [Требования к приложению](#требования-к-приложению)
+- [Требования к приложению и окружению](#требования-к-приложению-и-окружению)
 - [Установка](#установка)
-    - [Swift Package Manager](#swift-package-manager)
-    - [CocoaPods](#cocoapods)
+  - [Swift Package Manager](#swift-package-manager)
+  - [CocoaPods](#cocoapods)
 - [Авторизация по кнопке OneTap](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/ios/onetap)
 - [Шторка авторизации](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/ios/floating-onetap)
 - [Пользовательские сессии](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/ios/sessions)
@@ -30,9 +30,15 @@
 
 Чтобы подключить VK ID SDK, сначала получите ID приложения (app_id) и защищенный ключ (client_secret). Для этого создайте приложение в [кабинете подключения VK ID](https://id.vk.com/business/go).
 
-## Требования к приложению
-* iOS 12.0 и выше
-* Swift 5.9 и выше
+## Требования к приложению и окружению
+* `iOS` - `12.0` и выше.
+* `Swift` - `5.9` и выше.
+* `Xcode` - `15.2` и выше.
+
+|↗️ **Примечание**|
+|:---|
+|Если вы используете в качестве менеджера зависимостей `Swift Package Manager`|
+| `Xcode` - `15.3` и выше.|
 
 ## Установка
 
