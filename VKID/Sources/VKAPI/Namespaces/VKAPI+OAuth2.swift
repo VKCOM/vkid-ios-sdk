@@ -69,7 +69,7 @@ internal struct OAuth2: VKAPINamespace {
     }
 
     struct RefreshToken: VKAPIMethod {
-        struct Response: VKAPIResponse {
+        struct Response: VKAPIResponse, Encodable {
             let refreshToken: String
             let accessToken: String
             let state: String
@@ -98,7 +98,7 @@ internal struct OAuth2: VKAPINamespace {
     }
 
     struct UserInfo: VKAPIMethod {
-        struct User: Decodable {
+        struct User: Codable {
             let firstName: String?
             let lastName: String?
             let phone: String?
@@ -106,7 +106,7 @@ internal struct OAuth2: VKAPINamespace {
             let email: String?
         }
 
-        struct Response: VKAPIResponse {
+        struct Response: VKAPIResponse, Encodable {
             let user: User
         }
 
@@ -127,8 +127,8 @@ internal struct OAuth2: VKAPINamespace {
     }
 
     struct Logout: VKAPIMethod {
-        struct Response: VKAPIResponse {
-            private let response: Int
+        struct Response: VKAPIResponse, Encodable {
+            let response: Int
         }
 
         struct Parameters: VKAPIDictionaryRepresentable {

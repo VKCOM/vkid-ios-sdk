@@ -148,6 +148,7 @@ internal class OneTapControl: UIControl {
 
         self.titleLabel.textColor = self.config.titleColor.value
         self.activityIndicator.tintColor = self.config.activityIndicatorColor.value
+        self.accessibilityIdentifier = AccessibilityIdentifier.OneTapButton.signIn.id
     }
 
     private func highlightWithAnimation() {

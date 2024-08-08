@@ -99,7 +99,8 @@ public struct OneTapBottomSheet: UIViewControllerElement {
                 appearance: .init(
                     title: .init(
                         primary: self.targetActionText.oneTapButtonTitle,
-                        brief: self.targetActionText.oneTapButtonTitle
+                        brief: self.targetActionText.oneTapButtonTitle,
+                        rawType: .custom
                     ),
                     style: .primary(),
                     theme: .matchingColorScheme(self.theme.colorScheme)
@@ -142,17 +143,17 @@ public struct OneTapBottomSheet: UIViewControllerElement {
 }
 
 extension OneTapBottomSheet {
-    internal enum TargetActionType {
-        case signIn
-        case signInToService
-        case registerForEvent
-        case applyFor
-        case orderCheckout
-        case orderCheckoutAtService
-    }
-
     /// Текстовки для целевого действия в шторке
     public struct TargetActionText {
+        internal enum RawType: String, RawRepresentable {
+            case signIn
+            case signInToService
+            case registerForEvent
+            case applyFor
+            case orderCheckout
+            case orderCheckoutAtService
+        }
+
         /// Заголовок для целевого действия в шторке, максимально 3 строки. Например, "Войдите в сервис или зарегистрируйтесь"
         public let title: String
 
@@ -161,7 +162,7 @@ extension OneTapBottomSheet {
 
         internal let oneTapButtonTitle: String
 
-        internal let type: TargetActionType
+        internal let rawType: RawType
 
         /// Войти
         public static var signIn: TargetActionText {
@@ -169,7 +170,7 @@ extension OneTapBottomSheet {
                 title: "vkconnect_auth_floatingonetap_header_sign_in_to_service".localized,
                 subtitle: "vkconnect_auth_floatingonetap_description".localized,
                 oneTapButtonTitle: "vkconnect_auth_floatingonetap_btn_unauth_sign_in_to_service".localized,
-                type: .signIn
+                rawType: .signIn
             )
         }
 
@@ -179,7 +180,7 @@ extension OneTapBottomSheet {
                 title: "vkconnect_auth_floatingonetap_header_sign_in_to_account".localizedWithFormat(serviceName),
                 subtitle: "vkconnect_auth_floatingonetap_description".localized,
                 oneTapButtonTitle: "vkconnect_auth_floatingonetap_btn_unauth_sign_in_to_account".localized,
-                type: .signInToService
+                rawType: .signInToService
             )
         }
 
@@ -189,7 +190,7 @@ extension OneTapBottomSheet {
                 title: "vkconnect_auth_floatingonetap_header_registration_for_event".localized,
                 subtitle: "vkconnect_auth_floatingonetap_description".localized,
                 oneTapButtonTitle: "vkconnect_auth_floatingonetap_btn_unauth_registration_for_event".localized,
-                type: .registerForEvent
+                rawType: .registerForEvent
             )
         }
 
@@ -199,7 +200,7 @@ extension OneTapBottomSheet {
                 title: "vkconnect_auth_floatingonetap_header_submit_applications".localized,
                 subtitle: "vkconnect_auth_floatingonetap_description".localized,
                 oneTapButtonTitle: "vkconnect_auth_floatingonetap_btn_unauth_submit_applications".localized,
-                type: .applyFor
+                rawType: .applyFor
             )
         }
 
@@ -209,7 +210,7 @@ extension OneTapBottomSheet {
                 title: "vkconnect_auth_floatingonetap_header_make_order_without_service".localized,
                 subtitle: "vkconnect_auth_floatingonetap_description".localized,
                 oneTapButtonTitle: "vkconnect_auth_floatingonetap_btn_unauth_make_order_without_service".localized,
-                type: .orderCheckout
+                rawType: .orderCheckout
             )
         }
 
@@ -219,7 +220,7 @@ extension OneTapBottomSheet {
                 title: "vkconnect_auth_floatingonetap_header_make_order_with_service".localizedWithFormat(serviceName),
                 subtitle: "vkconnect_auth_floatingonetap_description".localized,
                 oneTapButtonTitle: "vkconnect_auth_floatingonetap_btn_unauth_make_order_with_service".localized,
-                type: .orderCheckoutAtService
+                rawType: .orderCheckoutAtService
             )
         }
 
@@ -227,12 +228,12 @@ extension OneTapBottomSheet {
             title: String,
             subtitle: String,
             oneTapButtonTitle: String,
-            type: TargetActionType
+            rawType: RawType
         ) {
             self.title = title
             self.subtitle = subtitle
             self.oneTapButtonTitle = oneTapButtonTitle
-            self.type = type
+            self.rawType = rawType
         }
     }
 }

@@ -1,5 +1,23 @@
-"vkid_button_primary_title" = "Se connecter avec VK ID";
-"vkid_button_brief_title" = "VK ID";
+"vkconnect_auth_onetap_login_via_vkid" = "Se connecter avec VK ID";
+"vkconnect_auth_onetap_vkid" = "VK ID";
+
+"vkconnect_auth_onetap_btn_sign_up_with_vkid" = "Prendre RDV avec VK ID";
+"vkconnect_auth_onetap_btn_get_with_vkid" = "Obtenir avec VK ID";
+"vkconnect_auth_onetap_btn_open_with_vkid" = "Ouvrir avec VK ID";
+"vkconnect_auth_onetap_btn_calculate_with_vkid" = "Calculer avec VK ID";
+"vkconnect_auth_onetap_btn_order_with_vkid" = "Commander avec VK ID";
+"vkconnect_auth_onetap_btn_make_order_with_vkid" = "Commander avec VK ID";
+"vkconnect_auth_onetap_btn_submit_request_with_vkid" = "Envoyer demande avec VK ID";
+"vkconnect_auth_onetap_btn_participate_with_vkid" = "Participer avec VK ID";
+
+"vkconnect_auth_onetap_btn_sign_up" = "Prendre RDV";
+"vkconnect_auth_onetap_btn_get" = "Obtenir";
+"vkconnect_auth_onetap_btn_open" = "Ouvrir";
+"vkconnect_auth_onetap_btn_calculate" = "Calculer";
+"vkconnect_auth_onetap_btn_order" = "Commander";
+"vkconnect_auth_onetap_btn_make_order" = "Passer commande";
+"vkconnect_auth_onetap_btn_submit_request" = "Envoyer demande";
+"vkconnect_auth_onetap_btn_participate" = "Participer";
 
 "vkconnect_auth_floatingonetap_btn_unauth_sign_in_to_account" = "Se connecter avec VK ID";
 "vkconnect_auth_floatingonetap_header_sign_in_to_service" = "Connectez-vous au service ou inscrivez-vous";

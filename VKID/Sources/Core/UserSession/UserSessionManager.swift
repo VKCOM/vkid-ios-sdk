@@ -62,7 +62,7 @@ internal protocol UserSessionManagerDelegate: AnyObject {
 internal final class UserSessionManagerImpl: UserSessionManager {
     struct Dependencies: Dependency {
         let logoutService: LogoutService
-        let userSessionDataStorage: UserSessionDataStorage
+        let userSessionDataStorage: any UserSessionDataStorage
         let refreshTokenService: RefreshTokenService
         let userInfoService: UserInfoService
         let logger: Logging

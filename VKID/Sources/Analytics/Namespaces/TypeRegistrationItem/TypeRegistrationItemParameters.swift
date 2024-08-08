@@ -62,6 +62,7 @@ extension TypeRegistrationItem.FieldItem.Name {
     static let language: Self = "language"
     static let textType: Self = "text_type"
     static let themeType: Self = "theme_type"
+    static let styleType: Self = "style_type"
     static let oAuthService: Self = "oauth_service"
     static let ok: Self = "ok"
     static let mail: Self = "mail"

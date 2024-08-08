@@ -38,7 +38,7 @@ internal final class LegacyUserSessionManagerImpl: LegacyUserSessionManager {
     struct Dependencies: Dependency {
         let legacyLogoutService: LegacyLogoutService
         let logger: Logging
-        let legacyUserSessionDataStorage: LegacyUserSessionDataStorage
+        let legacyUserSessionDataStorage: any LegacyUserSessionDataStorage
     }
 
     private let deps: Dependencies

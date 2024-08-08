@@ -31,16 +31,29 @@ import Foundation
 package struct TypeSAKSessionsEventItem: Encodable {
     /// Тип события
     let step: Step
+    /// Менеджер зависимостей, используется на iOS
+    let additionalInfo: AdditionalInfo
 
     /// Инициализация TypeSAKSessionsEventItem
     /// - Parameters:
     ///   - step:Тип события
-    package init(step: Step) {
+    ///   - additionalInfo: Менеджер зависимостей
+    package init(step: Step, additionalInfo: AdditionalInfo) {
         self.step = step
+        self.additionalInfo = additionalInfo
     }
 
     /// Тип события
     package struct Step: StringRawRepresentable, Encodable {
+        package var rawValue: String
+
+        package init(rawValue: String) {
+            self.rawValue = rawValue
+        }
+    }
+
+    /// Тип события
+    package struct AdditionalInfo: StringRawRepresentable, Encodable {
         package var rawValue: String
 
         package init(rawValue: String) {

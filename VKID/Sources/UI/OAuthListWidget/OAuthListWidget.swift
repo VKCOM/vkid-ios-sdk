@@ -127,7 +127,7 @@ public struct OAuthListWidget: UIViewElement {
                 return ctx
             }
             .send(
-                .init(providers: self.oAuthProviders)
+                .init(oAuthProviders: self.oAuthProviders)
             )
 
         return OAuthListWidgetView(oAuthButtons: oAuthButtons)

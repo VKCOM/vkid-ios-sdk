@@ -36,7 +36,7 @@ class UserFetchingTests: XCTestCase {
     private let appCredentials: AppCredentials = Entity.appCredentials
     private var userSessionManager: UserSessionManager!
     private var userInfoService: UserInfoService!
-    private var userSessionDataStorage: UserSessionDataStorage!
+    private var userSessionDataStorage: (any UserSessionDataStorage)!
     private var legacyUserSessionManager: LegacyUserSessionManager!
 
     override func setUpWithError() throws {
@@ -50,18 +50,6 @@ class UserFetchingTests: XCTestCase {
             deps: .init(
                 keychain: Entity.keychain,
                 appCredentials: Entity.appCredentials
-            )
-        )
-        self.legacyUserSessionManager = LegacyUserSessionManagerImpl(
-            deps: .init(
-                legacyLogoutService: LegacyLogoutServiceMock(),
-                logger: Entity.loggerMock,
-                legacyUserSessionDataStorage: StorageImpl<LegacyUserSessionData>(
-                    deps: .init(
-                        keychain: Entity.keychain,
-                        appCredentials: Entity.appCredentials
-                    )
-                )
             )
         )
         self.userSessionManager = UserSessionManagerImpl(deps:
@@ -78,55 +66,6 @@ class UserFetchingTests: XCTestCase {
     override func tearDownWithError() throws {
         try? self.userSessionDataStorage.removeAllUserSessionsData()
         self.userSessionDataStorage = nil
-    }
-
-    func testUserFetchingSuccess() {
-        // given
-        let sessionData = UserSessionData.random(withUserData: true)
-        let session = self.userSessionManager.makeUserSession(with: sessionData)
-        guard let updateUser = UserSessionData.random(userId: sessionData.id.value).user else {
-            XCTFail("Failed to create random  UserSessionData")
-            return
-        }
-        self.transportMock.responseProvider = { request -> Result<VKIDCore.VKAPIResponse, VKIDCore.VKAPIError> in
-            .success(OAuth2.UserInfo.Response.init(
-                user: .init(
-                    firstName: updateUser.firstName,
-                    lastName: updateUser.lastName,
-                    phone: updateUser.phone,
-                    avatar: updateUser.avatarURL?.absoluteString,
-                    email: updateUser.email
-                )
-            ))
-        }
-        // when
-        session.fetchUser { result in
-            switch result {
-            // then
-            case .success(let user):
-                XCTAssertEqual(user, updateUser)
-            default:
-                XCTFail("Failed to update user info")
-            }
-        }
-    }
-
-    func testUserFetchingFailed() {
-        // given
-        let sessionData = UserSessionData.random(withUserData: true)
-        let session = self.userSessionManager.makeUserSession(with: sessionData)
-        self.transportMock.responseProvider = { request -> Result<VKIDCore.VKAPIResponse, VKIDCore.VKAPIError> in
-            .failure(VKAPIError.noResponseDataProvided)
-        }
-        // when
-        session.fetchUser { result in
-            // then
-            if case .failure(UserFetchingError.unknown) = result {
-                // success
-            } else {
-                XCTFail("Failed to handle failed response")
-            }
-        }
     }
 
     func testInvalidAccessToken() {

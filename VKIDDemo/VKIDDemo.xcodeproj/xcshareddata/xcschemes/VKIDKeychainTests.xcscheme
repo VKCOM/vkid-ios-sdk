@@ -24,6 +24,17 @@
                ReferencedContainer = "container:VKIDDemo.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "05A550062C383800003B6EC6"
+               BuildableName = "VKIDTestsCore.framework"
+               BlueprintName = "VKIDTestsCore"
+               ReferencedContainer = "container:VKIDDemo.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

@@ -1,5 +1,23 @@
-"vkid_button_primary_title" = "Увійти з VK ID";
-"vkid_button_brief_title" = "VK ID";
+"vkconnect_auth_onetap_login_via_vkid" = "Увійти з VK ID";
+"vkconnect_auth_onetap_vkid" = "VK ID";
+
+"vkconnect_auth_onetap_btn_sign_up_with_vkid" = "Записатися з VK ID";
+"vkconnect_auth_onetap_btn_get_with_vkid" = "Отримати з VK ID";
+"vkconnect_auth_onetap_btn_open_with_vkid" = "Відкрити з VK ID";
+"vkconnect_auth_onetap_btn_calculate_with_vkid" = "Розрахувати з VK ID";
+"vkconnect_auth_onetap_btn_order_with_vkid" = "Замовити з VK ID";
+"vkconnect_auth_onetap_btn_make_order_with_vkid" = "Оформити з VK ID";
+"vkconnect_auth_onetap_btn_submit_request_with_vkid" = "Залишити запит з VK ID";
+"vkconnect_auth_onetap_btn_participate_with_vkid" = "Брати участь з VK ID";
+
+"vkconnect_auth_onetap_btn_sign_up" = "Записатися";
+"vkconnect_auth_onetap_btn_get" = "Отримати";
+"vkconnect_auth_onetap_btn_open" = "Відкрити";
+"vkconnect_auth_onetap_btn_calculate" = "Розрахувати";
+"vkconnect_auth_onetap_btn_order" = "Замовити";
+"vkconnect_auth_onetap_btn_make_order" = "Оформити замовлення";
+"vkconnect_auth_onetap_btn_submit_request" = "Залишити запит";
+"vkconnect_auth_onetap_btn_participate" = "Брати участь";
 
 "vkconnect_auth_floatingonetap_btn_unauth_sign_in_to_account" = "Увійти з VK ID";
 "vkconnect_auth_floatingonetap_header_sign_in_to_service" = "Увійдіть у сервіс або зареєструйтеся";

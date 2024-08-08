@@ -35,7 +35,45 @@
          <TestPlanReference
             reference = "container:TestPlans/SSLPinning.xctestplan">
          </TestPlanReference>
+         <TestPlanReference
+            reference = "container:TestPlans/VKIDCriticalTests.xctestplan">
+         </TestPlanReference>
       </TestPlans>
+      <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "05A550062C383800003B6EC6"
+               BuildableName = "VKIDTestsCore.framework"
+               BlueprintName = "VKIDTestsCore"
+               ReferencedContainer = "container:VKIDDemo.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "05A5500F2C383800003B6EC6"
+               BuildableName = "VKIDTestsCoreTests.xctest"
+               BlueprintName = "VKIDTestsCoreTests"
+               ReferencedContainer = "container:VKIDDemo.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "051189F22C4FBD0A005F9FDC"
+               BuildableName = "VKIDUISnapshotTests.xctest"
+               BlueprintName = "VKIDUISnapshotTests"
+               ReferencedContainer = "container:VKIDDemo.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"

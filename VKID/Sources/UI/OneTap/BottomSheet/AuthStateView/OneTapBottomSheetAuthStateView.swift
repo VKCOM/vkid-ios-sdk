@@ -107,6 +107,7 @@ final class OneTapBottomSheetAuthStateView: UIView {
         button.addTarget(self, action: #selector(self.retryButtonTap), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.alpha = 0
+        button.accessibilityIdentifier = AccessibilityIdentifier.OneTapBottomSheet.Button.retry.id
         return button
     }()
 

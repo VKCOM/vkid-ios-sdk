@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "02492227-ECE9-4314-A913-041D9253BA39",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:VKIDDemo.xcodeproj",
+        "identifier" : "051189F22C4FBD0A005F9FDC",
+        "name" : "VKIDDemoUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -40,13 +40,18 @@ internal protocol WebViewAuthStrategy {
 }
 
 internal final class WebAuthenticationSessionStrategy: NSObject, WebViewAuthStrategy {
+    internal struct Dependencies {
+        let responseParser: AuthCodeResponseParser
+    }
+
     private var authSession: ASWebAuthenticationSession?
     private var subscribeToken: NSObjectProtocol?
     private var presenter: UIKitPresenter?
-    private let responseParser: AuthCodeResponseParser
 
-    init(responseParser: AuthCodeResponseParser) {
-        self.responseParser = responseParser
+    private let deps: Dependencies
+
+    init(deps: Dependencies) {
+        self.deps = deps
     }
 
     deinit {
@@ -86,7 +91,7 @@ internal final class WebAuthenticationSessionStrategy: NSObject, WebViewAuthStra
                 }
             } else if let url {
                 do {
-                    let response = try self.responseParser.parseAuthCodeResponse(from: url)
+                    let response = try self.deps.responseParser.parseAuthCodeResponse(from: url)
                     completion(.success(response))
                 } catch let e as AuthFlowError {
                     completion(.failure(e))
@@ -136,14 +141,18 @@ extension WebAuthenticationSessionStrategy: ASWebAuthenticationPresentationConte
 }
 
 internal final class SafariViewControllerStrategy: NSObject, WebViewAuthStrategy {
-    private let appInteropHandler: AppInteropCompositeHandler
+    internal struct Dependencies {
+        let appInteropHandler: AppInteropCompositeHandling
+        let responseParser: AuthCodeResponseParser
+    }
+
+    private let deps: Dependencies
+
     private var completion: ((Result<AuthCodeResponse, AuthFlowError>) -> Void)?
     private var callbackHandler: ClosureBasedURLHandler?
-    private var responseParser: AuthCodeResponseParser
 
-    init(appInteropHandler: AppInteropCompositeHandler, responseParser: AuthCodeResponseParser) {
-        self.appInteropHandler = appInteropHandler
-        self.responseParser = responseParser
+    init(deps: Dependencies) {
+        self.deps = deps
     }
 
     func authInWebView(
@@ -162,7 +171,7 @@ internal final class SafariViewControllerStrategy: NSObject, WebViewAuthStrategy
                 return false
             }
             do {
-                let response = try self.responseParser.parseAuthCodeResponse(from: url)
+                let response = try self.deps.responseParser.parseAuthCodeResponse(from: url)
                 self.complete(with: .success(response))
             } catch let e as AuthFlowError {
                 completion(.failure(e))
@@ -172,7 +181,7 @@ internal final class SafariViewControllerStrategy: NSObject, WebViewAuthStrategy
             return true
         }
 
-        self.appInteropHandler.attach(handler: handler)
+        self.deps.appInteropHandler.attach(handler: handler)
         self.completion = completion
         self.callbackHandler = handler
     }
@@ -180,7 +189,7 @@ internal final class SafariViewControllerStrategy: NSObject, WebViewAuthStrategy
     private func complete(with result: Result<AuthCodeResponse, AuthFlowError>) {
         self.completion?(result)
         self.completion = nil
-        self.callbackHandler.map(self.appInteropHandler.detach(handler:))
+        self.callbackHandler.map(self.deps.appInteropHandler.detach(handler:))
         self.callbackHandler = nil
     }
 }

@@ -44,25 +44,37 @@ internal struct TypeRegistrationItemNamespace: AnalyticsTypeItemNamespace {
         }
     }
 
+    struct AnalyticsOAuthProvider: Equatable {
+        /// Конвертированное имя провайдера
+        let name: String
+
+        init(oAuthProvider: OAuthProvider) {
+            self.name = switch oAuthProvider.type {
+            case .vkid: "vk"
+            case .ok, .mail: oAuthProvider.type.rawValue
+            }
+        }
+    }
+
     struct AuthErrorParameters {
         let authErrorFrom: String
         let uniqueSessionId: String
-        let oAuthProvider: OAuthProvider?
+        let oAuthProvider: AnalyticsOAuthProvider?
 
         init(context: AuthContext, provider: OAuthProvider) {
             self.authErrorFrom = context.flowSource
             self.uniqueSessionId = context.uniqueSessionId
-            self.oAuthProvider = provider
+            self.oAuthProvider = .init(oAuthProvider: provider)
         }
     }
 
     struct OAuthServiceParameters {
-        let oAuthProvider: OAuthProvider
+        let oAuthProvider: AnalyticsOAuthProvider
         let uniqueSessionId: String
         let buttonType: ButtonType
 
         init(provider: OAuthProvider, uniqueSessionId: String, kind: OneTapButton.Layout.Kind) {
-            self.oAuthProvider = provider
+            self.oAuthProvider = .init(oAuthProvider: provider)
             self.uniqueSessionId = uniqueSessionId
             self.buttonType = .init(
                 kind: kind
@@ -71,10 +83,10 @@ internal struct TypeRegistrationItemNamespace: AnalyticsTypeItemNamespace {
     }
 
     struct OAuthServicesParameters {
-        let oAuthProviders: [OAuthProvider]
+        let oAuthProviders: [AnalyticsOAuthProvider]
 
-        init(providers: [OAuthProvider]) {
-            self.oAuthProviders = providers
+        init(oAuthProviders: [OAuthProvider]) {
+            self.oAuthProviders = oAuthProviders.map { .init(oAuthProvider: $0) }
         }
     }
 
@@ -107,58 +119,48 @@ internal struct TypeRegistrationItemNamespace: AnalyticsTypeItemNamespace {
         }
     }
 
-    struct AppearanceParameters {
-        let language: String?
-        let themeType: String
-        let textType: String
+    struct ScreenProceedParameters {
+        var language: String? = nil
+        var themeType: String? = nil
+        var textType: String? = nil
+        var styleType: String? = nil
 
         init(
-            language: Appearance.Locale?,
-            themeType: Appearance.ColorScheme,
-            textType: OneTapBottomSheet.TargetActionType
+            themeType: Appearance.ColorScheme? = nil,
+            styleType: OneTapButton.Appearance.Style._Style? = nil,
+            textType: String? = nil
         ) {
-            self.language = language?.rawLocale
+            self.language = Appearance.Locale.preferredLocale?.rawLocale
 
-            self.themeType = switch themeType {
-            case .system:
-                themeType.resolveSystemToActualScheme().rawValue
-            case .light, .dark:
-                themeType.rawValue
+            if let themeType {
+                self.themeType = AnalyticsMappings.colorSchemeToText(colorScheme: themeType)
             }
 
-            self.textType = switch textType {
-            case .signIn:
-                "service_sign_in"
-            case .signInToService:
-                "account_sign_in"
-            case .registerForEvent:
-                "event_reg"
-            case .applyFor:
-                "request"
-            case .orderCheckout:
-                "vkid_order_placing"
-            case .orderCheckoutAtService:
-                "service_order_placing"
+            if let textType {
+                self.textType = AnalyticsMappings.textTypeToText(textType: textType)
+            }
+
+            if let styleType {
+                self.styleType = styleType.rawValue
             }
         }
     }
 
     struct CustomAuthStartParameters {
         let uniqueSessionId: String
-        let oAuthProvider: OAuthProvider
+        let oAuthProvider: AnalyticsOAuthProvider
 
         init(
             uniqueSessionId: String,
             oAuthProvider: OAuthProvider
         ) {
             self.uniqueSessionId = uniqueSessionId
-            self.oAuthProvider = oAuthProvider
+            self.oAuthProvider = .init(oAuthProvider: oAuthProvider)
         }
     }
 
     // MARK: - General
-    var screenProceed: ScreenProceed<Empty> { Never() }
-    var screenProceedWithTheme: ScreenProceed<AppearanceParameters> { Never() }
+    var screenProceed: ScreenProceed { Never() }
     var authProviderUsed: AuthProviderUsed { Never() }
     var noAuthProvider: NoAuthProvider { Never() }
     var customAuthStart: CustomAuthStart { Never() }
@@ -182,32 +184,13 @@ internal struct TypeRegistrationItemNamespace: AnalyticsTypeItemNamespace {
     var mailButtonTap: MailButtonTap { Never() }
 
     // MARK: - General
-    struct ScreenProceed<Parameters>: AnalyticsEventTypeAction {
-        typealias Parameters = Parameters
-
-        static func typeAction(with parameters: Parameters, context: AnalyticsEventContext) -> VKIDCore.TypeAction {
-            switch parameters {
-            case let parameters as AppearanceParameters:
-                Self.typeAction(with: parameters, context: context)
-            default:
-                Self.typeAction(context: context)
-            }
-        }
-
-        static func typeAction(with parameters: AppearanceParameters, context: AnalyticsEventContext) -> TypeAction {
+    struct ScreenProceed: AnalyticsEventTypeAction {
+        static func typeAction(with parameters: ScreenProceedParameters, context: AnalyticsEventContext) -> TypeAction {
             TypeAction(
                 typeRegistrationItem: typeRegistrationItem(
                     eventType: .screenProceed,
                     parameters: parameters,
                     context: context
-                )
-            )
-        }
-
-        static func typeAction(context: AnalyticsEventContext) -> TypeAction {
-            TypeAction(
-                typeRegistrationItem: typeRegistrationItem(
-                    eventType: .screenProceed
                 )
             )
         }
@@ -429,13 +412,22 @@ extension TypeRegistrationItemNamespace {
 
     static func typeRegistrationItem(
         eventType: TypeRegistrationItem.EventType,
-        parameters: AppearanceParameters,
+        parameters: ScreenProceedParameters,
         context: AnalyticsEventContext
     ) -> TypeRegistrationItem {
         var typeRegistrationItem = self.typeRegistrationItem(eventType: eventType)
 
-        typeRegistrationItem.addField(themeType: parameters.themeType)
-        typeRegistrationItem.addField(textType: parameters.textType)
+        if let themeType = parameters.themeType {
+            typeRegistrationItem.addField(themeType: themeType)
+        }
+
+        if let textType = parameters.textType {
+            typeRegistrationItem.addField(textType: textType)
+        }
+
+        if let styleType = parameters.styleType {
+            typeRegistrationItem.addField(styleType: styleType)
+        }
 
         if let language = parameters.language {
             typeRegistrationItem.addField(language: language)
@@ -451,12 +443,14 @@ extension TypeRegistrationItemNamespace {
     ) -> TypeRegistrationItem {
         var typeRegistrationItem = self.typeRegistrationItem(eventType: eventType)
 
-        OAuthProvider.allCases.forEach { oAuthProvider in
-            typeRegistrationItem.addField(
-                oAuthProvider: oAuthProvider,
-                value: parameters.oAuthProviders.contains(oAuthProvider)
-            )
-        }
+        OAuthProvider.allCases
+            .map { AnalyticsOAuthProvider(oAuthProvider: $0) }
+            .forEach {
+                typeRegistrationItem.addField(
+                    oAuthProvider: $0,
+                    value: parameters.oAuthProviders.contains($0)
+                )
+            }
 
         return typeRegistrationItem
     }
@@ -522,51 +516,76 @@ extension TypeRegistrationItemNamespace {
 }
 
 extension TypeRegistrationItem {
-    fileprivate mutating func addField(authErrorFrom: String) {
+    fileprivate mutating func addField(
+        authErrorFrom: String
+    ) {
         self.fields.append(
             .init(name: .init(rawValue: authErrorFrom), value: "true")
         )
     }
 
-    fileprivate mutating func addField(buttonType: TypeRegistrationItemNamespace.ButtonType) {
+    fileprivate mutating func addField(
+        buttonType: TypeRegistrationItemNamespace.ButtonType
+    ) {
         self.fields.append(
             .init(name: .buttonType, value: buttonType.rawValue)
         )
     }
 
-    fileprivate mutating func addField(uniqueSessionId: String) {
+    fileprivate mutating func addField(
+        uniqueSessionId: String
+    ) {
         self.fields.append(
             .init(name: .uniqueSessionId, value: uniqueSessionId)
         )
     }
 
-    fileprivate mutating func addField(oAuthProvider: OAuthProvider) {
+    fileprivate mutating func addField(
+        oAuthProvider: TypeRegistrationItemNamespace.AnalyticsOAuthProvider
+    ) {
         self.fields.append(
-            .init(name: .oAuthService, value: oAuthProvider.type.rawValue)
+            .init(name: .oAuthService, value: oAuthProvider.name)
         )
     }
 
-    fileprivate mutating func addField(oAuthProvider: OAuthProvider, value: Bool) {
+    fileprivate mutating func addField(
+        oAuthProvider: TypeRegistrationItemNamespace.AnalyticsOAuthProvider,
+        value: Bool
+    ) {
         self.fields.append(
-            .init(name: .init(rawValue: oAuthProvider.type.rawValue), value: value ? "1" : "0")
+            .init(name: .init(rawValue: oAuthProvider.name), value: value ? "1" : "0")
         )
     }
 
-    fileprivate mutating func addField(language: String) {
+    fileprivate mutating func addField(
+        language: String
+    ) {
         self.fields.append(
             .init(name: .language, value: language)
         )
     }
 
-    fileprivate mutating func addField(themeType: String) {
+    fileprivate mutating func addField(
+        themeType: String
+    ) {
         self.fields.append(
             .init(name: .themeType, value: themeType)
         )
     }
 
-    fileprivate mutating func addField(textType: String) {
+    fileprivate mutating func addField(
+        textType: String
+    ) {
         self.fields.append(
             .init(name: .textType, value: textType)
+        )
+    }
+
+    fileprivate mutating func addField(
+        styleType: String
+    ) {
+        self.fields.append(
+            .init(name: .styleType, value: styleType)
         )
     }
 }

@@ -3,6 +3,12 @@
 > **Note**\
 > Описание основных изменений в релизах VK ID SDK. Наш SDK следует [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.1.0 - 2024-08-08
+
+### Added
+- Возможность выбрать текст `OneTapButton`. Это позволяет адаптировать кнопку для разных сценариев — например, для получения услуги отобразить текст «Записаться c VK ID». Подробнее о настройке текста в кнопке читайте в [документации](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/elements/onetap-button/onetap-ios)
+- Файл манифеста `PrivacyInfo.xcprivacy`, описывающий какие пользовательские данные использует VK ID SDK. Подробнее в статье Apple про [Privacy manifest files](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files) 
+
 ## 2.0.0 - 2024-06-25
 
 ### Added

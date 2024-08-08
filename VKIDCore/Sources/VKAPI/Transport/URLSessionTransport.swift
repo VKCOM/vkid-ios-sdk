@@ -28,6 +28,28 @@
 
 import Foundation
 
+package protocol URLSessionProtocol {
+    func dataTask(
+        with request: URLRequest,
+        completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void
+    ) -> URLSessionDataTaskProtocol
+}
+
+package protocol URLSessionDataTaskProtocol {
+    func resume()
+}
+
+extension URLSession: URLSessionProtocol {
+    package func dataTask(
+        with request: URLRequest,
+        completionHandler: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void
+    ) -> any URLSessionDataTaskProtocol {
+        self.dataTask(with: request, completionHandler: completionHandler) as URLSessionDataTask
+    }
+}
+
+extension URLSessionDataTask: URLSessionDataTaskProtocol {}
+
 package final class URLSessionTransport: NSObject, VKAPITransport {
     private let urlRequestBuilder: URLRequestBuilding
     private let requestInterceptors: [VKAPIRequestInterceptor]
@@ -44,7 +66,7 @@ package final class URLSessionTransport: NSObject, VKAPITransport {
         return decoder
     }()
 
-    private lazy var session: URLSession = {
+    private lazy var session: URLSessionProtocol = {
         let delegateQueue = OperationQueue()
         delegateQueue.maxConcurrentOperationCount = 1 // make serial
         delegateQueue.underlyingQueue = self.processingQueue
@@ -72,6 +94,30 @@ package final class URLSessionTransport: NSObject, VKAPITransport {
         self.sslPinningValidator = SSLPinningValidator(configuration: sslPinningConfiguration)
         self.logger = logger
         self.processingQueue = DispatchQueue(label: "com.vkid.core.transport.processingQueue")
+    }
+
+    internal convenience init(
+        urlRequestBuilder: URLRequestBuilding,
+        requestInterceptors: [VKAPIRequestInterceptor] = [],
+        responseInterceptors: [VKAPIResponseInterceptor] = [],
+        genericParameters: VKAPIGenericParameters,
+        defaultHeaders: [String: String],
+        sslPinningConfiguration: SSLPinningConfiguration,
+        logger: Logging = Logger(subsystem: "VKAPI"),
+        urlSession: URLSessionProtocol? = nil
+    ) {
+        self.init(
+            urlRequestBuilder: urlRequestBuilder,
+            requestInterceptors: requestInterceptors,
+            responseInterceptors: responseInterceptors,
+            genericParameters: genericParameters,
+            defaultHeaders: defaultHeaders,
+            sslPinningConfiguration: sslPinningConfiguration,
+            logger: logger
+        )
+        if let urlSession {
+            self.session = urlSession
+        }
     }
 
     package func execute<T: VKAPIResponse>(

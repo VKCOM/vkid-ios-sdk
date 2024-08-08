@@ -39,13 +39,13 @@ internal enum AuthProviderError: Error {
 
 internal final class AuthByProviderFlow: Component, AuthFlow {
     struct Dependencies: Dependency {
-        let appInteropHandler: AppInteropCompositeHandler
+        let appInteropHandler: AppInteropCompositeHandling
+        let appInteropOpener: AppInteropURLOpening
         let authProvidersFetcher: AuthProviderFetcher
         let appCredentials: AppCredentials
         let authConfig: ExtendedAuthConfiguration
         let authContext: AuthContext
         let analytics: Analytics<TypeRegistrationItemNamespace>
-        let pkceGenerator: PKCESecretsGenerator
         let responseParser: AuthCodeResponseParser
         let authURLBuilder: AuthURLBuilder
         let api: VKAPI<OAuth2>
@@ -168,7 +168,7 @@ internal final class AuthByProviderFlow: Component, AuthFlow {
             from: providerUniversalLink,
             scheme: provider.deepLinkScheme
         )
-        self.deps.appInteropHandler.openApp(
+        self.deps.appInteropOpener.openApp(
             universalLink: providerUniversalLink,
             fallbackDeepLink: providerDeepLink
         ) { [weak self] opened in

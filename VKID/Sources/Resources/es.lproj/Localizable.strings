@@ -1,5 +1,23 @@
-"vkid_button_primary_title" = "Iniciar sesión con VK ID";
-"vkid_button_brief_title" = "VK ID";
+"vkconnect_auth_onetap_login_via_vkid" = "Iniciar sesión con VK ID";
+"vkconnect_auth_onetap_vkid" = "VK ID";
+
+"vkconnect_auth_onetap_btn_sign_up_with_vkid" = "Registrarse con VK ID";
+"vkconnect_auth_onetap_btn_get_with_vkid" = "Obtener con VK ID";
+"vkconnect_auth_onetap_btn_open_with_vkid" = "Abrir con VK ID";
+"vkconnect_auth_onetap_btn_calculate_with_vkid" = "Calcular con VK ID";
+"vkconnect_auth_onetap_btn_order_with_vkid" = "Pedir con VK ID";
+"vkconnect_auth_onetap_btn_make_order_with_vkid" = "Pedir con VK ID";
+"vkconnect_auth_onetap_btn_submit_request_with_vkid" = "Enviar solicitud con VK ID";
+"vkconnect_auth_onetap_btn_participate_with_vkid" = "Participar con VK ID";
+
+"vkconnect_auth_onetap_btn_sign_up" = "Registrarse";
+"vkconnect_auth_onetap_btn_get" = "Obtener";
+"vkconnect_auth_onetap_btn_open" = "Abrir";
+"vkconnect_auth_onetap_btn_calculate" = "Calcular";
+"vkconnect_auth_onetap_btn_order" = "Pedir";
+"vkconnect_auth_onetap_btn_make_order" = "Hacer pedido";
+"vkconnect_auth_onetap_btn_submit_request" = "Enviar solicitud";
+"vkconnect_auth_onetap_btn_participate" = "Participar";
 
 "vkconnect_auth_floatingonetap_btn_unauth_sign_in_to_account" = "Iniciar sesión con VK ID";
 "vkconnect_auth_floatingonetap_header_sign_in_to_service" = "Acceder al servicio o registrarse";

@@ -376,6 +376,7 @@ final class AuthViewController: VKIDDemoViewController {
 
             self.action = {
                 self.vkid?.authorize(
+                    with: self.makeConfiguration(),
                     using: .uiViewController(self)
                 ) { _ in }
             }
@@ -406,7 +407,7 @@ final class AuthViewController: VKIDDemoViewController {
         }
     }
 
-    private func makeButton(onTap: (()-> Void)? = nil) -> OneTapButton {
+    private func makeButton() -> OneTapButton {
         if self.oAuthProviders.isEmpty {
             return .init(
                 layout: self.authUI == .icon ?
@@ -500,7 +501,9 @@ final class AuthViewController: VKIDDemoViewController {
 extension AuthViewController: VKIDObserver {
     func vkid(_ vkid: VKID, didLogoutFrom session: UserSession, with result: LogoutResult) {}
 
-    func vkid(_ vkid: VKID, didStartAuthUsing oAuth: OAuthProvider) {}
+    func vkid(_ vkid: VKID, didStartAuthUsing oAuth: OAuthProvider) {
+        print("Auth started with \(oAuth)")
+    }
 
     func vkid(_ vkid: VKID, didCompleteAuthWith result: AuthResult, in oAuth: OAuthProvider) {
         do {
