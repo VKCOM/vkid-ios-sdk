@@ -158,16 +158,15 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        self.vkid.rootContainer.productAnalytics.screenProceedWithTheme
+        self.vkid.rootContainer.productAnalytics.screenProceed
             .context { ctx in
                 ctx.screen = .floatingOneTap
                 return ctx
             }
             .send(
                 .init(
-                    language: Appearance.Locale.preferredLocale,
                     themeType: self.theme.colorScheme,
-                    textType: self.targetActionText.type
+                    textType: self.targetActionText.rawType.rawValue
                 )
             )
     }
@@ -331,9 +330,7 @@ extension OneTapBottomSheetContentViewController: OneTapBottomSheetAuthStateView
             authConfig: .init(),
             oAuthProviderConfig: .init(primaryProvider: oAuth),
             presenter: .newUIWindow,
-            completion: { [onCompleteAuth = self.onCompleteAuth] result in
-                onCompleteAuth?(result)
-            }
+            completion: { _ in }
         )
     }
 }

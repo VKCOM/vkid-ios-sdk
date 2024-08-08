@@ -114,14 +114,24 @@ public final class VKID {
 
     /// Создает объект VKID с указанной конфигурацией
     /// - Parameter config: объект конфигурация VKID
-    public init(config: Configuration) throws {
+    public convenience init(config: Configuration) throws {
+        try self.init(
+            config: config,
+            rootContainer: RootContainer(
+                appCredentials: config.appCredentials,
+                networkConfiguration: config.network
+            )
+        )
+    }
+
+    internal init(
+        config: Configuration,
+        rootContainer: RootContainer
+    ) throws {
         Appearance.ColorScheme.current = config.appearance.colorScheme
 
         self.config = config
-        self.rootContainer = RootContainer(
-            appCredentials: config.appCredentials,
-            networkConfiguration: config.network
-        )
+        self.rootContainer = rootContainer
 
         self.rootContainer.userSessionManager.delegate = self
         self.observers.add(
@@ -187,7 +197,12 @@ public final class VKID {
         presenter: UIKitPresenter,
         completion: @escaping AuthResultCompletion
     ) {
-        guard let pkce = authConfig.flow.pkce ?? (try? PKCESecrets())
+        guard
+            let pkce = authConfig.flow.pkce ?? (
+                try? PKCESecrets(
+                    pkceSecretsGenerator: self.rootContainer.pkceSecretsGenerator
+                )
+            )
         else {
             let pkceGenerationFailed: AuthResult = .failure(.unknown)
             self.observers.notify {
@@ -248,19 +263,24 @@ public final class VKID {
 
         switch extendedAuthConfig.oAuthProvider.type {
         case .vkid:
-            self.activeFlow = self.rootContainer.serviceAuthFlow(
+            self.activeFlow = self.rootContainer.authFlowBuilder.serviceAuthFlow(
                 in: authContext,
                 for: extendedAuthConfig,
                 appearance: self.appearance
             )
         case .ok, .mail:
-            self.activeFlow = self.rootContainer.webViewAuthFlow(
+            self.activeFlow = self.rootContainer.authFlowBuilder.webViewAuthFlow(
                 in: authContext,
                 for: extendedAuthConfig,
                 appearance: self.appearance
             )
         }
-
+        self.observers.notify {
+            $0.vkid(
+                self,
+                didStartAuthUsing: extendedAuthConfig.oAuthProvider
+            )
+        }
         self.activeFlow?.authorize(with: presenter) { [weak self] result in
             dispatchPrecondition(condition: .onQueue(.main))
 
@@ -293,12 +313,6 @@ public final class VKID {
                 )
             }
             completion(authResult)
-        }
-        self.observers.notify {
-            $0.vkid(
-                self,
-                didStartAuthUsing: extendedAuthConfig.oAuthProvider
-            )
         }
     }
 }

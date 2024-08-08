@@ -30,11 +30,14 @@ import Foundation
 import UIKit
 import VKID
 
-final class OneTapButtonCustomizationController: VKIDDemoViewController {
+final class OneTapButtonCustomizationController: VKIDDemoViewController,
+    UIPickerViewDelegate
+{
     override var supportsScreenSplitting: Bool { true }
 
     lazy var config: OneTapButtonConfiguration = .init(
         alternativeProviders: [],
+        oneTapButtonTitle: nil,
         oneTapButtonStyle: .primary(),
         oneTapButtonTheme: .matchingColorScheme(self.appearance.colorScheme),
         oneTapButtonHeight: .large(.h48),
@@ -93,6 +96,21 @@ final class OneTapButtonCustomizationController: VKIDDemoViewController {
         segmentControl.translatesAutoresizingMaskIntoConstraints = false
         return segmentControl
     }()
+
+    lazy var pickerViewLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Title"
+        label.font = .systemFont(ofSize: 20)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    lazy var pickerView: PickerView = {
+        let pickerView = PickerView(items: self.config.oneTapButtonTitles)
+        pickerView.translatesAutoresizingMaskIntoConstraints = false
+        pickerView.delegate = self
+        return pickerView
+    } ()
 
     lazy var heightSegmentControlLabel: UILabel = {
         let label = UILabel()
@@ -252,6 +270,30 @@ final class OneTapButtonCustomizationController: VKIDDemoViewController {
         self.updateOneTapButton()
 
         self.view.setNeedsLayout()
+    }
+
+    /// UIPickerViewDelegate
+    func pickerView(
+        _ pickerView: UIPickerView,
+        viewForRow row: Int,
+        forComponent component: Int,
+        reusing view: UIView?
+    ) -> UIView {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 16)
+        label.textAlignment = .center
+        label.text = self.config.oneTapButtonTitles[row]?.primary ?? " - "
+
+        return label
+    }
+
+    func pickerView(
+        _ pickerView: UIPickerView,
+        didSelectRow row: Int,
+        inComponent component: Int
+    ) {
+        self.config.oneTapButtonTitle = self.config.oneTapButtonTitles[row]
+        self.updateOneTapButton()
     }
 
     @objc
@@ -483,6 +525,9 @@ final class OneTapButtonCustomizationController: VKIDDemoViewController {
         self.contentView.addSubview(self.styleSegmentControl)
         self.contentView.addSubview(self.styleSegmentControlLabel)
 
+        self.contentView.addSubview(self.pickerViewLabel)
+        self.contentView.addSubview(self.pickerView)
+
         self.contentView.addSubview(self.heightSegmentControlLabel)
         self.contentView.addSubview(self.heightSegmentControl)
 
@@ -558,7 +603,6 @@ final class OneTapButtonCustomizationController: VKIDDemoViewController {
             ),
 
             // MARK: - style swithcer
-
             self.styleSegmentControlLabel.topAnchor.constraint(
                 equalTo: self.measureSwitcherLabel.bottomAnchor, constant: 64
             ),
@@ -585,9 +629,36 @@ final class OneTapButtonCustomizationController: VKIDDemoViewController {
                 equalToConstant: 30
             ),
 
+            // MARK: - Title picker
+            self.pickerViewLabel.topAnchor.constraint(
+                equalTo: self.styleSegmentControl.bottomAnchor, constant: 64
+            ),
+            self.pickerViewLabel.leadingAnchor.constraint(
+                equalTo: self.contentView.leadingAnchor, constant: 16
+            ),
+            self.pickerViewLabel.trailingAnchor.constraint(
+                equalTo: self.contentView.trailingAnchor, constant: -16
+            ),
+            self.pickerViewLabel.heightAnchor.constraint(
+                equalToConstant: 30
+            ),
+
+            self.pickerView.topAnchor.constraint(
+                equalTo: self.pickerViewLabel.bottomAnchor, constant: 16
+            ),
+            self.pickerView.leadingAnchor.constraint(
+                equalTo: self.contentView.leadingAnchor, constant: 16
+            ),
+            self.pickerView.trailingAnchor.constraint(
+                equalTo: self.contentView.trailingAnchor, constant: -16
+            ),
+            self.pickerView.heightAnchor.constraint(
+                equalToConstant: 70
+            ),
+
             // MARK: - height segment control
             self.heightSegmentControlLabel.topAnchor.constraint(
-                equalTo: self.styleSegmentControl.bottomAnchor, constant: 64
+                equalTo: self.pickerView.bottomAnchor, constant: 64
             ),
             self.heightSegmentControlLabel.leadingAnchor.constraint(
                 equalTo: self.contentView.leadingAnchor, constant: 16
@@ -779,7 +850,21 @@ extension OneTapButtonCustomizationController {
 }
 
 internal struct OneTapButtonConfiguration {
+    let oneTapButtonTitles: [OneTapButton.Appearance.Title?] = [
+        nil,
+        .signUp,
+        .get,
+        .open,
+        .calculate,
+        .order,
+        .makeOrder,
+        .submitRequest,
+        .participate,
+    ]
+
     var alternativeProviders: [OAuthProvider] = []
+
+    var oneTapButtonTitle: OneTapButton.Appearance.Title?
 
     var oneTapButtonStyle: OneTapButton.Appearance.Style
 
@@ -816,10 +901,18 @@ internal struct OneTapButtonConfiguration {
     }
 
     var oneTapButtonAppearance: OneTapButton.Appearance {
-        OneTapButton.Appearance(
-            style: self.oneTapButtonStyle,
-            theme: self.oneTapButtonTheme
-        )
+        if let title = self.oneTapButtonTitle {
+            return OneTapButton.Appearance(
+                title: title,
+                style: self.oneTapButtonStyle,
+                theme: self.oneTapButtonTheme
+            )
+        } else {
+            return OneTapButton.Appearance(
+                style: self.oneTapButtonStyle,
+                theme: self.oneTapButtonTheme
+            )
+        }
     }
 
     var oneTapButtonLayout: OneTapButton.Layout {

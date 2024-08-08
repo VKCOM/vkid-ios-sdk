@@ -30,8 +30,13 @@ import Foundation
 import UIKit
 import VKIDCore
 
-internal protocol AppInteropURLHandler: AnyObject {
+internal protocol AppInteropURLHandling: AnyObject {
     func open(url: URL) -> Bool
+}
+
+internal protocol AppInteropCompositeHandling: AppInteropURLHandling {
+    func attach(handler: AppInteropURLHandling)
+    func detach(handler: AppInteropURLHandling)
 }
 
 internal protocol AppInteropURLOpening {
@@ -42,8 +47,8 @@ internal protocol AppInteropURLOpening {
     )
 }
 
-internal final class AppInteropCompositeHandler: AppInteropURLOpening, AppInteropURLHandler {
-    private var handlers: [AppInteropURLHandler] = []
+internal final class AppInteropCompositeHandler: AppInteropCompositeHandling {
+    private var handlers: [AppInteropURLHandling] = []
 
     func open(url: URL) -> Bool {
         self.handlers.contains { item in
@@ -51,17 +56,19 @@ internal final class AppInteropCompositeHandler: AppInteropURLOpening, AppIntero
         }
     }
 
-    internal func attach(handler: AppInteropURLHandler) {
+    internal func attach(handler: AppInteropURLHandling) {
         guard !self.handlers.contains(byReference: handler) else {
             return
         }
         self.handlers.append(handler)
     }
 
-    internal func detach(handler: AppInteropURLHandler) {
+    internal func detach(handler: AppInteropURLHandling) {
         self.handlers.removeByReference(handler)
     }
+}
 
+internal final class AppInteropURLOpener: AppInteropURLOpening {
     func openApp(
         universalLink: URL,
         fallbackDeepLink: URL?,
@@ -91,7 +98,7 @@ internal final class AppInteropCompositeHandler: AppInteropURLOpening, AppIntero
     }
 }
 
-internal final class ClosureBasedURLHandler: AppInteropURLHandler {
+internal final class ClosureBasedURLHandler: AppInteropURLHandling {
     private let closure: (URL) -> Bool
 
     init(closure: @escaping (URL) -> Bool) {

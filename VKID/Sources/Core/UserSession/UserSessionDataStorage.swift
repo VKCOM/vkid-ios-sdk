@@ -50,8 +50,11 @@ internal protocol Storage<T> {
     func removeAllUserSessionsData() throws
 }
 
-typealias UserSessionDataStorage = StorageImpl<UserSessionData>
-typealias LegacyUserSessionDataStorage = StorageImpl<LegacyUserSessionData>
+typealias UserSessionDataStorage = Storage<UserSessionData>
+typealias LegacyUserSessionDataStorage = Storage<LegacyUserSessionData>
+
+typealias UserSessionDataStorageImpl = StorageImpl<UserSessionData>
+typealias LegacyUserSessionDataStorageImpl = StorageImpl<LegacyUserSessionData>
 
 internal final class StorageImpl<U: Storable>: Storage {
     /// Зависимости хранилища

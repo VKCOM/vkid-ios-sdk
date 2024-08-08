@@ -52,6 +52,13 @@ internal protocol AuthURLBuilder {
     ) throws -> URL
 }
 
+private let encoder: JSONEncoder = {
+    let encoder = JSONEncoder()
+    encoder.keyEncodingStrategy = .convertToSnakeCase
+    encoder.outputFormatting = .sortedKeys
+    return encoder
+}()
+
 internal final class AuthURLBuilderImpl: AuthURLBuilder {
     func buildProviderAuthURL(
         baseURL: URL,
@@ -162,48 +169,67 @@ internal final class AuthURLBuilderImpl: AuthURLBuilder {
 }
 
 internal func redirectURL(for clientId: String, in context: AuthContext, scope: String? = nil) -> URL {
-    struct OAuth2Parameters: Encodable {
-        static let encoder: JSONEncoder = {
-            let encoder = JSONEncoder()
-            encoder.keyEncodingStrategy = .convertToSnakeCase
-            encoder.outputFormatting = .sortedKeys
-            return encoder
-        }()
-
-        struct StatsInfo: Encodable {
-            let sessionId: String
-            let flowSource: String
-        }
-
-        let scope: String?
-        let statsInfo: StatsInfo
-
-        init(scope: String?, sessionId: String, flowSource: String) {
-            self.scope = scope
-            self.statsInfo = .init(
-                sessionId: sessionId,
-                flowSource: flowSource
-            )
-        }
-    }
-
-    var components = URLComponents(string: "vk\(clientId)://\(Env.apiHost)/blank.html")!
-
-    let flowSource = context.flowSource
-
-    let oAuth2Params = OAuth2Parameters(
-        scope: scope,
-        sessionId: context.uniqueSessionId,
-        flowSource: flowSource
+    var components = URLComponents.using(
+        url: .serviceApplication(
+            with: clientId,
+            host: "\(Env.apiHost)/blank.html"
+        )
     )
 
-    if let jsonData = try? OAuth2Parameters.encoder.encode(oAuth2Params) {
+    let oAuth2Params = oAuth2Parameters(
+        from: context,
+        with: scope
+    )
+
+    if let oAuth2Params {
         components.queryItems = [
-            .oAuth2Params(String(data: jsonData.base64EncodedData(), encoding: .utf8)),
+            .oAuth2Params(oAuth2Params),
         ]
     }
 
     return components.url!
+}
+
+internal func statsInfo(from authContext: AuthContext, shouldBeBase64Encoded: Bool) -> String? {
+    struct StatsInfo: Encodable {
+        let sessionId: String
+        let flowSource: String
+    }
+
+    let statsInfo = StatsInfo(
+        sessionId: authContext.uniqueSessionId,
+        flowSource: authContext.flowSource
+    )
+
+    guard var jsonData = try? encoder.encode(statsInfo) else { return nil }
+
+    if shouldBeBase64Encoded {
+        jsonData = jsonData.base64EncodedData()
+    }
+
+    return String(
+        data: jsonData ,
+        encoding: .utf8
+    )
+}
+
+internal func oAuth2Parameters(from authContext: AuthContext, with scope: String?) -> String? {
+    struct OAuth2Parameters: Encodable {
+        let scope: String?
+        let statsInfo: String?
+    }
+
+    let oAuth2Parameters = OAuth2Parameters(
+        scope: scope,
+        statsInfo: statsInfo(from: authContext, shouldBeBase64Encoded: false)
+    )
+
+    guard let jsonData = try? encoder.encode(oAuth2Parameters) else { return nil }
+
+    return String(
+        data: jsonData.base64EncodedData(),
+        encoding: .utf8
+    )
 }
 
 extension Appearance {
@@ -251,6 +277,18 @@ extension UIUserInterfaceStyle {
         @unknown default:
             return nil
         }
+    }
+}
+
+extension URL {
+    internal static func serviceApplication(with clientId: String, host: String = "") -> Self {
+        Self(string: "vk\(clientId)://\(host)")!
+    }
+}
+
+extension URLComponents {
+    internal static func using(url: URL) -> Self {
+        Self(string: url.absoluteString)!
     }
 }
 
@@ -343,7 +381,7 @@ extension URLQueryItem {
 
     internal static let oAuthVersion = Self(name: "oauth_version", value: "2")
 
-    internal static func scope(_ scope: String) -> Self {
+    internal static func scope(_ scope: String?) -> Self {
         Self(
             name: "scope",
             value: scope

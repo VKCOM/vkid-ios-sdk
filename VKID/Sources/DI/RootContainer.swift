@@ -39,15 +39,17 @@ internal final class RootContainer {
 
     internal init(
         appCredentials: AppCredentials,
-        networkConfiguration: NetworkConfiguration
+        networkConfiguration: NetworkConfiguration,
+        webViewStrategyFactory: WebViewAuthStrategyFactory? = nil
     ) {
         self.appCredentials = appCredentials
         self.networkConfiguration = networkConfiguration
         self.defaultHeaders = ["User-Agent": "\(UserAgent.default) VKID/\(Env.VKIDVersion)"]
         self.apiHosts = APIHosts(template: networkConfiguration.customDomainTemplate, hostname: Env.apiHost)
+        self.webViewStrategyFactory = webViewStrategyFactory
     }
 
-    internal var anonymousTokenTransport: URLSessionTransport {
+    internal lazy var anonymousTokenTransport: VKAPITransport = {
         URLSessionTransport(
             urlRequestBuilder: URLRequestBuilder(
                 apiHosts: self.apiHosts
@@ -61,7 +63,7 @@ internal final class RootContainer {
             defaultHeaders: self.defaultHeaders,
             sslPinningConfiguration: self.sslPinningConfiguration
         )
-    }
+    }()
 
     internal lazy var requestAuthorizationInterceptor = RequestAuthorizationInterceptor(
         deps: .init(
@@ -77,7 +79,7 @@ internal final class RootContainer {
         )
     )
 
-    internal lazy var mainTransport: URLSessionTransport = {
+    internal lazy var mainTransport: VKAPITransport = {
         URLSessionTransport(
             urlRequestBuilder: URLRequestBuilder(
                 apiHosts: self.apiHosts
@@ -106,9 +108,10 @@ internal final class RootContainer {
     }
 
     internal lazy var keychain = Keychain()
-    internal lazy var appInteropHandler = AppInteropCompositeHandler()
-    internal lazy var responseParser = AuthCodeResponseParserImpl()
-    internal lazy var authURLBuilder = AuthURLBuilderImpl()
+    internal lazy var appInteropHandler: AppInteropCompositeHandling = AppInteropCompositeHandler()
+    internal lazy var appInteropURLOpener: AppInteropURLOpening = AppInteropURLOpener()
+    internal lazy var responseParser: AuthCodeResponseParser = AuthCodeResponseParserImpl()
+    internal lazy var authURLBuilder: AuthURLBuilder = AuthURLBuilderImpl()
     internal lazy var logger: Logging = Logger(subsystem: "VKID")
     internal lazy var tokenService = TokenService(
         deps: .init(
@@ -146,18 +149,19 @@ internal final class RootContainer {
             legacyUserSessionDataStorage: self.legacyUserSessionDataStorage
         )
     )
-    internal lazy var userSessionDataStorage: UserSessionDataStorage = StorageImpl<UserSessionData>(
+    internal lazy var userSessionDataStorage: any UserSessionDataStorage = UserSessionDataStorageImpl(
         deps: .init(
             keychain: self.keychain,
             appCredentials: self.appCredentials
         )
     )
-    internal lazy var legacyUserSessionDataStorage: LegacyUserSessionDataStorage = StorageImpl<LegacyUserSessionData>(
-        deps: .init(
-            keychain: self.keychain,
-            appCredentials: self.appCredentials
+    internal lazy var legacyUserSessionDataStorage: any LegacyUserSessionDataStorage =
+        StorageImpl<LegacyUserSessionData>(
+            deps: .init(
+                keychain: self.keychain,
+                appCredentials: self.appCredentials
+            )
         )
-    )
     internal lazy var legacyLogoutService = LegacyLogoutServiceImpl(
         deps: .init(
             api: VKAPI<Auth>(transport: self.mainTransport),
@@ -221,10 +225,21 @@ internal final class RootContainer {
     }
 
     internal lazy var appStateProvider: AppStateProvider = UIApplication.shared
+
+    internal var webViewStrategyFactory: WebViewAuthStrategyFactory?
+
+    internal lazy var authFlowBuilder: AuthFlowBuilder = {
+        AuthFlowBuilderImpl(rootContainer: self)
+    }()
+
+    internal lazy var pkceSecretsGenerator: PKCESecretsGenerator = {
+        PKCESecretsS256Generator()
+    }()
 }
 
-extension RootContainer: AuthFlowBuilder {
-    func webViewAuthFlow(
+// AuthFlowBuilder implementation
+extension RootContainer {
+    internal func webViewAuthFlow(
         in authContext: AuthContext,
         for authConfig: ExtendedAuthConfiguration,
         appearance: Appearance
@@ -237,11 +252,13 @@ extension RootContainer: AuthFlowBuilder {
                 authConfig: authConfig,
                 authContext: authContext,
                 oAuthProvider: authConfig.oAuthProvider,
-                pkceGenerator: PKCESecretsS256Generator(),
                 authURLBuilder: self.authURLBuilder,
-                webViewStrategyFactory: WebViewAuthStrategyDefaultFactory(
-                    appInteropHandler: self.appInteropHandler,
-                    responseParser: self.responseParser
+                webViewStrategyFactory: self.webViewStrategyFactory ?? WebViewAuthStrategyDefaultFactory(
+                    deps: .init(
+                        appInteropHandler: self.appInteropHandler,
+                        appInteropOpener: self.appInteropURLOpener,
+                        responseParser: self.responseParser
+                    )
                 ),
                 logger: self.logger,
                 deviceId: self.deviceId,
@@ -253,7 +270,7 @@ extension RootContainer: AuthFlowBuilder {
         )
     }
 
-    func authByProviderFlow(
+    internal func authByProviderFlow(
         in authContext: AuthContext,
         for authConfig: ExtendedAuthConfiguration,
         appearance: Appearance
@@ -261,6 +278,7 @@ extension RootContainer: AuthFlowBuilder {
         AuthByProviderFlow(
             deps: .init(
                 appInteropHandler: self.appInteropHandler,
+                appInteropOpener: self.appInteropURLOpener,
                 authProvidersFetcher: AuthProviderFetcherImpl(
                     deps: .init(
                         api: VKAPI<Auth>(transport: self.mainTransport)
@@ -270,7 +288,6 @@ extension RootContainer: AuthFlowBuilder {
                 authConfig: authConfig,
                 authContext: authContext,
                 analytics: self.productAnalytics,
-                pkceGenerator: PKCESecretsS256Generator(),
                 responseParser: self.responseParser,
                 authURLBuilder: self.authURLBuilder,
                 api: VKAPI<OAuth2>(transport: self.mainTransport),
@@ -280,7 +297,7 @@ extension RootContainer: AuthFlowBuilder {
         )
     }
 
-    func serviceAuthFlow(
+    internal func serviceAuthFlow(
         in authContext: AuthContext,
         for authConfig: ExtendedAuthConfiguration,
         appearance: Appearance

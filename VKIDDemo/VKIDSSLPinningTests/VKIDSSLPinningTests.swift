@@ -34,9 +34,10 @@ import XCTest
 final class VKIDSSLPinningTests: XCTestCase {
     private let testCaseMeta = Allure.TestCase.MetaInformation(
         owner: .vkidTester,
-        layer: .integration,
+        layer: .unit,
         product: .VKIDSDK,
-        feature: "SSL пиннинг"
+        feature: "SSL пиннинг",
+        priority: .critical
     )
     private var api: VKAPI<Auth>!
     private var appCredentials: AppCredentials!
@@ -83,6 +84,7 @@ final class VKIDSSLPinningTests: XCTestCase {
     func testRequestIsCancelledIfTrafficIsSniffed() {
         Allure.report(
             .init(
+                id: self.packageManager.testCaseId(cocoapodsId: 2315475, spmId: 2315477),
                 name: "[\(self.packageManager)] Если трафик сниффится, то запрос отменяется",
                 meta: self.testCaseMeta
             )
@@ -114,6 +116,7 @@ final class VKIDSSLPinningTests: XCTestCase {
     func testRequestIsSucceededIfTrafficIsNotSniffed() {
         Allure.report(
             .init(
+                id: self.packageManager.testCaseId(cocoapodsId: 2315476, spmId: 2315478),
                 name: "[\(self.packageManager)] Если трафик НЕ сниффится, то запрос выполняется",
                 meta: self.testCaseMeta
             )
@@ -140,5 +143,17 @@ final class VKIDSSLPinningTests: XCTestCase {
                 }
             self.wait(for: [requestCompleted], timeout: 60)
         }
+    }
+}
+
+extension String {
+    fileprivate func testCaseId(cocoapodsId: Int, spmId: Int) -> Int? {
+        if self == "cocoapods" {
+            return cocoapodsId
+        } else if self == "spm" {
+            return spmId
+        }
+
+        return nil
     }
 }

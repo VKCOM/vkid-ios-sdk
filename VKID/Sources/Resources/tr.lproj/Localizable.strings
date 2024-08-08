@@ -1,5 +1,23 @@
-"vkid_button_primary_title" = "VK ID aracılığıyla gir";
-"vkid_button_brief_title" = "VK ID";
+"vkconnect_auth_onetap_login_via_vkid" = "VK ID aracılığıyla gir";
+"vkconnect_auth_onetap_vkid" = "VK ID";
+
+"vkconnect_auth_onetap_btn_sign_up_with_vkid" = "VK ID ile kaydol";
+"vkconnect_auth_onetap_btn_get_with_vkid" = "VK ID ile al";
+"vkconnect_auth_onetap_btn_open_with_vkid" = "VK ID ile aç";
+"vkconnect_auth_onetap_btn_calculate_with_vkid" = "VK ID ile hesapla" ;
+"vkconnect_auth_onetap_btn_order_with_vkid" = "VK ID ile sipariş ver";
+"vkconnect_auth_onetap_btn_make_order_with_vkid" = "VK ID ile işlem yap";
+"vkconnect_auth_onetap_btn_submit_request_with_vkid" = "VK ID ile talepname bırak";
+"vkconnect_auth_onetap_btn_participate_with_vkid" = "VK ID ile katıl";
+
+"vkconnect_auth_onetap_btn_sign_up" = "Kaydol";
+"vkconnect_auth_onetap_btn_get" = "Al";
+"vkconnect_auth_onetap_btn_open" = "Aç";
+"vkconnect_auth_onetap_btn_calculate" = "Hesapla";
+"vkconnect_auth_onetap_btn_order" = "Sipariş ver";
+"vkconnect_auth_onetap_btn_make_order" = "Siparişi tamamlar";
+"vkconnect_auth_onetap_btn_submit_request" = "Başvuru bırak";
+"vkconnect_auth_onetap_btn_participate" = "Katıl";
 
 "vkconnect_auth_floatingonetap_btn_unauth_sign_in_to_account" = "VK ID aracılığıyla gir";
 "vkconnect_auth_floatingonetap_header_sign_in_to_service" = "Hizmete girin yada oturum oluşturun";

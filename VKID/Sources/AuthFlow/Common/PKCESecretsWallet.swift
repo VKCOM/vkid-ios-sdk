@@ -83,3 +83,13 @@ internal class PKCESecretsWallet: Expiring {
         self.secrets = nil
     }
 }
+
+extension PKCESecretsWallet: Equatable {
+    static func == (lhs: PKCESecretsWallet, rhs: PKCESecretsWallet) -> Bool {
+        lhs.secrets == rhs.secrets
+    }
+
+    static func ==(lhs: PKCESecretsWallet, rhs: PKCESecrets) throws -> Bool {
+        try lhs.validateSecrets() == rhs
+    }
+}

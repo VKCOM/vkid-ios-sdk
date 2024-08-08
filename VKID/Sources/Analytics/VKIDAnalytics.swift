@@ -133,7 +133,9 @@ internal final class VKIDAnalytics: VKIDObserver {
                 ctx.screen = .authorizationWindow
                 return ctx
             }
-            .send()
+            .send(
+                .init()
+            )
     }
 
     /// Отправляет аналитику при неудачной авторизации.

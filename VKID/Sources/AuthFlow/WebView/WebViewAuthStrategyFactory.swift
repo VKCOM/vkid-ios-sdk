@@ -34,19 +34,30 @@ internal protocol WebViewAuthStrategyFactory {
 }
 
 internal final class WebViewAuthStrategyDefaultFactory: WebViewAuthStrategyFactory {
-    private let appInteropHandler: AppInteropCompositeHandler
-    private let responseParser: AuthCodeResponseParser
+    internal struct Dependencies {
+        let appInteropHandler: AppInteropCompositeHandling
+        let appInteropOpener: AppInteropURLOpening
+        let responseParser: AuthCodeResponseParser
+    }
 
-    init(appInteropHandler: AppInteropCompositeHandler, responseParser: AuthCodeResponseParser) {
-        self.appInteropHandler = appInteropHandler
-        self.responseParser = responseParser
+    private let deps: Dependencies
+
+    init(deps: Dependencies) {
+        self.deps = deps
     }
 
     func createWebViewAuthStrategy() -> WebViewAuthStrategy {
         UIAccessibility.isGuidedAccessEnabled
             ? SafariViewControllerStrategy(
-                appInteropHandler: self.appInteropHandler, responseParser: self.responseParser
+                deps: .init(
+                    appInteropHandler: self.deps.appInteropHandler,
+                    responseParser: self.deps.responseParser
+                )
             )
-            : WebAuthenticationSessionStrategy(responseParser: self.responseParser)
+            : WebAuthenticationSessionStrategy(
+                deps: .init(
+                    responseParser: self.deps.responseParser
+                )
+            )
     }
 }

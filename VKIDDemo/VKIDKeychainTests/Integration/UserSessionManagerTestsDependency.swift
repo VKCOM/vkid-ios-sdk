@@ -31,7 +31,7 @@
 final class UserSessionManagerTestsDependency {
     var userSessionManager: UserSessionManager!
     var legacyUserSessionManager: (any LegacyUserSessionManager)!
-    var userSessionDataStorage: UserSessionDataStorage!
+    var userSessionDataStorage: (any UserSessionDataStorage)!
     var userSessionDelegateMock: UserSessionManagerDelegateMock!
     var logoutServiceMock: LogoutServiceMock!
     var refreshTokenServiceMock: RefreshTokenServiceMock!

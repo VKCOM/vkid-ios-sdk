@@ -51,7 +51,10 @@ extension TypeSAKSessionsEventItemNamespace {
         context: AnalyticsEventContext
     ) -> TypeSAKSessionsEventItem {
         TypeSAKSessionsEventItem(
-            step: step
+            step: step,
+            additionalInfo: .init(
+                rawValue: Env.packageManager.rawValue
+            )
         )
     }
 }

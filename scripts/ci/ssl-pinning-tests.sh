@@ -4,6 +4,7 @@ CERT="$HOME/.mitmproxy/mitmproxy-ca-cert.pem"
 SIMNAME="iPhone 14 SSLPinTest"
 SIMDEVICE="iPhone 14"
 SIMID=""
+SRC_ROOT="$(git rev-parse --show-toplevel)"
 
 
 set_up_simulator () {
@@ -54,20 +55,24 @@ run_test () {
 	echo "testing $1 with package manager $2"
 	echo "'SIMID is $SIMID'"
 
-	local src_root="$(git rev-parse --show-toplevel)"
+	local xcresult_artifact_path=$SRC_ROOT/build-artifacts/VKID_$2_$1.xcresult
+
 	SCHEME="VKIDDemo"
 	if [ $2 = "cocoapods" ]; then
 		SCHEME="VKIDCocoapodsDemo"
 	fi
 	export TEST_RUNNER_PACKAGE_MANAGER=$2
 
+	rm -rf $xcresult_artifact_path
+
 	arch -x86_64 xcodebuild \
-	-workspace $src_root/VKIDDemo/VKIDDemo.xcworkspace \
+	-workspace $SRC_ROOT/VKIDDemo/VKIDDemo.xcworkspace \
 	-scheme $SCHEME \
 	-testPlan SSLPinning \
 	-destination id=$SIMID -destination-timeout 120 \
+	-resultBundlePath $xcresult_artifact_path \
 	clean test -only-testing:VKIDSSLPinningTests/VKIDSSLPinningTests/$1 >& "$2 $1.log.txt"
-	
+
 	local RESULT="$?"
 	if [[ "$RESULT" -eq 0 ]]; then
 		echo "test $1 succeeded"
@@ -78,7 +83,29 @@ run_test () {
 		fi
 		shut_down_proxy
 		exit $RESULT
-	fi	
+	fi
+	eval "$3=$xcresult_artifact_path"
+}
+
+run_tests_with_allure () {
+	local xcresults_tool_path=$SRC_ROOT/bin/xcresults
+	local allure_results_folder=$SRC_ROOT/allure-results
+	local xcresult_artifact_paths_string=""
+	local return_val=""
+	run_test testRequestIsCancelledIfTrafficIsSniffed spm return_val
+	xcresult_artifact_paths_string="$return_val"
+	run_test testRequestIsCancelledIfTrafficIsSniffed cocoapods return_val
+	xcresult_artifact_paths_string="$xcresult_artifact_paths_string $return_val"
+	shut_down_proxy
+
+	run_test testRequestIsSucceededIfTrafficIsNotSniffed spm return_val
+	xcresult_artifact_paths_string="$xcresult_artifact_paths_string $return_val"
+	run_test testRequestIsSucceededIfTrafficIsNotSniffed cocoapods return_val
+	xcresult_artifact_paths_string="$xcresult_artifact_paths_string $return_val"
+
+	echo "Exporting allure results..."
+	$xcresults_tool_path export $xcresult_artifact_paths_string -o $allure_results_folder
+	echo "Allure results exported"
 }
 
 which mitmdump &> /dev/null
@@ -148,13 +175,6 @@ echo "pushing proxy certificate authority to simulators"
 xcrun simctl boot "$SIMID"
 xcrun simctl keychain "$SIMID" add-root-cert "$CERT"
 
-run_test testRequestIsCancelledIfTrafficIsSniffed spm
-run_test testRequestIsCancelledIfTrafficIsSniffed cocoapods
-
-shut_down_proxy
-
-run_test testRequestIsSucceededIfTrafficIsNotSniffed spm
-run_test testRequestIsSucceededIfTrafficIsNotSniffed cocoapods
-
+run_tests_with_allure
 
 echo "all tests succeeded"

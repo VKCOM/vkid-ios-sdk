@@ -30,7 +30,7 @@ import CommonCrypto
 import Foundation
 
 /// Для повышения безопасности авторизации используется [PKCE](https://datatracker.ietf.org/doc/html/rfc7636)
-public struct PKCESecrets {
+public struct PKCESecrets: Equatable {
     public enum CodeChallengeMethod: String {
         case s256
     }
@@ -61,6 +61,10 @@ public struct PKCESecrets {
     /// Инициализатор, который сгенерирует параметры PKCE
     public init() throws {
         self = try PKCESecretsS256Generator().generateSecrets()
+    }
+
+    internal init(pkceSecretsGenerator: PKCESecretsGenerator) throws {
+        self = try pkceSecretsGenerator.generateSecrets()
     }
 }
 

@@ -37,7 +37,6 @@ internal final class WebViewAuthFlow: Component, AuthFlow {
         let authConfig: ExtendedAuthConfiguration
         let authContext: AuthContext
         let oAuthProvider: OAuthProvider
-        let pkceGenerator: PKCESecretsGenerator
         let authURLBuilder: AuthURLBuilder
         let webViewStrategyFactory: WebViewAuthStrategyFactory
         let logger: Logging

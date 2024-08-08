@@ -32,6 +32,7 @@ import Foundation
 
 final class TransportMock : VKAPITransport {
     var responseProvider: ((VKIDCore.VKAPIRequest) -> Result<VKIDCore.VKAPIResponse, VKIDCore.VKAPIError>)?
+
     func execute<T>(
         request: VKIDCore.VKAPIRequest,
         callbackQueue: DispatchQueue,

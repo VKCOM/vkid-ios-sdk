@@ -39,7 +39,7 @@ final class UserSessionDataStorageTests: XCTestCase {
         feature: "Хранилище UserSessionData"
     )
 
-    var userSessionDataStorage: UserSessionDataStorage!
+    var userSessionDataStorage: (any UserSessionDataStorage)!
 
     override func setUpWithError() throws {
         self.userSessionDataStorage = StorageImpl<UserSessionData>(

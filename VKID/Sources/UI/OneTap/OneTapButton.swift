@@ -60,9 +60,9 @@ public struct OneTapButton: UIViewElement {
     /// Экран на котором находится кнопка
     internal let screen: AuthContext.Screen
 
-    /// Инициализация конфигурации кнопки
+    /// Инициализация конфигурации с ручной обработкой нажатия на кнопку.
     /// - Parameters:
-    ///   - appearance: Внешний вид кнопки.
+    ///   - appearance: Определяет основные визуальные свойства кнопки.
     ///   - layout: Оформление кнопки.
     ///   - onTap: Замыкание, вызывающееся при нажатии на кнопку.
     public init(
@@ -81,13 +81,13 @@ public struct OneTapButton: UIViewElement {
         )
     }
 
-    /// Создает конфигурацию для OneTap кнопки
+    /// Инициализация конфигурации с запуском авторизации при нажатии на кнопку.
     /// - Parameters:
-    ///   - appearance: Конфигурация внешнего вида кнопки
-    ///   - layout: Конфигурация лейаут кнопки
-    ///   - presenter: Объект, отвечающий за отображение экранов авторизации
-    ///   - authConfiguration: Конфигурация авторизации
-    ///   - onCompleteAuth: Колбэк о завершении авторизации
+    ///   - appearance: Определяет основные визуальные свойства кнопки.
+    ///   - layout: Оформление кнопки.
+    ///   - presenter: Объект, отвечающий за отображение экранов авторизации.
+    ///   - authConfiguration: Конфигурация авторизации.
+    ///   - onCompleteAuth: Колбэк о завершении авторизации.
     public init(
         appearance: Appearance = Appearance(),
         layout: Layout = .regular(),
@@ -264,6 +264,17 @@ public struct OneTapButton: UIViewElement {
                         )
                     )
             case .nowhere, .oneTapBottomSheet:
+                if self.screen == .nowhere {
+                    factory.rootContainer.productAnalytics.screenProceed
+                        .context(analyticsContext)
+                        .send(
+                            .init(
+                                themeType: self.appearance.theme.colorScheme,
+                                styleType: self.appearance.style.rawStyle,
+                                textType: self.appearance.title.rawType.rawValue
+                            )
+                        )
+                }
                 factory.rootContainer.productAnalytics.oneTapButtonNoUserShow
                     .context(analyticsContext)
                     .send(
@@ -299,7 +310,7 @@ extension OneTapButton {
         internal let style: Style
         internal let theme: Theme
 
-        internal init(
+        public init(
             title: Title,
             style: Style,
             theme: Theme
@@ -335,32 +346,123 @@ extension OneTapButton {
 extension OneTapButton.Appearance {
     /// Текст внутри кнопки
     public struct Title {
+        internal enum RawType: String, RawRepresentable {
+            case signUp
+            case get
+            case open
+            case calculate
+            case order
+            case makeOrder
+            case submitRequest
+            case participate
+            case vkid
+            case ok
+            case mail
+            case custom
+        }
+
         /// Основной текст.
         /// Используется если достаточно ширины кнопки.
-        internal let primary: String
+        public let primary: String
 
         /// Краткий текст.
         /// Используется если недостаточно ширины для отображения основного текста
-        internal let brief: String
+        public let brief: String
 
-        internal init(primary: String, brief: String) {
+        internal let rawType: RawType
+
+        internal init(primary: String, brief: String, rawType: RawType) {
             self.primary = primary
             self.brief = brief
+            self.rawType = rawType
         }
 
-        internal static let vkid = Self(
-            primary: "vkid_button_primary_title".localized,
-            brief: "vkid_button_brief_title".localized
+        /// Основной текст: "Записаться с VK ID".
+        /// Краткий текст: "Записаться".
+        public static let signUp = Self(
+            primary: "vkconnect_auth_onetap_btn_sign_up_with_vkid".localized,
+            brief: "vkconnect_auth_onetap_btn_sign_up".localized,
+            rawType: .signUp
         )
 
+        /// Основной текст: "Получить с VK ID".
+        /// Краткий текст: "Получить".
+        public static let get = Self(
+            primary: "vkconnect_auth_onetap_btn_get_with_vkid".localized,
+            brief: "vkconnect_auth_onetap_btn_get".localized,
+            rawType: .get
+        )
+
+        /// Основной текст: "Открыть с VK ID".
+        /// Краткий текст: "Открыть".
+        public static let open = Self(
+            primary: "vkconnect_auth_onetap_btn_open_with_vkid".localized,
+            brief: "vkconnect_auth_onetap_btn_open".localized,
+            rawType: .open
+        )
+
+        /// Основной текст: "Рассчитать с VK ID".
+        /// Краткий текст: "Рассчитать".
+        public static let calculate = Self(
+            primary: "vkconnect_auth_onetap_btn_calculate_with_vkid".localized,
+            brief: "vkconnect_auth_onetap_btn_calculate".localized,
+            rawType: .calculate
+        )
+
+        /// Основной текст: "Заказать с VK ID".
+        /// Краткий текст: "Заказать".
+        public static let order = Self(
+            primary: "vkconnect_auth_onetap_btn_order_with_vkid".localized,
+            brief: "vkconnect_auth_onetap_btn_order".localized,
+            rawType: .order
+        )
+
+        /// Основной текст: "Оформить заказ с VK ID".
+        /// Краткий текст: "Оформить заказ".
+        public static let makeOrder = Self(
+            primary: "vkconnect_auth_onetap_btn_make_order_with_vkid".localized,
+            brief: "vkconnect_auth_onetap_btn_make_order".localized,
+            rawType: .makeOrder
+        )
+
+        /// Основной текст: "Оставить заявку с VK ID".
+        /// Краткий текст: "Оставить заявку".
+        public static let submitRequest = Self(
+            primary: "vkconnect_auth_onetap_btn_submit_request_with_vkid".localized,
+            brief: "vkconnect_auth_onetap_btn_submit_request".localized,
+            rawType: .submitRequest
+        )
+
+        /// Основной текст: "Участвовать с VK ID".
+        /// Краткий текст: "Участвовать".
+        public static let participate = Self(
+            primary: "vkconnect_auth_onetap_btn_participate_with_vkid".localized,
+            brief: "vkconnect_auth_onetap_btn_participate".localized,
+            rawType: .participate
+        )
+
+        /// Основной текст: "Войти с VK ID".
+        /// Краткий текст: "VK ID".
+        public static let vkid = Self(
+            primary: "vkconnect_auth_onetap_login_via_vkid".localized,
+            brief: "vkconnect_auth_onetap_vkid".localized,
+            rawType: .vkid
+        )
+
+        /// Основной текст: "Войти через ОК".
+        /// Краткий текст: "Войти через ОК".
         internal static let ok = Self(
             primary: "vkconnect_oauth_ok_button_primary_title".localized,
-            brief: "vkconnect_oauth_ok_button_primary_title".localized
+            brief: "vkconnect_oauth_ok_button_primary_title".localized,
+            rawType: .ok
         )
 
+        /// Основной текст: "Войти с Почтой Mail.ru".
+        /// Краткий текст: "Войти с Почтой Mail.ru".
         internal static let mail = Self(
             primary: "vkconnect_oauth_mail_button_primary_title".localized,
-            brief: "vkconnect_oauth_mail_button_primary_title".localized
+            brief: "vkconnect_oauth_mail_button_primary_title".localized,
+            rawType: .mail
         )
     }
 }
@@ -378,7 +480,7 @@ extension OneTapButton.Appearance {
             self.init(rawStyle: .secondary, logo: logo)
         }
 
-        internal enum _Style: Equatable {
+        internal enum _Style: String, RawRepresentable, Equatable {
             case primary
             case secondary
         }
@@ -479,7 +581,7 @@ extension OneTapButton.Appearance {
 }
 
 extension OneTapButton {
-    /// Лейаута кнопки
+    /// Лейаут кнопки
     public struct Layout {
         public let kind: Kind
         public let height: Height

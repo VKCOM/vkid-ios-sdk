@@ -35,6 +35,20 @@
         "identifier" : "A23148DA2ACC5B6C0077B442",
         "name" : "VKIDKeychainTests"
       }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:VKIDDemo.xcodeproj",
+        "identifier" : "0514A8D82C2C262600853BF9",
+        "name" : "VKIDCriticalTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:VKIDDemo.xcodeproj",
+        "identifier" : "051189F22C4FBD0A005F9FDC",
+        "name" : "VKIDDemoUITests"
+      }
     }
   ],
   "version" : 1

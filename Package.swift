@@ -68,7 +68,8 @@ let package = Package(
         .target(
             name: "VKIDCore",
             dependencies: [],
-            path: "VKIDCore/Sources"
+            path: "VKIDCore/Sources",
+            resources: [.process("Resources")]
         ),
         .testTarget(
             name: "VKIDCoreTests",
