@@ -69,6 +69,16 @@ internal final class AppInteropCompositeHandler: AppInteropCompositeHandling {
 }
 
 internal final class AppInteropURLOpener: AppInteropURLOpening {
+    struct Dependencies: Dependency {
+        let logger: Logging
+    }
+
+    private let deps: Dependencies
+
+    init(deps: Dependencies) {
+        self.deps = deps
+    }
+
     func openApp(
         universalLink: URL,
         fallbackDeepLink: URL?,
@@ -79,6 +89,7 @@ internal final class AppInteropURLOpener: AppInteropURLOpening {
             options: [.universalLinksOnly: true],
             completionHandler: { success in
                 if success {
+                    self.deps.logger.info("Did open application with universalLink: \(universalLink)")
                     completion(true)
                 } else {
                     guard let deepLink = fallbackDeepLink else {
@@ -89,6 +100,7 @@ internal final class AppInteropURLOpener: AppInteropURLOpening {
                         deepLink,
                         options: [:],
                         completionHandler: { success in
+                            self.deps.logger.info("Did open application with deepLink: \(universalLink)")
                             completion(success)
                         }
                     )

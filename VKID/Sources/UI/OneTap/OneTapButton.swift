@@ -270,7 +270,7 @@ public struct OneTapButton: UIViewElement {
                         .send(
                             .init(
                                 themeType: self.appearance.theme.colorScheme,
-                                styleType: self.appearance.style.rawStyle,
+                                styleType: self.appearance.style.rawType,
                                 textType: self.appearance.title.rawType.rawValue
                             )
                         )
@@ -345,8 +345,8 @@ extension OneTapButton {
 
 extension OneTapButton.Appearance {
     /// Текст внутри кнопки
-    public struct Title {
-        internal enum RawType: String, RawRepresentable {
+    public struct Title: Equatable {
+        internal enum RawType: String, RawRepresentable, CaseIterable {
             case signUp
             case get
             case open
@@ -457,8 +457,8 @@ extension OneTapButton.Appearance {
             rawType: .ok
         )
 
-        /// Основной текст: "Войти с Почтой Mail.ru".
-        /// Краткий текст: "Войти с Почтой Mail.ru".
+        /// Основной текст: "Войти с Почтой Mail".
+        /// Краткий текст: "Войти с Почтой Mail".
         internal static let mail = Self(
             primary: "vkconnect_oauth_mail_button_primary_title".localized,
             brief: "vkconnect_oauth_mail_button_primary_title".localized,
@@ -469,23 +469,35 @@ extension OneTapButton.Appearance {
 
 extension OneTapButton.Appearance {
     /// Стиль кнопки
-    public struct Style: Equatable {
+    public struct Style: Equatable, CaseIterable {
+        public static var allCases: [OneTapButton.Appearance.Style] = {
+            let logos: [LogoImage] = [.vkidPrimary, .vkidSecondary]
+            return RawType.allCases.reduce(into: [OneTapButton.Appearance.Style]()) { partialResult, style in
+                partialResult += logos.map {
+                    switch style {
+                    case .primary: primary(logo: $0)
+                    case .secondary: secondary(logo: $0)
+                    }
+                }
+            }
+        }()
+
         /// Основной
         public static func primary(logo: LogoImage = .vkidPrimary) -> Self {
-            self.init(rawStyle: .primary, logo: logo)
+            self.init(rawType: .primary, logo: logo)
         }
 
         /// Дополнительный
         public static func secondary(logo: LogoImage = .vkidSecondary) -> Self {
-            self.init(rawStyle: .secondary, logo: logo)
+            self.init(rawType: .secondary, logo: logo)
         }
 
-        internal enum _Style: String, RawRepresentable, Equatable {
+        internal enum RawType: String, CaseIterable, RawRepresentable, Equatable {
             case primary
             case secondary
         }
 
-        internal let rawStyle: _Style
+        internal let rawType: RawType
         internal let logo: LogoImage
     }
 }
@@ -627,7 +639,7 @@ extension OneTapButton {
         }
 
         /// Тип лейаута кнопки
-        public enum Kind {
+        public enum Kind: String, CaseIterable {
             /// Обычная кнопка c лого VK ID и текстом
             case regular
 
@@ -638,7 +650,15 @@ extension OneTapButton {
         /// Кнопка может иметь строго детерминированную высоту с шагом 2
         /// Все значения разбиты на 3 класса: ``Small``, ``Medium`` и ``Large``
         /// В каждом классе есть свои значения высоты по умолчанию
-        public enum Height: Equatable {
+        public enum Height: Equatable, CaseIterable {
+            public static var allCases: [OneTapButton.Layout.Height] = {
+                [
+                    Small.allCases.map(Height.small),
+                    Medium.allCases.map(Height.medium),
+                    Large.allCases.map(Height.large),
+                ].flatMap { $0 }
+            }()
+
             case small(Small = .h36)
             case medium(Medium = .h44)
             case large(Large = .h52)

@@ -109,7 +109,11 @@ internal final class RootContainer {
 
     internal lazy var keychain = Keychain()
     internal lazy var appInteropHandler: AppInteropCompositeHandling = AppInteropCompositeHandler()
-    internal lazy var appInteropURLOpener: AppInteropURLOpening = AppInteropURLOpener()
+    internal lazy var appInteropURLOpener: AppInteropURLOpening = AppInteropURLOpener(
+        deps: .init(
+            logger: self.logger
+        )
+    )
     internal lazy var responseParser: AuthCodeResponseParser = AuthCodeResponseParserImpl()
     internal lazy var authURLBuilder: AuthURLBuilder = AuthURLBuilderImpl()
     internal lazy var logger: Logging = Logger(subsystem: "VKID")

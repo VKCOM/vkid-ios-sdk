@@ -1,2 +1,2 @@
-let VKID_VERSION = "2.1.0"
+let VKID_VERSION = "2.2.0"
 let VKAPI_VERSION = "5.207.0"

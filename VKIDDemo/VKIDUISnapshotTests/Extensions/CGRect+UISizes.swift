@@ -30,7 +30,7 @@ import Foundation
 
 extension CGRect {
     static var oneTapButtonFrame: Self {
-        .init(x: 0, y: 0, width: 375, height: 50)
+        .init(x: 0, y: 0, width: 375, height: 150)
     }
 
     static var oneTapButtonWithProvidersFrame: Self {

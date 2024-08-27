@@ -214,6 +214,24 @@ internal class OneTapControl: UIControl {
         }
     }
 
+    override var frame: CGRect {
+        get {
+            super.frame
+        }
+        set {
+            let actualSize = self.layout.sizeThatFits(
+                .init(
+                    width: newValue.size.width,
+                    height: self.config.buttonHeight
+                )
+            )
+            super.frame = .init(
+                origin: newValue.origin,
+                size: actualSize
+            )
+        }
+    }
+
     override func didMoveToSuperview() {
         super.didMoveToSuperview()
 

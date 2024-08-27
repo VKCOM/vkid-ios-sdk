@@ -36,7 +36,7 @@
 "vkconnect_auth_via_providers_legal" = "lub wejdź poprzez VK ID przy użyciu danych z serwisu";
 
 "vkconnect_oauth_ok_button_primary_title" = "Wejdź z OK";
-"vkconnect_oauth_mail_button_primary_title" = "Wejdź z Mail.ru";
+"vkconnect_oauth_mail_button_primary_title" = "Wejdź z Mail";
 
 "vkid_sheet_state_auth_in_progress" = "Autoryzacja...";
 "vkid_sheet_state_auth_success" = "Pomyślnie";

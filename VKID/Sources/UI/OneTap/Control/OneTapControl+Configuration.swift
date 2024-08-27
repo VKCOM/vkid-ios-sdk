@@ -102,7 +102,7 @@ extension OneTapControl {
             let titleFont: UIFont = .systemFont(ofSize: fontSize, weight: .semibold)
             let theme: OneTapButton.Appearance.Theme = appearance.theme
 
-            switch appearance.style.rawStyle {
+            switch appearance.style.rawType {
             case .primary:
                 self.init(
                     primaryTitle: appearance.title.primary,

@@ -28,6 +28,7 @@
 
 import VKIDAllureReport
 import XCTest
+
 @testable import VKIDCore
 
 final class AnalyticsTests: XCTestCase {

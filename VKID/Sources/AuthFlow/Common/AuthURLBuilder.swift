@@ -74,7 +74,8 @@ internal final class AuthURLBuilderImpl: AuthURLBuilder {
                 redirectURL(
                     for: credentials.clientId,
                     in: authContext,
-                    scope: scope
+                    scope: scope,
+                    version: Env.VKIDVersion
                 ).absoluteString
             ),
         ]
@@ -108,11 +109,17 @@ internal final class AuthURLBuilderImpl: AuthURLBuilder {
             .deviceId(deviceId),
             .prompt("login"),
             .oAuthVersion,
+            .version(Env.VKIDVersion),
             .scope(scope ?? ""),
+            .statsInfo(
+                statsInfo(
+                    from: authContext,
+                    shouldBeBase64Encoded: true
+                )
+            ),
             .redirectURI(
                 redirectURL(
-                    for: credentials.clientId,
-                    in: authContext
+                    for: credentials.clientId
                 ).absoluteString
             ),
         ]
@@ -168,23 +175,33 @@ internal final class AuthURLBuilderImpl: AuthURLBuilder {
     }
 }
 
-internal func redirectURL(for clientId: String, in context: AuthContext, scope: String? = nil) -> URL {
+internal func redirectURL(
+    for clientId: String,
+    in context: AuthContext? = nil,
+    scope: String? = nil,
+    version: Version? = nil
+) -> URL {
     var components = URLComponents.using(
         url: .serviceApplication(
             with: clientId,
             host: "\(Env.apiHost)/blank.html"
         )
     )
+    components.queryItems = []
 
-    let oAuth2Params = oAuth2Parameters(
+    if let context, let oAuth2Params = oAuth2Parameters(
         from: context,
         with: scope
-    )
+    ) {
+        components.queryItems?.append(
+            .oAuth2Params(oAuth2Params)
+        )
+    }
 
-    if let oAuth2Params {
-        components.queryItems = [
-            .oAuth2Params(oAuth2Params),
-        ]
+    if let version {
+        components.queryItems?.append(
+            .version(version)
+        )
     }
 
     return components.url!
@@ -302,6 +319,13 @@ extension URLQueryItem {
         )
     }
 
+    internal static func version(_ version: Version) -> Self {
+        Self(
+            name: "v",
+            value: version.description
+        )
+    }
+
     internal static func codeChallengeMethod(_ codeChallengeMethod: String) -> Self {
         Self(
             name: "code_challenge_method",
@@ -385,6 +409,13 @@ extension URLQueryItem {
         Self(
             name: "scope",
             value: scope
+        )
+    }
+
+    internal static func statsInfo(_ statsInfo: String?) -> Self {
+        Self(
+            name: "stats_info",
+            value: statsInfo
         )
     }
 }

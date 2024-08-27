@@ -107,9 +107,7 @@ internal final class AuthByProviderFlow: Component, AuthFlow {
                     using: self.deps.authConfig.codeExchanger,
                     authCodeResponse: response,
                     redirectURI: redirectURL(
-                        for: self.deps.appCredentials.clientId,
-                        in: self.deps.authContext,
-                        scope: self.deps.authConfig.scope
+                        for: self.deps.appCredentials.clientId
                     ).absoluteString,
                     pkceSecrets: self.deps.authConfig.pkceSecrets,
                     completion: completion
@@ -159,8 +157,7 @@ internal final class AuthByProviderFlow: Component, AuthFlow {
             completion(self.handleProviderCallbackURL(url))
             return true
         }
-        self.onReturnFromProviderWithoutAuthCode { [weak self] in
-            self?.cleanup()
+        self.onReturnFromProviderWithoutAuthCode {
             completion(.failure(.providerNotResponded))
         }
 
@@ -217,6 +214,8 @@ internal final class AuthByProviderFlow: Component, AuthFlow {
             object: nil,
             queue: .main
         ) { _ in
+            self.cleanup()
+
             DispatchQueue
                 .main
                 .asyncAfter(

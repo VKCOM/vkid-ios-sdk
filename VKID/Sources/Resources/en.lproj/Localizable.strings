@@ -36,7 +36,7 @@
 "vkconnect_auth_via_providers_legal" = "or sign in with VK ID using information from a service";
 
 "vkconnect_oauth_ok_button_primary_title" = "Sign in with OK";
-"vkconnect_oauth_mail_button_primary_title" = "Sign in with Mail.ru";
+"vkconnect_oauth_mail_button_primary_title" = "Sign in with Mail";
 
 "vkid_sheet_state_auth_in_progress" = "Signing in...";
 "vkid_sheet_state_auth_success" = "Success";
