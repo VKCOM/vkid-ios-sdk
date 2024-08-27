@@ -35,24 +35,24 @@ public struct OAuthProvider: Equatable, Codable, CaseIterable {
         .vkid, .ok, .mail,
     ]
     /// Провайдер авторизации через VKID
-    public static let vkid = Self(type: .vkid)
+    public static let vkid = Self(rawType: .vkid)
 
     /// Провайдер авторизации через Одноклассники
-    public static let ok = Self(type: .ok)
+    public static let ok = Self(rawType: .ok)
 
     /// Провайдер авторизации через MailRu
-    public static let mail = Self(type: .mail)
+    public static let mail = Self(rawType: .mail)
 
-    internal enum _Type: String, Equatable, Codable {
+    internal enum RawType: String, Equatable, Codable {
         case vkid = "vkid"
         case ok = "ok_ru"
         case mail = "mail_ru"
     }
 
-    internal let type: _Type
+    internal let type: RawType
 
-    private init(type: _Type) {
-        self.type = type
+    private init(rawType: RawType) {
+        self.type = rawType
     }
 }
 

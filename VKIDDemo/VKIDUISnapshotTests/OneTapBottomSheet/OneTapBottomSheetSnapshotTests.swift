@@ -27,10 +27,19 @@
 //
 
 import SnapshotTesting
-import VKIDCore
+import VKIDAllureReport
+import VKIDTestingInfra
 import XCTest
+
 @testable import VKID
-@testable import VKIDAllureReport
+@testable import VKIDCore
+
+struct OneTapBottomSheetConfiguration {
+    var buttonBaseConfiguration: ButtonBaseConfiguration = .init()
+    var alternativeProviders: [OAuthProvider] = []
+    var theme: OneTapBottomSheet.Theme = .matchingColorScheme(.light)
+    var targetActionText: OneTapBottomSheet.TargetActionText = .signIn
+}
 
 final class OneTapBottomSheetSnapshotTests: XCTestCase, TestCaseInfra {
     private let testCaseMeta = Allure.TestCase.MetaInformation(
@@ -41,6 +50,7 @@ final class OneTapBottomSheetSnapshotTests: XCTestCase, TestCaseInfra {
         priority: .critical
     )
     private let timeToUpdateViewController = 0.05
+    private let defaultConfig: OneTapBottomSheetConfiguration = .init()
     var vkid: VKID!
     private let window = UIWindow()
     private var authFlowBuilderMock: AuthFlowBuilderMock!
@@ -68,7 +78,7 @@ final class OneTapBottomSheetSnapshotTests: XCTestCase, TestCaseInfra {
         self.authFlowMock = nil
     }
 
-    func testSignInAction() {
+    func testDefaultState() {
         Allure.report(
             .init(
                 id: 2335327,
@@ -77,9 +87,7 @@ final class OneTapBottomSheetSnapshotTests: XCTestCase, TestCaseInfra {
             )
         )
         self.snapshotTest(
-            targetActionText: .signIn,
-            description: "'Войти'",
-            testName: #function
+            config: self.defaultConfig
         )
     }
 
@@ -92,9 +100,8 @@ final class OneTapBottomSheetSnapshotTests: XCTestCase, TestCaseInfra {
             )
         )
         self.snapshotTest(
-            targetActionText: .applyFor,
-            description: "'Подать заявку'",
-            testName: #function
+            config: .init(targetActionText: .applyFor),
+            diffConfig: self.defaultConfig
         )
     }
 
@@ -107,9 +114,8 @@ final class OneTapBottomSheetSnapshotTests: XCTestCase, TestCaseInfra {
             )
         )
         self.snapshotTest(
-            targetActionText: .orderCheckout,
-            description: "'Оформить заказ'",
-            testName: #function
+            config: .init(targetActionText: .orderCheckout),
+            diffConfig: self.defaultConfig
         )
     }
 
@@ -122,9 +128,8 @@ final class OneTapBottomSheetSnapshotTests: XCTestCase, TestCaseInfra {
             )
         )
         self.snapshotTest(
-            targetActionText: .registerForEvent,
-            description: "'Зарегистрироваться на событие'",
-            testName: #function
+            config: .init(targetActionText: .registerForEvent),
+            diffConfig: self.defaultConfig
         )
     }
 
@@ -137,9 +142,10 @@ final class OneTapBottomSheetSnapshotTests: XCTestCase, TestCaseInfra {
             )
         )
         self.snapshotTest(
-            targetActionText: .orderCheckoutAtService("Test service"),
-            description: "'Оформить заказ в сервисе'",
-            testName: #function
+            config: .init(
+                targetActionText: .orderCheckoutAtService("Test service")
+            ),
+            diffConfig: self.defaultConfig
         )
     }
 
@@ -152,9 +158,10 @@ final class OneTapBottomSheetSnapshotTests: XCTestCase, TestCaseInfra {
             )
         )
         self.snapshotTest(
-            targetActionText: .signInToService("Test service"),
-            description: "'Войти в учетную запись указанного сервиса'",
-            testName: #function
+            config: .init(
+                targetActionText: .signInToService("Test service")
+            ),
+            diffConfig: self.defaultConfig
         )
     }
 
@@ -167,9 +174,10 @@ final class OneTapBottomSheetSnapshotTests: XCTestCase, TestCaseInfra {
             )
         )
         self.snapshotTest(
-            alternativeProviders:[.ok],
-            description: "OK",
-            testName: #function
+            config: .init(
+                alternativeProviders: [.ok]
+            ),
+            diffConfig: self.defaultConfig
         )
     }
 
@@ -182,9 +190,10 @@ final class OneTapBottomSheetSnapshotTests: XCTestCase, TestCaseInfra {
             )
         )
         self.snapshotTest(
-            alternativeProviders:[.mail],
-            description: "Mail",
-            testName: #function
+            config: .init(
+                alternativeProviders: [.mail]
+            ),
+            diffConfig: self.defaultConfig
         )
     }
 
@@ -197,9 +206,47 @@ final class OneTapBottomSheetSnapshotTests: XCTestCase, TestCaseInfra {
             )
         )
         self.snapshotTest(
-            alternativeProviders:[.ok, .mail],
-            description: "Mail и ОК",
-            testName: #function
+            config: .init(
+                alternativeProviders: [.ok, .mail]
+            ),
+            diffConfig: self.defaultConfig
+        )
+    }
+
+    func testButtonCornerRadius() {
+        Allure.report(
+            .init(
+                id: 2341969,
+                name: "Проверка радиуса закругления кнопки",
+                meta: self.testCaseMeta
+            )
+        )
+        [
+            CGFloat(exactly: LayoutConstants.defaultCornerRadius - 2.0)!,
+            CGFloat(exactly: LayoutConstants.defaultCornerRadius + 2.0)!,
+        ].forEach {
+            self.snapshotTest(
+                config: .init(
+                    buttonBaseConfiguration: .init(cornerRadius: $0)
+                ),
+                diffConfig: self.defaultConfig
+            )
+        }
+    }
+
+    func testTheme() {
+        Allure.report(
+            .init(
+                id: 2341966,
+                name: "Проверка темной темы",
+                meta: self.testCaseMeta
+            )
+        )
+        self.snapshotTest(
+            config: .init(
+                theme:.matchingColorScheme(.dark)
+            ),
+            diffConfig: self.defaultConfig
         )
     }
 
@@ -306,7 +353,11 @@ final class OneTapBottomSheetSnapshotTests: XCTestCase, TestCaseInfra {
                         return
                     }
                     then("Проверка ошибки") {
-                        assertSnapshot(of: self.bottomSheetViewController, as: .image)
+                        assertSnapshot(
+                            of: self.bottomSheetViewController,
+                            as: .image,
+                            testName: "Failed Authorization"
+                        )
                         handledErrorExpectation.fulfill()
                     }
                     when("Запуск ретрая") {
@@ -330,7 +381,8 @@ final class OneTapBottomSheetSnapshotTests: XCTestCase, TestCaseInfra {
         when("Показ шторки и нажатие на 'Sign in'") {
             self.bottomSheetViewController = self.show(
                 oneTapBottomSheet: self.bottomSheetConfig,
-                on: self.viewController
+                on: self.viewController,
+                autoDismiss: false
             ) {
                 self.bottomSheetViewController.view.tapOnOneTapControl()
             }
@@ -382,7 +434,8 @@ final class OneTapBottomSheetSnapshotTests: XCTestCase, TestCaseInfra {
         when("Нажатие на кнопку OneTapBottomSheet") {
             self.bottomSheetViewController = self.show(
                 oneTapBottomSheet: self.bottomSheetConfig,
-                on: self.viewController
+                on: self.viewController,
+                autoDismiss: false
             ) {
                 if let control: UIControl = self.bottomSheetViewController.view.findElements({
                     $0.accessibilityIdentifier == AccessibilityIdentifier.OneTapButton.signIn.id
@@ -400,7 +453,7 @@ final class OneTapBottomSheetSnapshotTests: XCTestCase, TestCaseInfra {
         )
     }
 
-    func mockFailedResponse(completion: @escaping () -> Void) {
+    private func mockFailedResponse(completion: @escaping () -> Void) {
         self.authFlowBuilderMock.serviceAuthFlowHandler = { _, _, _ in
             self.authFlowMock = AuthFlowMock()
             self.authFlowMock.handler = { _, handlerCompletion in
@@ -420,27 +473,40 @@ final class OneTapBottomSheetSnapshotTests: XCTestCase, TestCaseInfra {
             self.authFlowMock = AuthFlowMock()
             self.authFlowMock.handler = { _, handlerCompletion in
                 completion()
-                handlerCompletion(.success(.init(from: .random(), serverProvidedDeviceId: .random)))
+                handlerCompletion(
+                    .success(
+                        .init(
+                            from: .random(),
+                            serverProvidedDeviceId: .random
+                        )
+                    )
+                )
             }
             return self.authFlowMock
         }
     }
 
     private func snapshotTest(
-        targetActionText: OneTapBottomSheet.TargetActionText = .signIn,
-        alternativeProviders: [OAuthProvider] = [],
-        description: String,
-        testName: String
+        config: OneTapBottomSheetConfiguration = .init(),
+        diffConfig: OneTapBottomSheetConfiguration? = nil
     ) {
-        let expectation = expectation(description: #function)
+        let description: String = Descriptioner.diffDescription(
+            config: config,
+            withStandard: diffConfig
+        )
+        let snapshotExpectation = expectation(description: #function)
         given("Создание конфигурации шторки с: \(description)") {
             self.bottomSheetConfig = OneTapBottomSheet(
                 serviceName: "Test",
-                targetActionText: targetActionText,
-                oneTapButton: .init(),
-                oAuthProviderConfiguration: .init(
-                    alternativeProviders: alternativeProviders
+                targetActionText: config.targetActionText,
+                oneTapButton: .init(
+                    height: config.buttonBaseConfiguration.height,
+                    cornerRadius: config.buttonBaseConfiguration.cornerRadius
                 ),
+                oAuthProviderConfiguration: .init(
+                    alternativeProviders: config.alternativeProviders
+                ),
+                theme: config.theme,
                 onCompleteAuth: nil
             )
         }
@@ -453,18 +519,19 @@ final class OneTapBottomSheetSnapshotTests: XCTestCase, TestCaseInfra {
                     assertSnapshot(
                         of: self.bottomSheetViewController,
                         as: .image,
-                        testName: testName
+                        testName: description
                     )
-                    expectation.fulfill()
+                    snapshotExpectation.fulfill()
                 }
             }
+            self.wait(for: [snapshotExpectation], timeout: 0.2)
         }
-        self.wait(for: [expectation], timeout: 0.2)
     }
 
     private func show(
         oneTapBottomSheet: OneTapBottomSheet,
         on viewController: UIViewController,
+        autoDismiss: Bool = true,
         completion: @escaping () -> Void
     ) -> UIViewController {
         let bottomSheetViewController = self.vkid.ui(
@@ -472,7 +539,25 @@ final class OneTapBottomSheetSnapshotTests: XCTestCase, TestCaseInfra {
         ).uiViewController()
         viewController.present(bottomSheetViewController, animated: false) {
             completion()
+            if autoDismiss {
+                bottomSheetViewController.dismiss(animated: false)
+            }
         }
         return bottomSheetViewController
+    }
+}
+
+extension OneTapBottomSheetConfiguration {
+    var bottomSheetConfiguration: OneTapBottomSheet {
+        OneTapBottomSheet(
+            serviceName: "Test",
+            targetActionText: .signIn,
+            oneTapButton: .init(
+                height: self.buttonBaseConfiguration.height,
+                cornerRadius: self.buttonBaseConfiguration.cornerRadius
+            ),
+            theme: self.theme,
+            onCompleteAuth: nil
+        )
     }
 }

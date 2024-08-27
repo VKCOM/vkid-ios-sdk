@@ -73,12 +73,12 @@ final class AuthURLBuilderTests: XCTestCase {
             )
             let expectedQueryItems = commonQueryItems + [
                 .authProviderMethod,
-                .init(
-                    name: "redirect_uri",
-                    value: redirectURL(
+                .redirectURI(
+                    redirectURL(
                         for: self.credentials.clientId,
                         in: self.context,
-                        scope: self.scope
+                        scope: self.scope,
+                        version: Env.VKIDVersion
                     ).absoluteString
                 ),
             ]
@@ -126,12 +126,12 @@ final class AuthURLBuilderTests: XCTestCase {
             )
             let expectedQueryItems = commonQueryItems + [
                 .authProviderMethod,
-                .init(
-                    name: "redirect_uri",
-                    value: redirectURL(
+                .redirectURI(
+                    redirectURL(
                         for: credentials.clientId,
                         in: context,
-                        scope: self.scope
+                        scope: self.scope,
+                        version: Env.VKIDVersion
                     ).absoluteString
                 ),
             ]
@@ -182,12 +182,17 @@ final class AuthURLBuilderTests: XCTestCase {
                 .deviceId(DeviceId.currentDeviceId.description),
                 .prompt("login"),
                 .oAuthVersion,
+                .version(Env.VKIDVersion),
                 .scope(self.scope),
-                .init(
-                    name: "redirect_uri",
-                    value: redirectURL(
-                        for: self.credentials.clientId,
-                        in: self.context
+                .statsInfo(
+                    statsInfo(
+                        from: self.context,
+                        shouldBeBase64Encoded: true
+                    )
+                ),
+                .redirectURI(
+                    redirectURL(
+                        for: self.credentials.clientId
                     ).absoluteString
                 ),
             ]
@@ -247,12 +252,17 @@ final class AuthURLBuilderTests: XCTestCase {
                 .deviceId(DeviceId.currentDeviceId.description),
                 .prompt("login"),
                 .oAuthVersion,
+                .version(Env.VKIDVersion),
                 .scope(self.scope),
-                .init(
-                    name: "redirect_uri",
-                    value: redirectURL(
-                        for: credentials.clientId,
-                        in: context
+                .statsInfo(
+                    statsInfo(
+                        from: context,
+                        shouldBeBase64Encoded: true
+                    )
+                ),
+                .redirectURI(
+                    redirectURL(
+                        for: credentials.clientId
                     ).absoluteString
                 ),
             ]

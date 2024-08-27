@@ -127,7 +127,7 @@ internal struct TypeRegistrationItemNamespace: AnalyticsTypeItemNamespace {
 
         init(
             themeType: Appearance.ColorScheme? = nil,
-            styleType: OneTapButton.Appearance.Style._Style? = nil,
+            styleType: OneTapButton.Appearance.Style.RawType? = nil,
             textType: String? = nil
         ) {
             self.language = Appearance.Locale.preferredLocale?.rawLocale

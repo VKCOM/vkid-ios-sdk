@@ -309,7 +309,7 @@ final class AuthViewController: VKIDDemoViewController {
         case 3:
             self.oAuthProviders = [.ok, .mail]
         case 4:
-            self.oAuthProviders = [.ok, .mail, .vkid]
+            self.oAuthProviders = [.vkid, .ok, .mail]
         default:
             break
         }

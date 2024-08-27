@@ -26,10 +26,11 @@
 // THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
 //
 
+import VKIDAllureReport
 import VKIDCore
 import XCTest
+
 @testable import VKID
-@testable import VKIDAllureReport
 
 final class UserSessionManagerCreateSessionTests: XCTestCase {
     private let testCaseMeta = Allure.TestCase.MetaInformation(

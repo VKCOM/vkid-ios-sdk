@@ -30,7 +30,7 @@ import Foundation
 import VKID
 
 extension [OAuthProvider] {
-    var description: String {
+    func description(with separator: String = ", ") -> String {
         self.map {
             switch $0 {
             case .mail: "Mail"
@@ -39,6 +39,6 @@ extension [OAuthProvider] {
             default:
                 "unknown"
             }
-        }.joined(separator: ", ")
+        }.joined(separator: separator)
     }
 }

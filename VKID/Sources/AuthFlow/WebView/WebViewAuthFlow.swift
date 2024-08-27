@@ -75,8 +75,7 @@ internal final class WebViewAuthFlow: Component, AuthFlow {
                 with: presenter,
                 authURL: authURL,
                 redirectURL: redirectURL(
-                    for: self.deps.appCredentials.clientId,
-                    in: self.deps.authContext
+                    for: self.deps.appCredentials.clientId
                 ),
                 pkceSecrets: self.deps.authConfig.pkceSecrets,
                 completion: completion

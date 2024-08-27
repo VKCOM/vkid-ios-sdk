@@ -26,9 +26,10 @@
 // THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
 //
 
+import VKIDAllureReport
 import XCTest
+
 @testable import VKID
-@testable import VKIDAllureReport
 @testable import VKIDCore
 
 final class VKIDSSLPinningTests: XCTestCase {

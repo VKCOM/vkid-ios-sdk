@@ -27,11 +27,19 @@
 //
 
 import SnapshotTesting
-import VKIDCore
+import VKIDAllureReport
+import VKIDTestingInfra
 import XCTest
-@_spi(VKIDDebug) @testable import VKID
 
-@testable import VKIDAllureReport
+@_spi(VKIDDebug)
+@testable import VKID
+@testable import VKIDCore
+
+struct OAuthListWidgetConfiguration {
+    var buttonBaseConfiguration: ButtonBaseConfiguration = .init()
+    var theme: OAuthListWidget.Theme = .matchingColorScheme(.light)
+    var providers: [OAuthProvider] = OAuthProvider.allCases
+}
 
 final class OAuthListWidgetSnapshotTests: XCTestCase, TestCaseInfra {
     private let testCaseMeta = Allure.TestCase.MetaInformation(
@@ -41,6 +49,7 @@ final class OAuthListWidgetSnapshotTests: XCTestCase, TestCaseInfra {
         feature: "Виджет авторизации",
         priority: .critical
     )
+    private let defaultConfig: OAuthListWidgetConfiguration = .init()
     var vkid: VKID!
     var widget: OAuthListWidget!
     var widgetView: UIView!
@@ -63,7 +72,12 @@ final class OAuthListWidgetSnapshotTests: XCTestCase, TestCaseInfra {
                 meta: self.testCaseMeta
             )
         )
-        self.snapshotTest(for: [.mail], testName: #function)
+        self.snapshotTest(
+            config: .init(
+                providers: [.mail]
+            ),
+            diffConfig: self.defaultConfig
+        )
     }
 
     func testOKProvider() {
@@ -74,7 +88,12 @@ final class OAuthListWidgetSnapshotTests: XCTestCase, TestCaseInfra {
                 meta: self.testCaseMeta
             )
         )
-        self.snapshotTest(for: [.ok], testName: #function)
+        self.snapshotTest(
+            config: .init(
+                providers: [.ok]
+            ),
+            diffConfig: self.defaultConfig
+        )
     }
 
     func testVKIDProvider() {
@@ -85,7 +104,10 @@ final class OAuthListWidgetSnapshotTests: XCTestCase, TestCaseInfra {
                 meta: self.testCaseMeta
             )
         )
-        self.snapshotTest(for: [.vkid], testName: #function)
+        self.snapshotTest(
+            config: self.defaultConfig,
+            diffConfig: nil
+        )
     }
 
     func testMailOKProvider() {
@@ -96,7 +118,12 @@ final class OAuthListWidgetSnapshotTests: XCTestCase, TestCaseInfra {
                 meta: self.testCaseMeta
             )
         )
-        self.snapshotTest(for: [.mail, .ok], testName: #function)
+        self.snapshotTest(
+            config: .init(
+                providers: [.mail, .ok]
+            ),
+            diffConfig: self.defaultConfig
+        )
     }
 
     func testMailOKVKIDProvider() {
@@ -107,19 +134,95 @@ final class OAuthListWidgetSnapshotTests: XCTestCase, TestCaseInfra {
                 meta: self.testCaseMeta
             )
         )
-        self.snapshotTest(for: [.mail, .ok, .vkid], testName: #function)
+        self.snapshotTest(
+            config: self.defaultConfig,
+            diffConfig: nil
+        )
     }
 
-    private func snapshotTest(for oAuthProviders: [OAuthProvider], testName: String) {
-        given("Создаем конфигурацию виджета c: \(oAuthProviders.description)") {
-            self.widget = OAuthListWidget(oAuthProviders: oAuthProviders, onCompleteAuth: nil)
+    func testButtonHeight() {
+        Allure.report(
+            .init(
+                id: 2341959,
+                name: "Конфигурация виджета c разной высотой",
+                meta: self.testCaseMeta
+            )
+        )
+        OneTapButton.Layout.Height.allCases.filter {
+            $0 != self.defaultConfig.buttonBaseConfiguration.height
+        }
+        . forEach {
+            self.snapshotTest(
+                config: .init(
+                    buttonBaseConfiguration: .init(height: $0)
+                ),
+                diffConfig: self.defaultConfig
+            )
+        }
+    }
+
+    func testButtonCornerRadius() {
+        Allure.report(
+            .init(
+                id: 2341967,
+                name: "Конфигурация виджета c разными радиусами закругления",
+                meta: self.testCaseMeta
+            )
+        )
+        [
+            CGFloat(exactly: LayoutConstants.defaultCornerRadius + 2.0)!,
+            CGFloat(exactly: LayoutConstants.defaultCornerRadius - 2.0)!,
+        ].forEach {
+            self.snapshotTest(
+                config: .init(
+                    buttonBaseConfiguration: .init(cornerRadius: $0)
+                ),
+                diffConfig: self.defaultConfig
+            )
+        }
+    }
+
+    func testTheme() {
+        Allure.report(
+            .init(
+                id: 2341964,
+                name: "Конфигурация виджета c темной темой",
+                meta: self.testCaseMeta
+            )
+        )
+        self.snapshotTest(
+            config: .init(
+                theme: .matchingColorScheme(.dark)
+            ),
+            diffConfig: self.defaultConfig
+        )
+    }
+
+    private func snapshotTest(
+        config: OAuthListWidgetConfiguration,
+        diffConfig: OAuthListWidgetConfiguration? = nil
+    ) {
+        let description: String = Descriptioner.diffDescription(
+            config: config,
+            withStandard: diffConfig
+        )
+        given("Создаем конфигурацию виджета c \(description)") {
+            self.widget = OAuthListWidget(
+                oAuthProviders: config.providers,
+                buttonConfiguration: .init(
+                    height: config.buttonBaseConfiguration.height,
+                    cornerRadius: config.buttonBaseConfiguration.cornerRadius
+                ),
+                theme: config.theme,
+                onCompleteAuth: nil
+            )
         }
         when("Создаем виджет и задаем размеры") {
             self.widgetView = self.vkid.ui(for: self.widget).uiView()
             self.widgetView.frame = .widgetFrame
         }
-        then("Проверка снапшота виджета c: \(oAuthProviders.description)") {
-            assertSnapshot(of: self.widgetView, as: .image, testName: testName)
+        then("Проверка снапшота виджета c: \(description)") {
+            assertSnapshot(of: self.widgetView, as: .image, testName: description)
         }
     }
 }

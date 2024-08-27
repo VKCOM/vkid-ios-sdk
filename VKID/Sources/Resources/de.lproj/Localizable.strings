@@ -36,7 +36,7 @@
 "vkconnect_auth_via_providers_legal" = "oder melden Sie sich mit Ihrer VK-ID an, indem Sie Informationen aus dem Dienst verwenden";
 
 "vkconnect_oauth_ok_button_primary_title" = "Mit OK anmelden";
-"vkconnect_oauth_mail_button_primary_title" = "Mit Mail.ru anmelden";
+"vkconnect_oauth_mail_button_primary_title" = "Mit Mail anmelden";
 
 "vkid_sheet_state_auth_in_progress" = "Anmeldung";
 "vkid_sheet_state_auth_success" = "Gelungen!";

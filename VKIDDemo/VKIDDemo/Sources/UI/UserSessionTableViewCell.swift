@@ -142,7 +142,7 @@ final class UserSessionInfoTableViewCell: UITableViewCell {
         case OAuthProvider.ok:
             image = UIImage(resource: .okRuLogo)
         case OAuthProvider.mail:
-            image = UIImage(resource: .mailRuLogo)
+            image = UIImage(resource: .mailLogo)
         default:
             break
         }

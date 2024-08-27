@@ -27,10 +27,13 @@
 //
 
 import SnapshotTesting
-import VKIDCore
+import VKIDAllureReport
+import VKIDTestingInfra
 import XCTest
-@_spi(VKIDDebug) @testable import VKID
-@testable import VKIDAllureReport
+
+@_spi(VKIDDebug)
+@testable import VKID
+@testable import VKIDCore
 
 final class OAuthListWidgetTests: XCTestCase, TestCaseInfra {
     private let testCaseMeta = Allure.TestCase.MetaInformation(

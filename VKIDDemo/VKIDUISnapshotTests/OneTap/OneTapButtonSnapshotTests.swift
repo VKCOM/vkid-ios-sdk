@@ -27,9 +27,11 @@
 //
 
 import SnapshotTesting
-import VKID
+import VKIDAllureReport
+import VKIDTestingInfra
 import XCTest
-@testable import VKIDAllureReport
+
+@testable import VKID
 
 final class OneTapButtonSnapshotTests: XCTestCase, TestCaseInfra {
     private let testCaseMeta = Allure.TestCase.MetaInformation(
@@ -39,6 +41,7 @@ final class OneTapButtonSnapshotTests: XCTestCase, TestCaseInfra {
         feature: "OneTap",
         priority: .critical
     )
+    private let defaultConfig: OneTapButtonConfiguration = .init()
     var vkid: VKID!
     private var oneTapButton: OneTapButton!
     private var oneTapButtonView: UIView!
@@ -53,29 +56,7 @@ final class OneTapButtonSnapshotTests: XCTestCase, TestCaseInfra {
         self.oneTapButtonView = nil
     }
 
-    func testIconState() {
-        Allure.report(
-            .init(
-                id: 2334370,
-                name: "OneTap иконка",
-                meta: self.testCaseMeta
-            )
-        )
-        given("Конфигурация OneTap") {
-            self.oneTapButton = OneTapButton(
-                layout: .logoOnly(),
-                onCompleteAuth: nil
-            )
-        }
-        when("Создание 'view'") {
-            self.oneTapButtonView = self.vkid.ui(for: self.oneTapButton).uiView()
-        }
-        then("Проверка 'view'") {
-            assertSnapshot(of: self.oneTapButtonView, as: .image)
-        }
-    }
-
-    func testButtonState() {
+    func testDefaultState() {
         Allure.report(
             .init(
                 id: 2334369,
@@ -83,16 +64,10 @@ final class OneTapButtonSnapshotTests: XCTestCase, TestCaseInfra {
                 meta: self.testCaseMeta
             )
         )
-        given("Конфигурация OneTap") {
-            self.oneTapButton = OneTapButton(onCompleteAuth: nil)
-        }
-        when("Создание 'view' и установка размеров") {
-            self.oneTapButtonView = self.vkid.ui(for: self.oneTapButton).uiView()
-            self.oneTapButtonView.frame = .oneTapButtonFrame
-        }
-        then("Проверка 'view'") {
-            assertSnapshot(of: self.oneTapButtonView, as: .image)
-        }
+        self.snapshotTest(
+            config: .init(),
+            diffConfig: nil
+        )
     }
 
     func testOKAlternativeProvider() {
@@ -103,46 +78,198 @@ final class OneTapButtonSnapshotTests: XCTestCase, TestCaseInfra {
                 meta: self.testCaseMeta
             )
         )
-        self.snapshotTest(with: [.ok], testName: #function)
+        self.snapshotTest(
+            config: .init(alternativeProviders: [.ok]),
+            diffConfig: self.defaultConfig
+        )
     }
 
     func testMailAlternativeProvider() {
         Allure.report(
             .init(
                 id: 2334366,
-                name: "OneTap кнопка с провайдером Mail.ru",
+                name: "OneTap кнопка с провайдером Mail",
                 meta: self.testCaseMeta
             )
         )
-        self.snapshotTest(with: [.mail], testName: #function)
+        self.snapshotTest(
+            config: .init(alternativeProviders: [.mail]),
+            diffConfig: self.defaultConfig
+        )
     }
 
     func testMailAndOKAlternativeProvider() {
         Allure.report(
             .init(
                 id: 2334367,
-                name: "OneTap кнопка с провайдерами Mail.ru и OK",
+                name: "OneTap кнопка с провайдерами Mail и OK",
                 meta: self.testCaseMeta
             )
         )
-        self.snapshotTest(with: [.mail, .ok], testName: #function)
+        self.snapshotTest(
+            config: .init(alternativeProviders: [.mail, .ok]),
+            diffConfig: self.defaultConfig
+        )
     }
 
-    private func snapshotTest(with oAuthProviders: [OAuthProvider], testName: String) {
-        given("Конфигурация OneTap c \(oAuthProviders.description)") {
-            self.oneTapButton = OneTapButton(
-                oAuthProviderConfiguration: .init(
-                    alternativeProviders: oAuthProviders
-                ),
-                onCompleteAuth: nil
+    func testTitle() {
+        Allure.report(
+            .init(
+                id: 2341968,
+                name: "Проверка тайтлов",
+                meta: self.testCaseMeta
             )
+        )
+
+        OneTapButton.Appearance.Title.RawType.allCases.filter {
+            $0 != self.defaultConfig.title?.rawType &&
+                $0 != OneTapButton.Appearance.Title.RawType.custom
+        }.forEach {
+            self.snapshotTest(
+                config: OneTapButtonConfiguration(title: try! $0.title),
+                diffConfig: self.defaultConfig
+            )
+        }
+    }
+
+    func testStyle() {
+        Allure.report(
+            .init(
+                id: 2341965,
+                name: "Проверка стилей",
+                meta: self.testCaseMeta
+            )
+        )
+        OneTapButton.Appearance.Style.allCases.filter {
+            $0 != self.defaultConfig.style
+        }
+        .forEach {
+            self.snapshotTest(
+                config: OneTapButtonConfiguration(style: $0),
+                diffConfig: self.defaultConfig
+            )
+        }
+    }
+
+    func testKind() {
+        Allure.report(
+            .init(
+                id: 2341963,
+                name: "Проверка типа лейаута кнопки",
+                meta: self.testCaseMeta
+            )
+        )
+
+        OneTapButton.Layout.Kind.allCases.filter { $0 != self.defaultConfig.kind }.forEach {
+            self.snapshotTest(
+                config: OneTapButtonConfiguration(kind: $0),
+                diffConfig: self.defaultConfig
+            )
+        }
+    }
+
+    func testHeight() {
+        Allure.report(
+            .init(
+                id: 2341962,
+                name: "Проверка высоты кнопки",
+                meta: self.testCaseMeta
+            )
+        )
+        OneTapButton.Layout.Height.allCases.filter {
+            $0 != self.defaultConfig.buttonBaseConfiguration.height
+        }
+        .forEach {
+            self.snapshotTest(
+                config: OneTapButtonConfiguration(
+                    buttonBaseConfiguration: .init(height: $0)
+                ),
+                diffConfig: self.defaultConfig
+            )
+        }
+    }
+
+    func testCornerRadius() {
+        Allure.report(
+            .init(
+                id: 2341961,
+                name: "Проверка радиуса скругления",
+                meta: self.testCaseMeta
+            )
+        )
+        [
+            CGFloat(exactly: LayoutConstants.defaultCornerRadius + 2.0)!,
+            CGFloat(exactly: LayoutConstants.defaultCornerRadius - 2.0)!,
+        ].forEach {
+            self.snapshotTest(
+                config: OneTapButtonConfiguration(
+                    buttonBaseConfiguration: .init(cornerRadius: $0)
+                ),
+                diffConfig: self.defaultConfig
+            )
+        }
+    }
+
+    func testTheme() {
+        Allure.report(
+            .init(
+                id: 2341960,
+                name: "Проверка темной темы",
+                meta: self.testCaseMeta
+            )
+        )
+        self.snapshotTest(
+            config: .init(
+                theme: OneTapButton.Appearance.Theme.matchingColorScheme(.dark)
+            ),
+            diffConfig: self.defaultConfig
+        )
+    }
+
+    private func snapshotTest(
+        config: OneTapButtonConfiguration,
+        diffConfig: OneTapButtonConfiguration?
+    ) {
+        let description = Descriptioner.diffDescription(
+            config: config,
+            withStandard: diffConfig
+        )
+        given(
+            "Конфигурация OneTap c \(description)"
+        ) {
+            self.oneTapButton = config.createOneTapButton()
         }
         when("Создание 'view' и установка размеров") {
             self.oneTapButtonView = self.vkid.ui(for: self.oneTapButton).uiView()
             self.oneTapButtonView.frame = .oneTapButtonWithProvidersFrame
         }
         then("Проверка 'view'") {
-            assertSnapshot(of: self.oneTapButtonView, as: .image, testName: testName)
+            assertSnapshot(
+                of: self.oneTapButtonView,
+                as: .image,
+                testName: "\(description)"
+            )
+        }
+    }
+}
+
+extension OneTapButton.Appearance.Title.RawType {
+    var title: OneTapButton.Appearance.Title {
+        get throws {
+            switch self {
+            case .calculate: .calculate
+            case .signUp: .signUp
+            case .get: .get
+            case .open: .open
+            case .order: .order
+            case .makeOrder: .makeOrder
+            case .submitRequest: .submitRequest
+            case .participate: .participate
+            case .vkid: .vkid
+            case .ok: .ok
+            case .mail: .mail
+            default: throw NSError(domain: "Not supported Title", code: 0)
+            }
         }
     }
 }
