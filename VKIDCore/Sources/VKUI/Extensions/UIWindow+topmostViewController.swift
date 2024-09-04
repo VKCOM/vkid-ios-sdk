@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2023 - present, LLC “V Kontakte”
+// Copyright (c) 2024 - present, LLC “V Kontakte”
 //
 // 1. Permission is hereby granted to any person obtaining a copy of this Software to
 // use the Software without charge.
@@ -26,40 +26,28 @@
 // THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
 //
 
-import Foundation
 import UIKit
-import VKIDCore
 
-internal protocol WebViewAuthStrategyFactory {
-    func createWebViewAuthStrategy() -> WebViewAuthStrategy
+extension UIViewController {
+    @objc var topmostViewController: UIViewController? {
+        presentedViewController?.topmostViewController ?? self
+    }
 }
 
-internal final class WebViewAuthStrategyDefaultFactory: WebViewAuthStrategyFactory {
-    struct Dependencies: Dependency {
-        let appInteropHandler: AppInteropCompositeHandler
-        let responseParser: AuthCodeResponseParser
-        let applicationManager: ApplicationManager
+extension UINavigationController {
+    @objc override var topmostViewController: UIViewController? {
+        topViewController?.topmostViewController
     }
+}
 
-    let deps: Dependencies
-
-    init(deps: Dependencies) {
-        self.deps = deps
+extension UITabBarController {
+    @objc override var topmostViewController: UIViewController? {
+        selectedViewController?.topmostViewController
     }
+}
 
-    func createWebViewAuthStrategy() -> WebViewAuthStrategy {
-        UIAccessibility.isGuidedAccessEnabled
-            ? SafariViewControllerStrategy(
-                deps: .init(
-                    appInteropHandler: self.deps.appInteropHandler,
-                    responseParser: self.deps.responseParser
-                )
-            )
-            : WebAuthenticationSessionStrategy(
-                deps: .init(
-                    responseParser: self.deps.responseParser,
-                    applicationManager: self.deps.applicationManager
-                )
-            )
+extension UIWindow {
+    package var topmostViewController: UIViewController? {
+        rootViewController?.topmostViewController
     }
 }

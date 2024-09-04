@@ -3,7 +3,15 @@
 > **Note**\
 > Описание основных изменений в релизах VK ID SDK. Наш SDK следует [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 1.3.2 - 2024-06-05
+## 1.3.3 - 2024-09-04
+
+### Added
+- Файл манифеста `PrivacyInfo.xcprivacy`, описывающий какие пользовательские данные использует VK ID SDK. Подробнее в статье Apple про [Privacy manifest files](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files)
+
+### Fixed
+- Проблема при авторизации через веб-вью с прыжком в приложение `VK`.
+
+## 1.3.2 - 2024-06-04
 
 ### Fixed
 - Необходимость явно импортировать `VKIDCore` при установке через SPM

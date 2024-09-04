@@ -29,6 +29,7 @@
 import AuthenticationServices
 import Foundation
 import SafariServices
+import VKIDCore
 
 internal protocol WebViewAuthStrategy {
     func authInWebView(
@@ -40,19 +41,23 @@ internal protocol WebViewAuthStrategy {
 }
 
 internal final class WebAuthenticationSessionStrategy: NSObject, WebViewAuthStrategy {
+    struct Dependencies: Dependency {
+        let responseParser: AuthCodeResponseParser
+        let applicationManager: ApplicationManager
+    }
+
     private var authSession: ASWebAuthenticationSession?
     private var subscribeToken: NSObjectProtocol?
     private var presenter: UIKitPresenter?
-    private let responseParser: AuthCodeResponseParser
 
-    init(responseParser: AuthCodeResponseParser) {
-        self.responseParser = responseParser
+    private let deps: Dependencies
+
+    init(deps: Dependencies) {
+        self.deps = deps
     }
 
     deinit {
-        if let subscribeToken {
-            NotificationCenter.default.removeObserver(subscribeToken)
-        }
+        self.unsubscribeFromAppDidEnterBackground()
     }
 
     func authInWebView(
@@ -61,8 +66,13 @@ internal final class WebAuthenticationSessionStrategy: NSObject, WebViewAuthStra
         presenter: UIKitPresenter,
         completion: @escaping (Result<AuthCodeResponse, AuthFlowError>) -> Void
     ) {
+        func complete(with result: Result<AuthCodeResponse, AuthFlowError>) {
+            self.unsubscribeFromAppDidEnterBackground()
+            completion(result)
+        }
+
         guard let redirectScheme = redirectURL.scheme else {
-            completion(.failure(.invalidRedirectURL(redirectURL)))
+            complete(with: .failure(.invalidRedirectURL(redirectURL)))
             return
         }
 
@@ -72,27 +82,34 @@ internal final class WebAuthenticationSessionStrategy: NSObject, WebViewAuthStra
             url: authURL,
             callbackURLScheme: redirectScheme
         ) { [weak self] url, error in
-            guard let self else {
-                return
-            }
+            guard let self else { return }
+
             if let error {
-                if
-                    let sessionError = error as? ASWebAuthenticationSessionError,
-                    sessionError.code == .canceledLogin
-                {
-                    completion(.failure(.authCancelledByUser))
+                if let sessionError = error as? ASWebAuthenticationSessionError {
+                    switch sessionError.code {
+                    case .canceledLogin:
+                        complete(with: .failure(.authCancelledByUser))
+                    // При некорректно указанном провайдере срабатывает callbackURLScheme,
+                    // но все равно запускает авторизацию, отлавливаем явно эту ошибку, чтобы не остановить процесс.
+                    case .presentationContextInvalid:
+                        break
+                    case .presentationContextNotProvided:
+                        complete(with: .failure(.webViewAuthSessionFailedToStart))
+                    @unknown default:
+                        complete(with: .failure(.webViewAuthSessionFailedToStart))
+                    }
                 } else {
-                    completion(.failure(.webViewAuthFailed(error)))
+                    complete(with: .failure(.webViewAuthFailed(error)))
                 }
             } else if let url {
                 do {
-                    let response = try self.responseParser.parseAuthCodeResponse(from: url)
-                    completion(.success(response))
+                    let response = try self.deps.responseParser.parseAuthCodeResponse(from: url)
+                    complete(with: .success(response))
                 } catch {
-                    completion(.failure(.invalidAuthCodePayloadJSON))
+                    complete(with: .failure(.invalidAuthCodePayloadJSON))
                 }
             } else {
-                completion(.failure(.invalidAuthCallbackURL))
+                complete(with: .failure(.invalidAuthCallbackURL))
             }
         }
 
@@ -101,7 +118,7 @@ internal final class WebAuthenticationSessionStrategy: NSObject, WebViewAuthStra
         }
 
         guard session.start() else {
-            completion(.failure(.webViewAuthSessionFailedToStart))
+            complete(with: .failure(.webViewAuthSessionFailedToStart))
             return
         }
 
@@ -110,8 +127,10 @@ internal final class WebAuthenticationSessionStrategy: NSObject, WebViewAuthStra
         /// При блокировке экрана системный алерт авторизации пропадает, не вызывая никаких коллбэков
         /// Здесь отлавливаем этот случай
         self.subscribeToken = self.subscribeOnAppDidEnterBackground {
-            session.cancel()
-            completion(.failure(.authCancelledByUser))
+            if !self.deps.applicationManager.isTopMostViewControllerSafariController {
+                session.cancel()
+                complete(with: .failure(.authCancelledByUser))
+            }
         }
     }
 
@@ -124,24 +143,33 @@ internal final class WebAuthenticationSessionStrategy: NSObject, WebViewAuthStra
             completion()
         }
     }
+
+    private func unsubscribeFromAppDidEnterBackground() {
+        self.subscribeToken.map(NotificationCenter.default.removeObserver)
+        self.subscribeToken = nil
+    }
 }
 
 @available(iOS 13.0, *)
 extension WebAuthenticationSessionStrategy: ASWebAuthenticationPresentationContextProviding {
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        self.presenter?.presentingWindow ?? UIApplication.shared.keyWindow ?? UIWindow()
+        self.deps.applicationManager.activeWindow ?? ASPresentationAnchor()
     }
 }
 
 internal final class SafariViewControllerStrategy: NSObject, WebViewAuthStrategy {
-    private let appInteropHandler: AppInteropCompositeHandler
+    struct Dependencies: Dependency {
+        let appInteropHandler: AppInteropCompositeHandler
+        let responseParser: AuthCodeResponseParser
+    }
+
     private var completion: ((Result<AuthCodeResponse, AuthFlowError>) -> Void)?
     private var callbackHandler: ClosureBasedURLHandler?
-    private var responseParser: AuthCodeResponseParser
 
-    init(appInteropHandler: AppInteropCompositeHandler, responseParser: AuthCodeResponseParser) {
-        self.appInteropHandler = appInteropHandler
-        self.responseParser = responseParser
+    private let deps: Dependencies
+
+    init(deps: Dependencies) {
+        self.deps = deps
     }
 
     func authInWebView(
@@ -160,7 +188,7 @@ internal final class SafariViewControllerStrategy: NSObject, WebViewAuthStrategy
                 return false
             }
             do {
-                let response = try self.responseParser.parseAuthCodeResponse(from: url)
+                let response = try self.deps.responseParser.parseAuthCodeResponse(from: url)
                 self.complete(with: .success(response))
             } catch {
                 self.complete(with: .failure(.invalidAuthCodePayloadJSON))
@@ -168,7 +196,7 @@ internal final class SafariViewControllerStrategy: NSObject, WebViewAuthStrategy
             return true
         }
 
-        self.appInteropHandler.attach(handler: handler)
+        self.deps.appInteropHandler.attach(handler: handler)
         self.completion = completion
         self.callbackHandler = handler
     }
@@ -176,7 +204,7 @@ internal final class SafariViewControllerStrategy: NSObject, WebViewAuthStrategy
     private func complete(with result: Result<AuthCodeResponse, AuthFlowError>) {
         self.completion?(result)
         self.completion = nil
-        self.callbackHandler.map(self.appInteropHandler.detach(handler:))
+        self.callbackHandler.map(self.deps.appInteropHandler.detach(handler:))
         self.callbackHandler = nil
     }
 }
@@ -184,5 +212,11 @@ internal final class SafariViewControllerStrategy: NSObject, WebViewAuthStrategy
 extension SafariViewControllerStrategy: SFSafariViewControllerDelegate {
     func safariViewControllerDidFinish(_ controller: SFSafariViewController) {
         self.complete(with: .failure(.authCancelledByUser))
+    }
+}
+
+extension ApplicationManager {
+    var isTopMostViewControllerSafariController: Bool {
+        self.activeWindow?.topmostViewController is SFSafariViewController
     }
 }

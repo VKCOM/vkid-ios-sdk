@@ -89,6 +89,7 @@ internal final class RootContainer {
     }
 
     internal lazy var keychain = Keychain()
+    internal lazy var applicationManager = ApplicationManagerImpl()
     internal lazy var appInteropHandler = AppInteropCompositeHandler()
     internal lazy var responseParser = AuthCodeResponseParserImpl()
     internal lazy var authURLBuilder = AuthURLBuilderImpl()
@@ -128,8 +129,11 @@ extension RootContainer: AuthFlowBuilder {
                 pkceGenerator: PKCESecretsSHA256Generator(),
                 authURLBuilder: self.authURLBuilder,
                 webViewStrategyFactory: WebViewAuthStrategyDefaultFactory(
-                    appInteropHandler: self.appInteropHandler,
-                    responseParser: self.responseParser
+                    deps: .init(
+                        appInteropHandler: self.appInteropHandler,
+                        responseParser: self.responseParser,
+                        applicationManager: self.applicationManager
+                    )
                 ),
                 logger: self.logger
             )

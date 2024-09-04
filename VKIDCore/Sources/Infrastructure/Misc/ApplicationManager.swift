@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2023 - present, LLC “V Kontakte”
+// Copyright (c) 2024 - present, LLC “V Kontakte”
 //
 // 1. Permission is hereby granted to any person obtaining a copy of this Software to
 // use the Software without charge.
@@ -26,40 +26,31 @@
 // THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
 //
 
-import Foundation
 import UIKit
-import VKIDCore
 
-internal protocol WebViewAuthStrategyFactory {
-    func createWebViewAuthStrategy() -> WebViewAuthStrategy
+package protocol ApplicationManager {
+    var activeWindow: UIWindow? { get }
 }
 
-internal final class WebViewAuthStrategyDefaultFactory: WebViewAuthStrategyFactory {
-    struct Dependencies: Dependency {
-        let appInteropHandler: AppInteropCompositeHandler
-        let responseParser: AuthCodeResponseParser
-        let applicationManager: ApplicationManager
+package final class ApplicationManagerImpl: ApplicationManager {
+    package init() {}
+
+    package var activeWindow: UIWindow? {
+        UIApplication.shared.activeWindow
     }
+}
 
-    let deps: Dependencies
-
-    init(deps: Dependencies) {
-        self.deps = deps
-    }
-
-    func createWebViewAuthStrategy() -> WebViewAuthStrategy {
-        UIAccessibility.isGuidedAccessEnabled
-            ? SafariViewControllerStrategy(
-                deps: .init(
-                    appInteropHandler: self.deps.appInteropHandler,
-                    responseParser: self.deps.responseParser
-                )
-            )
-            : WebAuthenticationSessionStrategy(
-                deps: .init(
-                    responseParser: self.deps.responseParser,
-                    applicationManager: self.deps.applicationManager
-                )
-            )
+extension UIApplication {
+    fileprivate var activeWindow: UIWindow? {
+        // Если бы здесь был `.first`, то в результате может быть выбрано window,
+        // которое будет скрыто за другим window.
+        if #available(iOS 13.0, *) {
+            return self.connectedScenes.lazy
+                .compactMap { $0 as? UIWindowScene }
+                .flatMap { $0.windows }
+                .last { $0.isKeyWindow }
+        } else {
+            return self.windows.last { $0.isKeyWindow }
+        }
     }
 }
