@@ -27,6 +27,7 @@
 //
 
 import VKIDAllureReport
+import VKIDTestingInfra
 import XCTest
 
 @testable import VKID
@@ -60,6 +61,7 @@ final class UserSessionDataStorageTests: XCTestCase {
     func testWriteReadUserSessionData() throws {
         Allure.report(
             .init(
+                id: 2291671,
                 name: "Данные сесси сохраняются в хранилище",
                 meta: self.testCaseMeta
             )
@@ -86,6 +88,7 @@ final class UserSessionDataStorageTests: XCTestCase {
     func testReadAllUserSessionData() throws {
         Allure.report(
             .init(
+                id: 2291674,
                 name: "Чтение всех записанных UserSessionData",
                 meta: self.testCaseMeta
             )
@@ -116,6 +119,7 @@ final class UserSessionDataStorageTests: XCTestCase {
     func testReadNotExistedUserSessionData() throws {
         Allure.report(
             .init(
+                id: 2291654,
                 name: "Чтение по UserId, при отсутствии UserSessionData, возвращает nil",
                 meta: self.testCaseMeta
             )
@@ -135,6 +139,7 @@ final class UserSessionDataStorageTests: XCTestCase {
     func testRemoveUserSessionData() throws {
         Allure.report(
             .init(
+                id: 2291687,
                 name: "Удаление UserSessionData по UserId",
                 meta: self.testCaseMeta
             )
@@ -167,6 +172,7 @@ final class UserSessionDataStorageTests: XCTestCase {
     func testRemoveAllUserSessionData() throws {
         Allure.report(
             .init(
+                id: 2291642,
                 name: "Удаление всех UserSessionData",
                 meta: self.testCaseMeta
             )
@@ -202,6 +208,7 @@ final class UserSessionDataStorageTests: XCTestCase {
     func testRemoveNotExistedUserSessionData() throws {
         Allure.report(
             .init(
+                id: 2291669,
                 name: "Удаление несуществующей UserSessionData по UserId",
                 meta: self.testCaseMeta
             )

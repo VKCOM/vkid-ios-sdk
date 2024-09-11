@@ -26,10 +26,17 @@
 // THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
 //
 
+import VKIDAllureReport
 import XCTest
 @testable import VKIDCore
 
 final class DeviceIDTests: XCTestCase {
+    private let testCaseMeta = Allure.TestCase.MetaInformation(
+        owner: .vkidTester,
+        layer: .unit,
+        product: .VKIDSDK,
+        feature: "DeviceID"
+    )
     private let userDefaultsDeviceID = UUID()
     private let keychain = Keychain()
 
@@ -40,29 +47,60 @@ final class DeviceIDTests: XCTestCase {
     }
 
     func testMigrateDeviceIdFromUserDefaultsToKeychain() throws {
-        // given
-        UserDefaults.standard.storedCurrentDeviceId = self.userDefaultsDeviceID
-        // when
-        // then
-        XCTAssertEqual(self.userDefaultsDeviceID.uuidString, DeviceId.currentDeviceId.description)
-        XCTAssertEqual(UserDefaults.standard.storedCurrentDeviceId, nil)
+        Allure.report(
+            .init(
+                id: 2292436,
+                name: "Миграция DeviceId из UserDefaults в Keychain",
+                meta: self.testCaseMeta
+            )
+        )
+        given("Задаем DeviceId") {
+            UserDefaults.standard.storedCurrentDeviceId = self.userDefaultsDeviceID
+        }
+        try then("Проверяем что в Keychain правильный DeviceId, а UserDefaults пустой") {
+            XCTAssertEqual(self.userDefaultsDeviceID.uuidString, DeviceId.currentDeviceId.description)
+            guard let savedInKeychainDeviceId: String? = try keychain.fetch(query: .readDeviceId) else {
+                XCTFail("Failed to update DeviceId in Keychain")
+                return
+            }
+            XCTAssertEqual(savedInKeychainDeviceId, self.userDefaultsDeviceID.uuidString)
+            XCTAssertEqual(UserDefaults.standard.storedCurrentDeviceId, nil)
+        }
     }
 
     func testDeviceIdEqualsToIdentifierForVendor() throws {
-        // given
-        // when
-        // then
-        XCTAssertEqual(UIDevice.current.identifierForVendor?.uuidString, DeviceId.currentDeviceId.description)
-        XCTAssertEqual(UserDefaults.standard.storedCurrentDeviceId, nil)
+        Allure.report(
+            .init(
+                id: 2292442,
+                name: "DeviceId - Identifier for vendor",
+                meta: self.testCaseMeta
+            )
+        )
+        given("Получаем идентификатор вендора") {
+            let identifierForVendor = UIDevice.current.identifierForVendor?.uuidString
+            then("Проверяем, что идентификатор вендора записан в DeviceId") {
+                XCTAssertEqual(identifierForVendor, DeviceId.currentDeviceId.description)
+            }
+        }
     }
 
-    func testFetchDeviceIdFromKeychain() throws {
-        // given
-        let deviceId = UUID()
-        try keychain.update(deviceId, query: .deviceId, addIfNotFound: true)
-        // when
-        // then
-        XCTAssertEqual(deviceId.uuidString, DeviceId.currentDeviceId.description)
-        XCTAssertEqual(UserDefaults.standard.storedCurrentDeviceId, nil)
+    func testUpdateDeviceId() throws {
+        Allure.report(
+            .init(
+                id: 2349487,
+                name: "Обновление DeviceId",
+                meta: self.testCaseMeta
+            )
+        )
+        try given("Создаем DeviceId") {
+            let deviceId = UUID()
+            try when("Сохраняем DeviceId в Keychain") {
+                try self.keychain.update(deviceId, query: .deviceId, addIfNotFound: true)
+                then("Проверяем, что DeviceId соответствует обновленному, а в UserDefaults пустое значение") {
+                    XCTAssertEqual(deviceId.uuidString, DeviceId.currentDeviceId.description)
+                    XCTAssertEqual(UserDefaults.standard.storedCurrentDeviceId, nil)
+                }
+            }
+        }
     }
 }

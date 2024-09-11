@@ -3,6 +3,19 @@
 > **Note**\
 > Описание основных изменений в релизах VK ID SDK. Наш SDK следует [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.2.1 - 2024-09-11
+
+### Fixed
+- Проблема при авторизации через веб-вью с прыжком в приложение `VK`.
+
+## 1.3.3 - 2024-09-04
+
+### Added
+- Файл манифеста `PrivacyInfo.xcprivacy`, описывающий какие пользовательские данные использует VK ID SDK. Подробнее в статье Apple про [Privacy manifest files](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files)
+
+### Fixed
+- Проблема при авторизации через веб-вью с прыжком в приложение `VK`.
+
 ## 2.2.0 - 2024-08-27
 
 ### Fixed

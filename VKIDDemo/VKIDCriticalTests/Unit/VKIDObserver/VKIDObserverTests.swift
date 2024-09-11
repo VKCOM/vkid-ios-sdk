@@ -129,8 +129,12 @@ final class VKIDObserverTests: XCTestCase, TestCaseInfra {
         let successfulAuthorizationExpectation = expectation(
             description: "Успешная авторизация"
         )
-        let oAuthProviderConfig = OAuthProviderConfiguration(primaryProvider: .ok)
-        let userSessionData = UserSessionData.random()
+        let provider = OAuthProvider.ok
+        let oAuthProviderConfig = OAuthProviderConfiguration(primaryProvider: provider)
+        let userSessionData = UserSessionData.random(
+            withUserData: false,
+            oAuthProvider: provider
+        )
         let codeExchangerMock = AuthCodeExchangerMock()
         let webViewResponse = AuthCodeResponse.random(
             state: self.secrets.state,
@@ -146,12 +150,12 @@ final class VKIDObserverTests: XCTestCase, TestCaseInfra {
             self.observerMock.didCompleteAuthWith = { _, authResult, provider in
                 then("Проверяем, что указан правильный провайдер и сессия") {
                     XCTAssertEqual(provider, oAuthProviderConfig.primaryProvider)
-                    if case .success(let session) = authResult {
-                        XCTAssertEqual(userSessionData.id, session.userId)
-                        XCTAssertEqual(userSessionData.accessToken.value, session.accessToken.value)
-                        XCTAssertEqual(userSessionData.refreshToken, session.refreshToken)
-                        XCTAssertEqual(userSessionData.serverProvidedDeviceId, session.sessionId)
-                        XCTAssertEqual(userSessionData.idToken, session.idToken)
+                    if case .success(let session) = authResult,
+                       let resultData = (session as? UserSessionImpl)?.data
+                    {
+                        XCTAssert(
+                            try! userSessionData.equalsWithoutCreationDate(data: resultData)
+                        )
                         correctObserverResultExpectation.fulfill()
                     }
                 }

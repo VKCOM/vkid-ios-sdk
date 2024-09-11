@@ -62,7 +62,13 @@ let package = Package(
         ),
         .testTarget(
             name: "VKIDTests",
-            dependencies: ["VKID"],
+            dependencies: [
+                "VKID",
+                .product(
+                    name: "VKIDAllureReport",
+                    package: "testing-infra"
+                ),
+            ],
             path: "VKID/Tests"
         ),
         .target(

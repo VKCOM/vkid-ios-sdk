@@ -65,6 +65,7 @@ final class UserSessionManagerUpdateSessionTests: XCTestCase {
     func testUpdateUserSessionDataUpdatesStorage() throws {
         Allure.report(
             .init(
+                id: 2292385,
                 name: "Обновление UserSessionData у UserSession, обновляет UserSessionData в хранилищах",
                 meta: self.testCaseMeta
             )
@@ -93,6 +94,7 @@ final class UserSessionManagerUpdateSessionTests: XCTestCase {
     func testUpdateDataForLoggedOutUserSessionDoesNotAffectStorage() throws {
         Allure.report(
             .init(
+                id: 2292387,
                 name: "Обновление UserSessionData у инвалидированной UserSession, не обновляет UserSessionData в хранилищах",
                 meta: self.testCaseMeta
             )
@@ -122,6 +124,7 @@ final class UserSessionManagerUpdateSessionTests: XCTestCase {
     func testRepeatedMakingOfSessionUpdatesDataInStorage() throws {
         Allure.report(
             .init(
+                id: 2292389,
                 name: "Создание UserSession с новым данными для пользователя, обновляет UserSessionData в хранилищах",
                 meta: self.testCaseMeta
             )

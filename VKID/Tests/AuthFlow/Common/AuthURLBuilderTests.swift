@@ -26,11 +26,18 @@
 // THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
 //
 
+import VKIDAllureReport
 import VKIDCore
 import XCTest
 @testable import VKID
 
 final class AuthURLBuilderTests: XCTestCase {
+    private let testCaseMeta = Allure.TestCase.MetaInformation(
+        owner: .vkidTester,
+        layer: .unit,
+        product: .VKIDCore,
+        feature: "Создание запроса авторизации"
+    )
     private var builder: AuthURLBuilder!
 
     private let secrets = PKCESecretsWallet(secrets: .init(
@@ -53,232 +60,277 @@ final class AuthURLBuilderTests: XCTestCase {
     }
 
     func testBuildProviderAuthURLWithValidParameters() {
-        do {
-            let baseURL = URL(string: "http://example.com/")!
-
-            let result = try builder.buildProviderAuthURL(
-                baseURL: baseURL,
-                authContext: self.context,
-                secrets: self.secrets,
-                credentials: self.credentials,
-                scope: self.scope,
-                deviceId: DeviceId.currentDeviceId.description
+        Allure.report(
+            .init(
+                id: 2291645,
+                name: "Валидный запрос через провайдер",
+                meta: self.testCaseMeta
             )
+        )
+        given("Создается запрос авторизации и ожидаемые параметры") {
+            do {
+                let baseURL = URL(string: "http://example.com/")!
 
-            let urlComponents = URLComponents(url: result, resolvingAgainstBaseURL: true)
-            let commonQueryItems = try createCommonQueryItems(
-                authContext: self.context,
-                secrets: self.secrets,
-                credentials: self.credentials
-            )
-            let expectedQueryItems = commonQueryItems + [
-                .authProviderMethod,
-                .redirectURI(
-                    redirectURL(
-                        for: self.credentials.clientId,
-                        in: self.context,
-                        scope: self.scope,
-                        version: Env.VKIDVersion
-                    ).absoluteString
-                ),
-            ]
-            XCTAssertEqual(urlComponents?.queryItems, expectedQueryItems)
+                let result = try builder.buildProviderAuthURL(
+                    baseURL: baseURL,
+                    authContext: self.context,
+                    secrets: self.secrets,
+                    credentials: self.credentials,
+                    scope: self.scope,
+                    deviceId: DeviceId.currentDeviceId.description
+                )
 
-            guard var expectedURLComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: false) else {
-                XCTFail("Failed to form a url string")
-                return
+                let urlComponents = URLComponents(url: result, resolvingAgainstBaseURL: true)
+                let commonQueryItems = try createCommonQueryItems(
+                    authContext: self.context,
+                    secrets: self.secrets,
+                    credentials: self.credentials
+                )
+                let expectedQueryItems = commonQueryItems + [
+                    .authProviderMethod,
+                    .init(
+                        name: "redirect_uri",
+                        value: redirectURL(
+                            for: self.credentials.clientId,
+                            in: self.context,
+                            scope: self.scope,
+                            version: Env.VKIDVersion
+                        ).absoluteString
+                    ),
+                ]
+                when("Создаем компоненты и URL") {
+                    guard var expectedURLComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: false) else {
+                        XCTFail("Failed to form a url string")
+                        return
+                    }
+                    expectedURLComponents.queryItems = expectedQueryItems
+                    then("Проверяем параметры и весь URL") {
+                        XCTAssertEqual(urlComponents?.queryItems, expectedQueryItems)
+                        XCTAssertEqual(expectedURLComponents.url, result)
+                    }
+                }
+            } catch {
+                XCTFail("Error in build URL from valid string: \(error)")
             }
-            expectedURLComponents.queryItems = expectedQueryItems
-
-            XCTAssertEqual(expectedURLComponents.url, result)
-        } catch {
-            XCTFail("Error in build URL from valid string: \(error)")
         }
     }
 
     func testBuildProviderAuthURLWithEmptyParameters() {
-        do {
-            let baseURL = URL(string: "http://example.com/")!
-
-            let secrets = PKCESecretsWallet(secrets: .init(
-                codeVerifier: "",
-                codeChallenge: "",
-                codeChallengeMethod: .s256,
-                state: ""
-            ))
-            let credentials = AppCredentials(clientId: "", clientSecret: "")
-            let context = AuthContext(uniqueSessionId: "", launchedBy: .service)
-
-            let result = try builder.buildProviderAuthURL(
-                baseURL: baseURL,
-                authContext: context,
-                secrets: secrets,
-                credentials: credentials,
-                scope: self.scope,
-                deviceId: DeviceId.currentDeviceId.description
+        Allure.report(
+            .init(
+                id: 2291667,
+                name: "Запрос с пустыми параметрами через провайдер",
+                meta: self.testCaseMeta
             )
+        )
+        given("Создается запрос авторизации без параметров и ожидаемые параметры") {
+            do {
+                let baseURL = URL(string: "http://example.com/")!
 
-            let urlComponents = URLComponents(url: result, resolvingAgainstBaseURL: true)
-            let commonQueryItems = try createCommonQueryItems(
-                authContext: context,
-                secrets: secrets,
-                credentials: credentials
-            )
-            let expectedQueryItems = commonQueryItems + [
-                .authProviderMethod,
-                .redirectURI(
-                    redirectURL(
-                        for: credentials.clientId,
-                        in: context,
-                        scope: self.scope,
-                        version: Env.VKIDVersion
-                    ).absoluteString
-                ),
-            ]
-            XCTAssertEqual(urlComponents?.queryItems, expectedQueryItems)
+                let secrets = PKCESecretsWallet(secrets: .init(
+                    codeVerifier: "",
+                    codeChallenge: "",
+                    codeChallengeMethod: .s256,
+                    state: ""
+                ))
+                let credentials = AppCredentials(clientId: "", clientSecret: "")
+                let context = AuthContext(uniqueSessionId: "", launchedBy: .service)
 
-            guard var expectedURLComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: false) else {
-                XCTFail("Failed to form a url string")
-                return
+                let result = try builder.buildProviderAuthURL(
+                    baseURL: baseURL,
+                    authContext: context,
+                    secrets: secrets,
+                    credentials: credentials,
+                    scope: self.scope,
+                    deviceId: DeviceId.currentDeviceId.description
+                )
+
+                let urlComponents = URLComponents(url: result, resolvingAgainstBaseURL: true)
+                let commonQueryItems = try createCommonQueryItems(
+                    authContext: context,
+                    secrets: secrets,
+                    credentials: credentials
+                )
+                let expectedQueryItems = commonQueryItems + [
+                    .authProviderMethod,
+                    .init(
+                        name: "redirect_uri",
+                        value: redirectURL(
+                            for: credentials.clientId,
+                            in: context,
+                            scope: self.scope,
+                            version: Env.VKIDVersion
+                        ).absoluteString
+                    ),
+                ]
+                when("Создаем компоненты и URL") {
+                    guard var expectedURLComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: false) else {
+                        XCTFail("Failed to form a url string")
+                        return
+                    }
+                    expectedURLComponents.queryItems = expectedQueryItems
+                    then("Проверяем параметры и весь URL") {
+                        XCTAssertEqual(urlComponents?.queryItems, expectedQueryItems)
+                        XCTAssertEqual(expectedURLComponents.url, result)
+                    }
+                }
+            } catch {
+                XCTFail("Error in build URL from valid string: \(error)")
             }
-            expectedURLComponents.queryItems = expectedQueryItems
-
-            XCTAssertEqual(expectedURLComponents.url, result)
-        } catch {
-            XCTFail("Error in build URL from valid string: \(error)")
         }
     }
 
     func testBuildWebViewAuthURLWithValidParameters() {
-        do {
-            let baseURL = URL(string:"http://example.com/")!
-
-            let oAuth = OAuthProvider.vkid
-            let appearance = Appearance(colorScheme: .dark, locale: .ru)
-
-            let result = try builder.buildWebViewAuthURL(
-                baseURL: baseURL,
-                oAuthProvider: oAuth,
-                authContext: self.context,
-                secrets: self.secrets,
-                credentials: self.credentials,
-                scope: self.scope,
-                deviceId: DeviceId.currentDeviceId.description,
-                appearance: appearance
+        Allure.report(
+            .init(
+                id: 2291684,
+                name: "Валидный запрос через вебвью",
+                meta: self.testCaseMeta
             )
+        )
+        given("Создается запрос авторизации и ожидаемые параметры") {
+            do {
+                let baseURL = URL(string:"http://example.com/")!
 
-            let urlComponents = URLComponents(url: result, resolvingAgainstBaseURL: true)
+                let oAuth = OAuthProvider.vkid
+                let appearance = Appearance(colorScheme: .dark, locale: .ru)
 
-            let commonQueryItems = try createCommonQueryItems(
-                authContext: self.context,
-                secrets: self.secrets,
-                credentials: self.credentials
-            )
-            let expectedQueryItems = commonQueryItems + [
-                .scheme("dark"),
-                .langId("0"),
-                .provider(oAuth: oAuth),
-                .codeChallengeMethod(try self.secrets.codeChallengeMethod.rawValue),
-                .deviceId(DeviceId.currentDeviceId.description),
-                .prompt("login"),
-                .oAuthVersion,
-                .version(Env.VKIDVersion),
-                .scope(self.scope),
-                .statsInfo(
-                    statsInfo(
-                        from: self.context,
-                        shouldBeBase64Encoded: true
-                    )
-                ),
-                .redirectURI(
-                    redirectURL(
-                        for: self.credentials.clientId
-                    ).absoluteString
-                ),
-            ]
-            XCTAssertEqual(urlComponents?.queryItems, expectedQueryItems)
+                let result = try builder.buildWebViewAuthURL(
+                    baseURL: baseURL,
+                    oAuthProvider: oAuth,
+                    authContext: self.context,
+                    secrets: self.secrets,
+                    credentials: self.credentials,
+                    scope: self.scope,
+                    deviceId: DeviceId.currentDeviceId.description,
+                    appearance: appearance
+                )
 
-            guard var expectedURLComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: false) else {
-                XCTFail("Failed to form a url string")
-                return
+                let urlComponents = URLComponents(url: result, resolvingAgainstBaseURL: true)
+
+                let commonQueryItems = try createCommonQueryItems(
+                    authContext: self.context,
+                    secrets: self.secrets,
+                    credentials: self.credentials
+                )
+                let expectedQueryItems = commonQueryItems + [
+                    .scheme("dark"),
+                    .langId("0"),
+                    .provider(oAuth: oAuth),
+                    .codeChallengeMethod(try self.secrets.codeChallengeMethod.rawValue),
+                    .deviceId(DeviceId.currentDeviceId.description),
+                    .prompt("login"),
+                    .oAuthVersion,
+                    .version(Env.VKIDVersion),
+                    .scope(self.scope),
+                    .statsInfo(
+                        statsInfo(
+                            from: self.context,
+                            shouldBeBase64Encoded: true
+                        )
+                    ),
+                    .init(
+                        name: "redirect_uri",
+                        value: redirectURL(
+                            for: self.credentials.clientId
+                        ).absoluteString
+                    ),
+                ]
+
+                when("Создаем компоненты и URL") {
+                    guard var expectedURLComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: false) else {
+                        XCTFail("Failed to form a url string")
+                        return
+                    }
+
+                    expectedURLComponents.queryItems = expectedQueryItems
+                    then("Проверяем параметры и весь URL") {
+                        XCTAssertEqual(urlComponents?.queryItems, expectedQueryItems)
+                        XCTAssertEqual(expectedURLComponents.url, result)
+                    }
+                }
+            } catch {
+                XCTFail("Error in build URL from valid string: \(error)")
             }
-
-            expectedURLComponents.queryItems = expectedQueryItems
-
-            XCTAssertEqual(expectedURLComponents.url, result)
-        } catch {
-            XCTFail("Error in build URL from valid string: \(error)")
         }
     }
 
     func testBuildWebViewAuthURLEmptyQueryItems() {
-        do {
-            let baseURL = URL(string: "http://example.com/")!
-
-            let oAuth = OAuthProvider.vkid
-            let secrets = PKCESecretsWallet(secrets: .init(
-                codeVerifier: "",
-                codeChallenge: "",
-                codeChallengeMethod: .s256,
-                state: ""
-            ))
-            let credentials = AppCredentials(clientId: "", clientSecret: "")
-            let appearance = Appearance(colorScheme: .light, locale: .en)
-            let context = AuthContext(uniqueSessionId: "", launchedBy: .service)
-
-            let result = try builder.buildWebViewAuthURL(
-                baseURL: baseURL,
-                oAuthProvider: oAuth,
-                authContext: context,
-                secrets: secrets,
-                credentials: credentials,
-                scope: self.scope,
-                deviceId: DeviceId.currentDeviceId.description,
-                appearance: appearance
+        Allure.report(
+            .init(
+                id: 2291660,
+                name: "Запрос c пустыми параметрами через вебвью",
+                meta: self.testCaseMeta
             )
+        )
+        given("Создается запрос авторизации c пустыми параметрами и ожидаемые параметры") {
+            do {
+                let baseURL = URL(string: "http://example.com/")!
 
-            let urlComponents = URLComponents(url: result, resolvingAgainstBaseURL: true)
+                let oAuth = OAuthProvider.vkid
+                let secrets = PKCESecretsWallet(secrets: .init(
+                    codeVerifier: "",
+                    codeChallenge: "",
+                    codeChallengeMethod: .s256,
+                    state: ""
+                ))
+                let credentials = AppCredentials(clientId: "", clientSecret: "")
+                let appearance = Appearance(colorScheme: .light, locale: .en)
+                let context = AuthContext(uniqueSessionId: "", launchedBy: .service)
 
-            let commonQueryItems = try createCommonQueryItems(
-                authContext: context,
-                secrets: secrets,
-                credentials: credentials
-            )
-            let expectedQueryItems = commonQueryItems + [
-                .scheme("light"),
-                .langId("3"),
-                .provider(oAuth: oAuth),
-                .codeChallengeMethod(try secrets.codeChallengeMethod.rawValue),
-                .deviceId(DeviceId.currentDeviceId.description),
-                .prompt("login"),
-                .oAuthVersion,
-                .version(Env.VKIDVersion),
-                .scope(self.scope),
-                .statsInfo(
-                    statsInfo(
-                        from: context,
-                        shouldBeBase64Encoded: true
-                    )
-                ),
-                .redirectURI(
-                    redirectURL(
-                        for: credentials.clientId
-                    ).absoluteString
-                ),
-            ]
+                let result = try builder.buildWebViewAuthURL(
+                    baseURL: baseURL,
+                    oAuthProvider: oAuth,
+                    authContext: context,
+                    secrets: secrets,
+                    credentials: credentials,
+                    scope: self.scope,
+                    deviceId: DeviceId.currentDeviceId.description,
+                    appearance: appearance
+                )
 
-            XCTAssertEqual(urlComponents?.queryItems, expectedQueryItems)
-
-            guard var expectedURLComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: false) else {
-                XCTFail("Failed to form a url string")
-                return
+                let urlComponents = URLComponents(url: result, resolvingAgainstBaseURL: true)
+                let commonQueryItems = try createCommonQueryItems(
+                    authContext: context,
+                    secrets: secrets,
+                    credentials: credentials
+                )
+                let expectedQueryItems = commonQueryItems + [
+                    .scheme("light"),
+                    .langId("3"),
+                    .provider(oAuth: oAuth),
+                    .codeChallengeMethod(try secrets.codeChallengeMethod.rawValue),
+                    .deviceId(DeviceId.currentDeviceId.description),
+                    .prompt("login"),
+                    .oAuthVersion,
+                    .version(Env.VKIDVersion),
+                    .scope(self.scope),
+                    .statsInfo(
+                        statsInfo(
+                            from: context,
+                            shouldBeBase64Encoded: true
+                        )
+                    ),
+                    .redirectURI(
+                        redirectURL(
+                            for: credentials.clientId
+                        ).absoluteString
+                    ),
+                ]
+                when("Создаем компоненты и URL") {
+                    guard var expectedURLComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: false) else {
+                        XCTFail("Failed to form a url string")
+                        return
+                    }
+                    expectedURLComponents.queryItems = expectedQueryItems
+                    then("Проверяем параметры и весь URL") {
+                        XCTAssertEqual(expectedURLComponents.url, result)
+                        XCTAssertEqual(urlComponents?.queryItems, expectedQueryItems)
+                    }
+                }
+            } catch {
+                XCTFail("Error in build URL from valid string: \(error)")
             }
-
-            expectedURLComponents.queryItems = expectedQueryItems
-
-            XCTAssertEqual(expectedURLComponents.url, result)
-        } catch {
-            XCTFail("Error in build URL from valid string: \(error)")
         }
     }
 }

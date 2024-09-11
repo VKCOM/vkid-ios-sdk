@@ -27,10 +27,18 @@
 //
 
 import CoreGraphics
+import VKIDAllureReport
 import XCTest
 @testable import VKID
 
 final class RegularActivityIndicatingLayoutTests: XCTestCase {
+    private let testCaseMeta = Allure.TestCase.MetaInformation(
+        owner: .vkidTester,
+        layer: .unit,
+        product: .VKIDCore,
+        feature: "Лейаут активити индикатора кнопки с текстом",
+        priority: .critical
+    )
     enum Constants {
         static let logoSize: CGSize = .init(width: 10, height: 10)
     }
@@ -63,105 +71,138 @@ final class RegularActivityIndicatingLayoutTests: XCTestCase {
     }
 
     func testSquaredSize() {
-        let frame = CGRect(
-            origin: .zero,
-            size: self.testLayout.sizeThatFits(
-                .zero
+        Allure.report(
+            .init(
+                id: 2291653,
+                name: "Квадратные размеры",
+                meta: self.testCaseMeta
             )
         )
-
-        self.testLayout.layout(in: frame)
-
-        // width: [ <- 4 -> [10] <- 4 -> ] = 18
-        // height: [ <- 4 -> [10] <- 4 -> ] = 18
-        XCTAssertEqual(
-            frame.size,
-            CGSize(width: 18, height: 18)
-        )
-        // centered
-        XCTAssertEqual(
-            self.title.frame,
-            CGRect(x: 9, y: 9, width: 0, height: 0)
-        )
-        // centered
-        XCTAssertEqual(
-            self.logo.frame,
-            CGRect(x: 9, y: 9, width: 0, height: 0)
-        )
-        // centered with size
-        XCTAssertEqual(
-            self.activityIndicator.frame,
-            CGRect(x: 4, y: 4, width: 10, height: 10)
-        )
+        given("Задается фрейм") {
+            let frame = CGRect(
+                origin: .zero,
+                size: self.testLayout.sizeThatFits(
+                    .zero
+                )
+            )
+            when("Лейаут по фрейму") {
+                self.testLayout.layout(in: frame)
+                then("Проверка размеров") {
+                    // width: [ <- 4 -> [10] <- 4 -> ] = 18
+                    // height: [ <- 4 -> [10] <- 4 -> ] = 18
+                    XCTAssertEqual(
+                        frame.size,
+                        CGSize(width: 18, height: 18)
+                    )
+                    // centered
+                    XCTAssertEqual(
+                        self.title.frame,
+                        CGRect(x: 9, y: 9, width: 0, height: 0)
+                    )
+                    // centered
+                    XCTAssertEqual(
+                        self.logo.frame,
+                        CGRect(x: 9, y: 9, width: 0, height: 0)
+                    )
+                    // centered with size
+                    XCTAssertEqual(
+                        self.activityIndicator.frame,
+                        CGRect(x: 4, y: 4, width: 10, height: 10)
+                    )
+                }
+            }
+        }
     }
 
     func testMinimalSize() {
-        self.title.sizeThatFits = .init(width: 30, height: 10)
-
-        let frame = CGRect(
-            origin: .zero,
-            size: self.testLayout.sizeThatFits(
-                .zero
+        Allure.report(
+            .init(
+                id: 2291652,
+                name: "Минимальные размеры",
+                meta: self.testCaseMeta
             )
         )
+        given("Задается заголовок и минимальный фрейм") {
+            self.title.sizeThatFits = .init(width: 30, height: 10)
 
-        self.testLayout.layout(in: frame)
-
-        // width: [ <- 4 -> [10] <- 4 -> [30] <- 4 -> [10] <- 4 -> ] = 66
-        // height: [<- 4 -> [10] <- 4 -> ] = 18
-        XCTAssertEqual(
-            frame.size,
-            CGSize(width: 66, height: 18)
-        )
-        // x: = 4
-        XCTAssertEqual(
-            self.logo.frame,
-            CGRect(x: 4, y: 4, width: 10, height: 10)
-        )
-        // x: = 4 + 10 + 4 = 18
-        XCTAssertEqual(
-            self.title.frame,
-            CGRect(x: 18, y: 4, width: 30, height: 10)
-        )
-        // x: = 66 - 4 - 10
-        XCTAssertEqual(
-            self.activityIndicator.frame,
-            CGRect(x: 52, y: 4, width: 10, height: 10)
-        )
+            let frame = CGRect(
+                origin: .zero,
+                size: self.testLayout.sizeThatFits(
+                    .zero
+                )
+            )
+            when("Лейаут по фрейму") {
+                self.testLayout.layout(in: frame)
+                then("Проверка размеров") {
+                    // width: [ <- 4 -> [10] <- 4 -> [30] <- 4 -> [10] <- 4 -> ] = 66
+                    // height: [<- 4 -> [10] <- 4 -> ] = 18
+                    XCTAssertEqual(
+                        frame.size,
+                        CGSize(width: 66, height: 18)
+                    )
+                    // x: = 4
+                    XCTAssertEqual(
+                        self.logo.frame,
+                        CGRect(x: 4, y: 4, width: 10, height: 10)
+                    )
+                    // x: = 4 + 10 + 4 = 18
+                    XCTAssertEqual(
+                        self.title.frame,
+                        CGRect(x: 18, y: 4, width: 30, height: 10)
+                    )
+                    // x: = 66 - 4 - 10
+                    XCTAssertEqual(
+                        self.activityIndicator.frame,
+                        CGRect(x: 52, y: 4, width: 10, height: 10)
+                    )
+                }
+            }
+        }
     }
 
     func testWideSize() {
-        self.title.sizeThatFits = .init(width: 30, height: 10)
-
-        let frame = CGRect(
-            origin: .zero,
-            size: self.testLayout.sizeThatFits(
-                CGSize(width: 98, height: 26)
+        Allure.report(
+            .init(
+                id: 2291649,
+                name: "Широкий размер",
+                meta: self.testCaseMeta
             )
         )
+        given("Задается заголовок и фрейм") {
+            self.title.sizeThatFits = .init(width: 30, height: 10)
 
-        self.testLayout.layout(in: frame)
-
-        // width: [ <- 8 -> [10] <- 16 -> [30] <- 16 -> [10] <- 8 -> ] = 98
-        // height: [<- 8 -> [10] <- 8 -> ] = 26
-        XCTAssertEqual(
-            frame.size,
-            CGSize(width: 98, height: 26)
-        )
-        // x: = 8
-        XCTAssertEqual(
-            self.logo.frame,
-            CGRect(x: 8, y: 8, width: 10, height: 10)
-        )
-        // x: = 8 + 10 + 16
-        XCTAssertEqual(
-            self.title.frame,
-            CGRect(x: 34, y: 8, width: 30, height: 10)
-        )
-        // x: = 98 - (10 + 8) = 80
-        XCTAssertEqual(
-            self.activityIndicator.frame,
-            CGRect(x: 80, y: 8, width: 10, height: 10)
-        )
+            let frame = CGRect(
+                origin: .zero,
+                size: self.testLayout.sizeThatFits(
+                    CGSize(width: 98, height: 26)
+                )
+            )
+            when("Лейаут по фрейму") {
+                self.testLayout.layout(in: frame)
+                then("Проверка размеров") {
+                    // width: [ <- 8 -> [10] <- 16 -> [30] <- 16 -> [10] <- 8 -> ] = 98
+                    // height: [<- 8 -> [10] <- 8 -> ] = 26
+                    XCTAssertEqual(
+                        frame.size,
+                        CGSize(width: 98, height: 26)
+                    )
+                    // x: = 8
+                    XCTAssertEqual(
+                        self.logo.frame,
+                        CGRect(x: 8, y: 8, width: 10, height: 10)
+                    )
+                    // x: = 8 + 10 + 16
+                    XCTAssertEqual(
+                        self.title.frame,
+                        CGRect(x: 34, y: 8, width: 30, height: 10)
+                    )
+                    // x: = 98 - (10 + 8) = 80
+                    XCTAssertEqual(
+                        self.activityIndicator.frame,
+                        CGRect(x: 80, y: 8, width: 10, height: 10)
+                    )
+                }
+            }
+        }
     }
 }

@@ -58,6 +58,7 @@ final class WeakObserversTests: XCTestCase {
     func testObserverGetNotified() {
         Allure.report(
             .init(
+                id: 2291658,
                 name: "Добавленный в список observer получает уведомления",
                 meta: self.testCaseMeta
             )
@@ -78,6 +79,7 @@ final class WeakObserversTests: XCTestCase {
     func testObserverStoredWeakly() {
         Allure.report(
             .init(
+                id: 2291673,
                 name: "Добавленный в список observer хранится weak ссылкой",
                 meta: self.testCaseMeta
             )
@@ -98,6 +100,7 @@ final class WeakObserversTests: XCTestCase {
     func testRemovedObserverNotGetNotified() {
         Allure.report(
             .init(
+                id: 2291662,
                 name: "Удаленный из списка observer больше не получает уведомления",
                 meta: self.testCaseMeta
             )
@@ -119,6 +122,7 @@ final class WeakObserversTests: XCTestCase {
     func testContainsObserver() {
         Allure.report(
             .init(
+                id: 2291682,
                 name: "Добавленный в список observer проходит проверку на contains",
                 meta: self.testCaseMeta
             )

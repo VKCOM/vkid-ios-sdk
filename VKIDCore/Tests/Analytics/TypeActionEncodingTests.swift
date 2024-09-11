@@ -63,6 +63,7 @@ final class TypeActionEncodingTests: XCTestCase {
     func testTypeActionEncoding() throws {
         Allure.report(
             .init(
+                id: 2312585,
                 name: "Кодирование TypeAction в корректный json",
                 meta: self.testCaseMeta
             )
