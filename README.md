@@ -46,7 +46,7 @@
 Добавьте VKID как зависимость в ваш `Package.swift`:
 ```swift
 dependencies: [
-    .package(url: "https://github.com/VKCOM/vkid-ios-sdk.git", .upToNextMajor(from: "2.2.0"))
+    .package(url: "https://github.com/VKCOM/vkid-ios-sdk.git", .upToNextMajor(from: "2.2.1"))
 ]
 ```
 
