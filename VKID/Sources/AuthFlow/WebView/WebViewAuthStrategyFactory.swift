@@ -28,13 +28,15 @@
 
 import Foundation
 import UIKit
+import VKIDCore
 
 internal protocol WebViewAuthStrategyFactory {
     func createWebViewAuthStrategy() -> WebViewAuthStrategy
 }
 
 internal final class WebViewAuthStrategyDefaultFactory: WebViewAuthStrategyFactory {
-    internal struct Dependencies {
+    internal struct Dependencies: Dependency {
+        let applicationManager: ApplicationManager
         let appInteropHandler: AppInteropCompositeHandling
         let appInteropOpener: AppInteropURLOpening
         let responseParser: AuthCodeResponseParser
@@ -56,7 +58,8 @@ internal final class WebViewAuthStrategyDefaultFactory: WebViewAuthStrategyFacto
             )
             : WebAuthenticationSessionStrategy(
                 deps: .init(
-                    responseParser: self.deps.responseParser
+                    responseParser: self.deps.responseParser,
+                    applicationManager: self.deps.applicationManager
                 )
             )
     }

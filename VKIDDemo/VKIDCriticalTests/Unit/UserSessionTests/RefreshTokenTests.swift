@@ -108,6 +108,7 @@ final class RefreshTokenTests: XCTestCase, TestCaseInfra {
     func testObtainRefreshedAccessTokenThatWasNotExpired() {
         Allure.report(
             .init(
+                id: 2327305,
                 name: "Получение свежего AT (отдаем текущий AT если до его протухания < 1 мин, обновляем AT через RT и возвращаем свежий)",
                 meta: self.testCaseMeta
             )
@@ -163,6 +164,7 @@ final class RefreshTokenTests: XCTestCase, TestCaseInfra {
     func testRefreshingExpiredAccessToken() {
         Allure.report(
             .init(
+                id: 327306,
                 name: "Получение свежего AT, если он протух",
                 meta: self.testCaseMeta
             )

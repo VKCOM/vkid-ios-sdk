@@ -60,6 +60,7 @@ final class AnalyticsTests: XCTestCase {
     func testAnalyticsSendWithCustomContext() throws {
         Allure.report(
             .init(
+                id: 2313590,
                 name: "Формирование и отправка события аналитики",
                 meta: self.testCaseMeta
             )

@@ -53,6 +53,7 @@ final class UserSessionManagerCreateSessionTests: XCTestCase {
     func testCreatedUserSessionsIsStoredInKeychainAndManager() throws {
         Allure.report(
             .init(
+                id: 2292390,
                 name: "Созданные UserSession хранятся в Keychain и UserSessionManager",
                 meta: self.testCaseMeta
             )

@@ -26,6 +26,7 @@
 // THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
 //
 
+import VKIDAllureReport
 import XCTest
 @testable import VKIDCore
 
@@ -35,6 +36,12 @@ struct SensitiveData: Codable, Equatable {
 }
 
 final class KeychainTests: XCTestCase {
+    private let testCaseMeta = Allure.TestCase.MetaInformation(
+        owner: .vkidTester,
+        layer: .unit,
+        product: .VKIDSDK,
+        feature: "Keychain"
+    )
     private var keychain: Keychain!
 
     enum Keys {
@@ -53,172 +60,264 @@ final class KeychainTests: XCTestCase {
     }
 
     func testAddItem() throws {
-        let sensitiveData = SensitiveData()
-        try self.keychain.add(
-            sensitiveData,
-            query: [
-                .itemClass(.genericPassword),
-                .accessible(.whenUnlockedThisDeviceOnly),
-                .attributeAccount(Keys.account),
-                .attributeService(Keys.service),
-            ],
-            overwriteIfAlreadyExists: false
-        )
-        XCTAssertEqual(
-            sensitiveData,
-            self.fetchSensitiveDataFromKeychain(
-                account: Keys.account,
-                service: Keys.service
+        Allure.report(
+            .init(
+                id: 2291677,
+                name: "Добавление данных в Keychain",
+                meta: self.testCaseMeta
             )
         )
+        try given("Создание данных") {
+            let sensitiveData = SensitiveData()
+            try when("Добавление записи с данными") {
+                try self.keychain.add(
+                    sensitiveData,
+                    query: [
+                        .itemClass(.genericPassword),
+                        .accessible(.whenUnlockedThisDeviceOnly),
+                        .attributeAccount(Keys.account),
+                        .attributeService(Keys.service),
+                    ],
+                    overwriteIfAlreadyExists: false
+                )
+                then("Проверка записанных данных") {
+                    XCTAssertEqual(
+                        sensitiveData,
+                        self.fetchSensitiveDataFromKeychain(
+                            account: Keys.account,
+                            service: Keys.service
+                        )
+                    )
+                }
+            }
+        }
     }
 
     func testAddItemWithOverwrite() throws {
-        let query: Keychain.Query = [
-            .itemClass(.genericPassword),
-            .accessible(.whenUnlockedThisDeviceOnly),
-            .attributeAccount(Keys.account),
-            .attributeService(Keys.service),
-        ]
-        var sensitiveData = SensitiveData()
-
-        try self.keychain.add(
-            sensitiveData,
-            query: query,
-            overwriteIfAlreadyExists: false
-        )
-        sensitiveData.value += "123"
-        try self.keychain.add(
-            sensitiveData,
-            query: query,
-            overwriteIfAlreadyExists: true
-        )
-
-        XCTAssertEqual(
-            sensitiveData,
-            self.fetchSensitiveDataFromKeychain(
-                account: Keys.account,
-                service: Keys.service
+        Allure.report(
+            .init(
+                id: 2291666,
+                name: "Перезаписывание данных в Keychain",
+                meta: self.testCaseMeta
             )
         )
+        try given("Записываем данные в Keychain") {
+            let query: Keychain.Query = [
+                .itemClass(.genericPassword),
+                .accessible(.whenUnlockedThisDeviceOnly),
+                .attributeAccount(Keys.account),
+                .attributeService(Keys.service),
+            ]
+            var sensitiveData = SensitiveData()
+            try self.keychain.add(
+                sensitiveData,
+                query: query,
+                overwriteIfAlreadyExists: false
+            )
+            try when("Перезаписываем данные в Keychain") {
+                sensitiveData.value += "123"
+                try self.keychain.add(
+                    sensitiveData,
+                    query: query,
+                    overwriteIfAlreadyExists: true
+                )
+                then("Проверяем, что данные перезаписаны правильно") {
+                    XCTAssertEqual(
+                        sensitiveData,
+                        self.fetchSensitiveDataFromKeychain(
+                            account: Keys.account,
+                            service: Keys.service
+                        )
+                    )
+                }
+            }
+        }
     }
 
     func testFetchItem() throws {
-        let sensitiveData = SensitiveData()
-
-        try self.keychain.add(
-            sensitiveData,
-            query: [
-                .itemClass(.genericPassword),
-                .accessible(.whenUnlockedThisDeviceOnly),
-                .attributeAccount(Keys.account),
-                .attributeService(Keys.service),
-            ]
+        Allure.report(
+            .init(
+                id: 2291676,
+                name: "Получение данных из Keychain",
+                meta: self.testCaseMeta
+            )
         )
-        let fetchedData: SensitiveData? = try self.keychain.fetch(
-            query: [
-                .itemClass(.genericPassword),
-                .accessible(.whenUnlockedThisDeviceOnly),
-                .attributeAccount(Keys.account),
-                .attributeService(Keys.service),
-                .returnData(true),
-            ]
-        )
-
-        XCTAssertEqual(sensitiveData, fetchedData)
+        try given("Записываем данные в Keychain") {
+            let sensitiveData = SensitiveData()
+            try self.keychain.add(
+                sensitiveData,
+                query: [
+                    .itemClass(.genericPassword),
+                    .accessible(.whenUnlockedThisDeviceOnly),
+                    .attributeAccount(Keys.account),
+                    .attributeService(Keys.service),
+                ]
+            )
+            try when("Получаем данные из Keychain") {
+                let fetchedData: SensitiveData? = try self.keychain.fetch(
+                    query: [
+                        .itemClass(.genericPassword),
+                        .accessible(.whenUnlockedThisDeviceOnly),
+                        .attributeAccount(Keys.account),
+                        .attributeService(Keys.service),
+                        .returnData(true),
+                    ]
+                )
+                then("Проверяем данные, полученные из Keychain") {
+                    XCTAssertEqual(sensitiveData, fetchedData)
+                }
+            }
+        }
     }
 
     func testUpdateNonExistingItemWithoutAdding() throws {
-        XCTAssertThrowsError(
-            try self.keychain.update(
+        Allure.report(
+            .init(
+                id: 2291650,
+                name: "Обновление не существующей записи без инициализации",
+                meta: self.testCaseMeta
+            )
+        )
+        let errorExpectation = expectation(description: "Error on failed update")
+        given("Создаем данные") {
+            let data = SensitiveData()
+            when("Обновляем данные") {
+                then("Проверяем, что выбрасывается ошибка") {
+                    do {
+                        try self.keychain.update(
+                            data,
+                            query: [
+                                .itemClass(.genericPassword),
+                                .accessible(.whenUnlockedThisDeviceOnly),
+                                .attributeAccount(Keys.account),
+                                .attributeService(Keys.service),
+                            ],
+                            addIfNotFound: false
+                        )
+                    } catch {
+                        guard case KeychainError.itemNotFound = error else {
+                            XCTFail("Wrong error while updating data in Keychain")
+                            return
+                        }
+                        errorExpectation.fulfill()
+                    }
+                }
+                wait(for: [errorExpectation], timeout: 0.1)
+            }
+        }
+    }
+
+    func testUpdateExistingItem() throws {
+        Allure.report(
+            .init(
+                id: 2291672,
+                name: "Обновление данных в Keychain",
+                meta: self.testCaseMeta
+            )
+        )
+        try given("Добавляем данные в Keychain") {
+            var sensitiveData = SensitiveData()
+            let query: Keychain.Query = [
+                .itemClass(.genericPassword),
+                .accessible(.whenUnlockedThisDeviceOnly),
+                .attributeAccount(Keys.account),
+                .attributeService(Keys.service),
+            ]
+
+            try self.keychain.add(
+                sensitiveData,
+                query: query,
+                overwriteIfAlreadyExists: false
+            )
+            try when("Обновляем данные в Keychain") {
+                sensitiveData.value += "dsfkmsk"
+                try self.keychain.update(
+                    sensitiveData,
+                    query: query,
+                    addIfNotFound: false
+                )
+                then("Проверяем, что данные обновлены верно") {
+                    XCTAssertEqual(
+                        sensitiveData,
+                        self.fetchSensitiveDataFromKeychain(
+                            account: Keys.account,
+                            service: Keys.service
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    func testUpdateNonExistingItemWithAdding() throws {
+        Allure.report(
+            .init(
+                id: 2291670,
+                name: "Обновление не существующей записи с инициализацией",
+                meta: self.testCaseMeta
+            )
+        )
+        try given("Создаем данные") {
+            let sensitiveData = SensitiveData()
+            try when("Обновляем данные с инициализацией в Keychain") {
+                try self.keychain.update(
+                    sensitiveData,
+                    query: [
+                        .itemClass(.genericPassword),
+                        .accessible(.whenUnlockedThisDeviceOnly),
+                        .attributeAccount(Keys.account),
+                        .attributeService(Keys.service),
+                    ],
+                    addIfNotFound: true
+                )
+                then("Проверяем, что данные записаны верно") {
+                    XCTAssertEqual(
+                        sensitiveData,
+                        self.fetchSensitiveDataFromKeychain(
+                            account: Keys.account,
+                            service: Keys.service
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    func testDeleteItem() throws {
+        Allure.report(
+            .init(
+                id: 2291646,
+                name: "Удаление данных из Keychain",
+                meta: self.testCaseMeta
+            )
+        )
+        try given("Записываем данные в Keychain") {
+            try self.keychain.add(
                 SensitiveData(),
                 query: [
                     .itemClass(.genericPassword),
                     .accessible(.whenUnlockedThisDeviceOnly),
                     .attributeAccount(Keys.account),
                     .attributeService(Keys.service),
-                ],
-                addIfNotFound: false
+                ]
             )
-        )
-    }
-
-    func testUpdateExistingItem() throws {
-        var sensitiveData = SensitiveData()
-        let query: Keychain.Query = [
-            .itemClass(.genericPassword),
-            .accessible(.whenUnlockedThisDeviceOnly),
-            .attributeAccount(Keys.account),
-            .attributeService(Keys.service),
-        ]
-
-        try self.keychain.add(
-            sensitiveData,
-            query: query,
-            overwriteIfAlreadyExists: false
-        )
-        sensitiveData.value += "dsfkmsk"
-        try self.keychain.update(
-            sensitiveData,
-            query: query,
-            addIfNotFound: false
-        )
-
-        XCTAssertEqual(
-            sensitiveData,
-            self.fetchSensitiveDataFromKeychain(
-                account: Keys.account,
-                service: Keys.service
-            )
-        )
-    }
-
-    func testUpdateNonExistingItemWithAdding() throws {
-        let sensitiveData = SensitiveData()
-
-        try self.keychain.update(
-            sensitiveData,
-            query: [
-                .itemClass(.genericPassword),
-                .accessible(.whenUnlockedThisDeviceOnly),
-                .attributeAccount(Keys.account),
-                .attributeService(Keys.service),
-            ],
-            addIfNotFound: true
-        )
-
-        XCTAssertEqual(
-            sensitiveData,
-            self.fetchSensitiveDataFromKeychain(
-                account: Keys.account,
-                service: Keys.service
-            )
-        )
-    }
-
-    func testDeleteItem() throws {
-        try self.keychain.add(
-            SensitiveData(),
-            query: [
-                .itemClass(.genericPassword),
-                .accessible(.whenUnlockedThisDeviceOnly),
-                .attributeAccount(Keys.account),
-                .attributeService(Keys.service),
-            ]
-        )
-        try self.keychain.delete(query: [
-            .itemClass(.genericPassword),
-            .accessible(.whenUnlockedThisDeviceOnly),
-            .attributeAccount(Keys.account),
-            .attributeService(Keys.service),
-        ])
-
-        XCTAssertNil(
-            self.fetchSensitiveDataFromKeychain(
-                account: Keys.account,
-                service: Keys.service
-            )
-        )
+            try when("Удаляем данные из Keychain") {
+                try self.keychain.delete(query: [
+                    .itemClass(.genericPassword),
+                    .accessible(.whenUnlockedThisDeviceOnly),
+                    .attributeAccount(Keys.account),
+                    .attributeService(Keys.service),
+                ])
+                then("Проверяем, что дынные удалены") {
+                    XCTAssertNil(
+                        self.fetchSensitiveDataFromKeychain(
+                            account: Keys.account,
+                            service: Keys.service
+                        )
+                    )
+                }
+            }
+        }
     }
 }
 

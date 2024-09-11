@@ -66,6 +66,7 @@ final class UserSessionManagerLogoutSessionTests: XCTestCase {
     func testUserSessionIsRemovedFromStorageAfterSuccessLogout() throws {
         Allure.report(
             .init(
+                id: 2292388,
                 name: "После успешного логаута UserSession удаляется из хранилища",
                 meta: self.testCaseMeta
             )
@@ -105,6 +106,7 @@ final class UserSessionManagerLogoutSessionTests: XCTestCase {
     func testUserSessionIsRemainedStoredAfterFailureLogout() throws {
         Allure.report(
             .init(
+                id: 2292384,
                 name: "После неудачного логаута UserSession не удаляется из хранилища",
                 meta: self.testCaseMeta
             )
@@ -143,6 +145,7 @@ final class UserSessionManagerLogoutSessionTests: XCTestCase {
     func testLogoutFromUserSessionWhenItsAlreadyLoggedOut() throws {
         Allure.report(
             .init(
+                id: 2292386,
                 name: "Повторный логаут из UserSession",
                 meta: self.testCaseMeta
             )
@@ -162,8 +165,6 @@ final class UserSessionManagerLogoutSessionTests: XCTestCase {
 
             wait(for: [expectationLogoutDelegate], timeout: 5.0)
         }
-
-        // then
         then("Повторный логаут UserSession, не вызывает методы у делегата") {
             self.deps.userSessionDelegateMock.didLogout = { _, _, _ in
                 XCTFail()

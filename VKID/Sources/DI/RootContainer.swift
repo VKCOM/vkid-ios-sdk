@@ -108,6 +108,7 @@ internal final class RootContainer {
     }
 
     internal lazy var keychain = Keychain()
+    internal lazy var applicationManager = ApplicationManagerImpl()
     internal lazy var appInteropHandler: AppInteropCompositeHandling = AppInteropCompositeHandler()
     internal lazy var appInteropURLOpener: AppInteropURLOpening = AppInteropURLOpener(
         deps: .init(
@@ -259,6 +260,7 @@ extension RootContainer {
                 authURLBuilder: self.authURLBuilder,
                 webViewStrategyFactory: self.webViewStrategyFactory ?? WebViewAuthStrategyDefaultFactory(
                     deps: .init(
+                        applicationManager: self.applicationManager,
                         appInteropHandler: self.appInteropHandler,
                         appInteropOpener: self.appInteropURLOpener,
                         responseParser: self.responseParser

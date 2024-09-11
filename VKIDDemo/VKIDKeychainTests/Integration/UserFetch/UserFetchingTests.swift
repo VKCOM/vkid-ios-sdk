@@ -27,6 +27,7 @@
 //
 
 import Foundation
+import VKIDAllureReport
 import VKIDTestingInfra
 import XCTest
 
@@ -34,6 +35,12 @@ import XCTest
 @testable import VKIDCore
 
 class UserFetchingTests: XCTestCase {
+    private let testCaseMeta = Allure.TestCase.MetaInformation(
+        owner: .vkidTester,
+        layer: .integration,
+        product: .VKIDSDK,
+        feature: "Получение данных пользователя"
+    )
     private let transportMock: URLSessionTransportMock = .init()
     private let appCredentials: AppCredentials = Entity.appCredentials
     private var userSessionManager: UserSessionManager!
@@ -71,19 +78,29 @@ class UserFetchingTests: XCTestCase {
     }
 
     func testInvalidAccessToken() {
-        // given
-        let sessionData = UserSessionData.random(withUserData: true)
-        let session = self.userSessionManager.makeUserSession(with: sessionData)
-        self.transportMock.responseProvider = { _, request -> Result<VKIDCore.VKAPIResponse, VKIDCore.VKAPIError> in
-            .failure(VKAPIError.invalidAccessToken)
-        }
-        // when
-        session.fetchUser { result in
-            // then
-            if case .failure(UserFetchingError.invalidAccessToken) = result {
-                // success
-            } else {
-                XCTFail("Failed to handle failed access token response")
+        Allure.report(
+            .init(
+                id: 2292437,
+                name: "Не валидный токен",
+                meta: self.testCaseMeta
+            )
+        )
+        given("Создание сессии и симуляция не валидного токена") {
+            let sessionData = UserSessionData.random(withUserData: true)
+            let session = self.userSessionManager.makeUserSession(with: sessionData)
+            self.transportMock.responseProvider = { _, request -> Result<VKIDCore.VKAPIResponse, VKIDCore.VKAPIError> in
+                .failure(VKAPIError.invalidAccessToken)
+            }
+            when("Запрос на получение пользовательских данных") {
+                session.fetchUser { result in
+                    then("") {
+                        if case .failure(UserFetchingError.invalidAccessToken) = result {
+                            // success
+                        } else {
+                            XCTFail("Failed to handle failed access token response")
+                        }
+                    }
+                }
             }
         }
     }

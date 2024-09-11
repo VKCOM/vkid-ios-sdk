@@ -59,6 +59,7 @@ final class OAuthListWidgetTests: XCTestCase, TestCaseInfra {
     func testConfiguration() {
         Allure.report(
             .init(
+                id: 2335337,
                 name: "По клику на кнопку вызываем VKID.authorize с соответствующими параметрами",
                 meta: self.testCaseMeta
             )

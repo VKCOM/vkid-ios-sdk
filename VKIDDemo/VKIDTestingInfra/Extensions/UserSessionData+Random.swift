@@ -34,13 +34,14 @@ extension UserSessionData {
         userId: Int = Int.random,
         withUserData: Bool = true,
         refreshToken: RefreshToken? = nil,
-        accessTokenExpirationDate: Date = .defaultExpirationDate
+        accessTokenExpirationDate: Date = .defaultExpirationDate,
+        oAuthProvider: OAuthProvider = .vkid
     ) -> UserSessionData {
         let userId = UserID(value: userId)
 
         return Self(
             id: userId,
-            oAuthProvider: .vkid,
+            oAuthProvider: oAuthProvider,
             accessToken: self.makeAccessToken(
                 userId: userId,
                 expirationDate: accessTokenExpirationDate

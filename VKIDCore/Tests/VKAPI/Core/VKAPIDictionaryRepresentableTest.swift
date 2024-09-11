@@ -27,9 +27,16 @@
 //
 
 import XCTest
+@testable import VKIDAllureReport
 @testable import VKIDCore
 
 final class VKAPIDictionaryRepresentableTest: XCTestCase {
+    private let testCaseMeta = Allure.TestCase.MetaInformation(
+        owner: .vkidTester,
+        layer: .unit,
+        product: .VKIDCore,
+        feature: "Представление параметров в API"
+    )
     private class TestClass: VKAPIDictionaryRepresentable {
         open var test_String: String?
         package var tEsTBoolVariable: Bool
@@ -61,74 +68,121 @@ final class VKAPIDictionaryRepresentableTest: XCTestCase {
     }
 
     func testClassDictionaryRepresentation() {
-        let testClass: VKAPIDictionaryRepresentable = TestClass(
-            testString: "some string",
-            testBoolVariable: false,
-            testInt: 0,
-            privateTestInt: 1
+        Allure.report(
+            .init(
+                id: 2291675,
+                name: "Представление параметров через класс в API",
+                meta: self.testCaseMeta
+            )
         )
+        given ("Создаем класс с параметрами и ожидаемый результат") {
+            let testClass: VKAPIDictionaryRepresentable = TestClass(
+                testString: "some string",
+                testBoolVariable: false,
+                testInt: 0,
+                privateTestInt: 1
+            )
 
-        let expectedResult: [String: Any] = [
-            "test__string": "some string",
-            "t_es_t_bool_variable": false,
-            "t_est_int": 0,
-            "private_test_int": 1,
-        ]
-
-        let testClassDict = NSDictionary(dictionary: testClass.dictionaryRepresentation)
-        let expectedResultDict = NSDictionary(dictionary: expectedResult)
-        XCTAssertEqual(testClassDict, expectedResultDict)
+            let expectedResult: [String: Any] = [
+                "test__string": "some string",
+                "t_es_t_bool_variable": false,
+                "t_est_int": 0,
+                "private_test_int": 1,
+            ]
+            when("Создаем словари") {
+                let testClassDict = NSDictionary(dictionary: testClass.dictionaryRepresentation)
+                let expectedResultDict = NSDictionary(dictionary: expectedResult)
+                then("Сравниваем словари") {
+                    XCTAssertEqual(testClassDict, expectedResultDict)
+                }
+            }
+        }
     }
 
     func testClassDictionaryRepresentationWithNilParams() {
-        let testClass: VKAPIDictionaryRepresentable = TestClass(
-            testString: nil,
-            testBoolVariable: false,
-            testInt: 0,
-            privateTestInt: nil
+        Allure.report(
+            .init(
+                id: 2291663,
+                name: "Представление параметров через класс в API с `nil`",
+                meta: self.testCaseMeta
+            )
         )
-
-        let expectedResult: [String: Any] = [
-            "t_es_t_bool_variable": false,
-            "t_est_int": 0,
-        ]
-
-        let testClassDict = NSDictionary(dictionary: testClass.dictionaryRepresentation)
-        let expectedResultDict = NSDictionary(dictionary: expectedResult)
-        XCTAssertEqual(testClassDict, expectedResultDict)
+        given ("Создаем класс с `nil` параметрами и ожидаемый результат") {
+            let testClass: VKAPIDictionaryRepresentable = TestClass(
+                testString: nil,
+                testBoolVariable: false,
+                testInt: 0,
+                privateTestInt: nil
+            )
+            let expectedResult: [String: Any] = [
+                "t_es_t_bool_variable": false,
+                "t_est_int": 0,
+            ]
+            when("Создаем словари") {
+                let testClassDict = NSDictionary(dictionary: testClass.dictionaryRepresentation)
+                let expectedResultDict = NSDictionary(dictionary: expectedResult)
+                then("Сравниваем словари") {
+                    XCTAssertEqual(testClassDict, expectedResultDict)
+                }
+            }
+        }
     }
 
     func testStructDictionaryRepresentation() {
-        let testStruct: VKAPIDictionaryRepresentable = TestStruct(
-            testBoolVariable: false,
-            testInt: -1,
-            privateTestInt: 3
+        Allure.report(
+            .init(
+                id: 2291688,
+                name: "Представление параметров через структуру в API",
+                meta: self.testCaseMeta
+            )
         )
+        given("Создаем структуру с параметрами и ожидаемый результат") {
+            let testStruct: VKAPIDictionaryRepresentable = TestStruct(
+                testBoolVariable: false,
+                testInt: -1,
+                privateTestInt: 3
+            )
 
-        let expectedResult: [String: Any] = [
-            "test__bool__variable": false,
-            "t_es_t_int": -1,
-            "p_rivate_test_int": 3,
-        ]
-
-        let testClassDict = NSDictionary(dictionary: testStruct.dictionaryRepresentation)
-        let expectedResultDict = NSDictionary(dictionary: expectedResult)
-        XCTAssertEqual(testClassDict, expectedResultDict)
+            let expectedResult: [String: Any] = [
+                "test__bool__variable": false,
+                "t_es_t_int": -1,
+                "p_rivate_test_int": 3,
+            ]
+            when("Создаем словари") {
+                let testClassDict = NSDictionary(dictionary: testStruct.dictionaryRepresentation)
+                let expectedResultDict = NSDictionary(dictionary: expectedResult)
+                then("Сравниваем словари") {
+                    XCTAssertEqual(testClassDict, expectedResultDict)
+                }
+            }
+        }
     }
 
     func testStructDictionaryRepresentationWithNilParams() {
-        let testStruct: VKAPIDictionaryRepresentable = TestStruct(
-            testBoolVariable: nil,
-            testInt: -1,
-            privateTestInt: nil
+        Allure.report(
+            .init(
+                id: 2291657,
+                name: "Представление параметров через стркутуру в API с `nil`",
+                meta: self.testCaseMeta
+            )
         )
+        given("Создаем структуру с `nil` параметрами и ожидаемый результат") {
+            let testStruct: VKAPIDictionaryRepresentable = TestStruct(
+                testBoolVariable: nil,
+                testInt: -1,
+                privateTestInt: nil
+            )
 
-        let expectedResult: [String: Any] = [
-            "t_es_t_int": -1,
-        ]
-
-        let testClassDict = NSDictionary(dictionary: testStruct.dictionaryRepresentation)
-        let expectedResultDict = NSDictionary(dictionary: expectedResult)
-        XCTAssertEqual(testClassDict, expectedResultDict)
+            let expectedResult: [String: Any] = [
+                "t_es_t_int": -1,
+            ]
+            when("Создаем словари") {
+                let testClassDict = NSDictionary(dictionary: testStruct.dictionaryRepresentation)
+                let expectedResultDict = NSDictionary(dictionary: expectedResult)
+                then("Сравниваем словари") {
+                    XCTAssertEqual(testClassDict, expectedResultDict)
+                }
+            }
+        }
     }
 }

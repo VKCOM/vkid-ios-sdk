@@ -12,6 +12,9 @@
 		05118A022C4FBF03005F9FDC /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 05118A012C4FBF03005F9FDC /* SnapshotTesting */; };
 		05118A042C4FC1C4005F9FDC /* OneTapButtonSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05118A032C4FC1C4005F9FDC /* OneTapButtonSnapshotTests.swift */; };
 		05118A102C5114D7005F9FDC /* OneTapButtonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05118A0F2C5114D7005F9FDC /* OneTapButtonTests.swift */; };
+		0512770B2C85D5E50035A1EF /* DeviceIDTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0512770A2C85D5E50035A1EF /* DeviceIDTests.swift */; };
+		0512770D2C85D5F10035A1EF /* UserSessionDataStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0512770C2C85D5F10035A1EF /* UserSessionDataStorageTests.swift */; };
+		0512770F2C8702220035A1EF /* UserSessionData+equalsWithoutCreationDate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0512770E2C8702220035A1EF /* UserSessionData+equalsWithoutCreationDate.swift */; };
 		051FD2922AF3C7B90082990B /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 051FD2942AF3C7B90082990B /* Localizable.strings */; };
 		053014C82C0F03CB00CF799D /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053014C72C0F03CB00CF799D /* API.swift */; };
 		053014CA2C0F079D00CF799D /* String+snakeCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053014C92C0F079D00CF799D /* String+snakeCase.swift */; };
@@ -107,7 +110,7 @@
 		175A3BE12C6A667700255779 /* InterceptorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175A3BD32C6A667700255779 /* InterceptorTests.swift */; };
 		175A3BE22C6A667700255779 /* LogoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175A3BD42C6A667700255779 /* LogoutTests.swift */; };
 		175A3BE32C6A667700255779 /* RefreshTokenTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175A3BD52C6A667700255779 /* RefreshTokenTests.swift */; };
-		175A3BE42C6A667700255779 /* UserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175A3BD62C6A667700255779 /* UserTests.swift */; };
+		175A3BE42C6A667700255779 /* UserFetchingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175A3BD62C6A667700255779 /* UserFetchingTests.swift */; };
 		175A3BE52C6A667700255779 /* VKIDObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175A3BD82C6A667700255779 /* VKIDObserverTests.swift */; };
 		175A3BE62C6A667700255779 /* WebViewAuthorizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175A3BDA2C6A667700255779 /* WebViewAuthorizationTests.swift */; };
 		175A3BFD2C6A6BAC00255779 /* libVKIDTestingInfra.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 175A3B5C2C6A386C00255779 /* libVKIDTestingInfra.a */; platformFilter = ios; };
@@ -224,6 +227,9 @@
 		051189F32C4FBD0A005F9FDC /* VKIDUISnapshotTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VKIDUISnapshotTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		05118A032C4FC1C4005F9FDC /* OneTapButtonSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneTapButtonSnapshotTests.swift; sourceTree = "<group>"; };
 		05118A0F2C5114D7005F9FDC /* OneTapButtonTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneTapButtonTests.swift; sourceTree = "<group>"; };
+		0512770A2C85D5E50035A1EF /* DeviceIDTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = DeviceIDTests.swift; path = DeviceID/DeviceIDTests.swift; sourceTree = "<group>"; };
+		0512770C2C85D5F10035A1EF /* UserSessionDataStorageTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = UserSessionDataStorageTests.swift; path = UserSessionDataStorage/UserSessionDataStorageTests.swift; sourceTree = "<group>"; };
+		0512770E2C8702220035A1EF /* UserSessionData+equalsWithoutCreationDate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserSessionData+equalsWithoutCreationDate.swift"; sourceTree = "<group>"; };
 		0514A8D92C2C262600853BF9 /* VKIDCriticalTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VKIDCriticalTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		051FD2932AF3C7B90082990B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		051FD2952AF3C7E20082990B /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -308,7 +314,7 @@
 		175A3BD32C6A667700255779 /* InterceptorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InterceptorTests.swift; sourceTree = "<group>"; };
 		175A3BD42C6A667700255779 /* LogoutTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogoutTests.swift; sourceTree = "<group>"; };
 		175A3BD52C6A667700255779 /* RefreshTokenTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RefreshTokenTests.swift; sourceTree = "<group>"; };
-		175A3BD62C6A667700255779 /* UserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserTests.swift; sourceTree = "<group>"; };
+		175A3BD62C6A667700255779 /* UserFetchingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserFetchingTests.swift; sourceTree = "<group>"; };
 		175A3BD82C6A667700255779 /* VKIDObserverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VKIDObserverTests.swift; sourceTree = "<group>"; };
 		175A3BDA2C6A667700255779 /* WebViewAuthorizationTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebViewAuthorizationTests.swift; sourceTree = "<group>"; };
 		175A3C0E2C6A701500255779 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
@@ -547,6 +553,7 @@
 				175A3BBA2C6A416F00255779 /* Error+Equatable.swift */,
 				175A3C102C6A765D00255779 /* LogoutResult+Equatable.swift */,
 				175A3B762C6A3AE100255779 /* VKAPIResponse+IsSomeResponse.swift */,
+				0512770E2C8702220035A1EF /* UserSessionData+equalsWithoutCreationDate.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -632,7 +639,7 @@
 				175A3BD32C6A667700255779 /* InterceptorTests.swift */,
 				175A3BD42C6A667700255779 /* LogoutTests.swift */,
 				175A3BD52C6A667700255779 /* RefreshTokenTests.swift */,
-				175A3BD62C6A667700255779 /* UserTests.swift */,
+				175A3BD62C6A667700255779 /* UserFetchingTests.swift */,
 			);
 			path = UserSessionTests;
 			sourceTree = "<group>";
@@ -688,6 +695,8 @@
 		177F49F92B9752A3001EC2CE /* Unit */ = {
 			isa = PBXGroup;
 			children = (
+				0512770C2C85D5F10035A1EF /* UserSessionDataStorageTests.swift */,
+				0512770A2C85D5E50035A1EF /* DeviceIDTests.swift */,
 				177F49FB2B9752A3001EC2CE /* KeychainTests.swift */,
 			);
 			path = Unit;
@@ -1237,7 +1246,7 @@
 				175A3BE22C6A667700255779 /* LogoutTests.swift in Sources */,
 				175A3BDE2C6A667700255779 /* ProviderAuthorizationTests.swift in Sources */,
 				175A3BE02C6A667700255779 /* AutoLogoutTests.swift in Sources */,
-				175A3BE42C6A667700255779 /* UserTests.swift in Sources */,
+				175A3BE42C6A667700255779 /* UserFetchingTests.swift in Sources */,
 				175A3BE62C6A667700255779 /* WebViewAuthorizationTests.swift in Sources */,
 				175A3BE52C6A667700255779 /* VKIDObserverTests.swift in Sources */,
 				175A3BE12C6A667700255779 /* InterceptorTests.swift in Sources */,
@@ -1317,6 +1326,7 @@
 				175A3B9C2C6A3AE100255779 /* TestCaseInfra.swift in Sources */,
 				175A3BA62C6A3AE100255779 /* StorageMock.swift in Sources */,
 				175A3BA92C6A3AE200255779 /* UserInfoServiceMock.swift in Sources */,
+				0512770F2C8702220035A1EF /* UserSessionData+equalsWithoutCreationDate.swift in Sources */,
 				175A3B9E2C6A3AE100255779 /* AppInteropOpenerMock.swift in Sources */,
 				175A3BA02C6A3AE100255779 /* AuthFlowBuilderMock.swift in Sources */,
 				175A3BAB2C6A3AE200255779 /* WebViewAuthStrategyFactoryMock.swift in Sources */,
@@ -1330,6 +1340,8 @@
 			files = (
 				177F4A062B9752A3001EC2CE /* KeychainTests.swift in Sources */,
 				175A3BC82C6A41AB00255779 /* RefreshTokenTests.swift in Sources */,
+				0512770D2C85D5F10035A1EF /* UserSessionDataStorageTests.swift in Sources */,
+				0512770B2C85D5E50035A1EF /* DeviceIDTests.swift in Sources */,
 				175A3BC92C6A41AB00255779 /* UserFetchingTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

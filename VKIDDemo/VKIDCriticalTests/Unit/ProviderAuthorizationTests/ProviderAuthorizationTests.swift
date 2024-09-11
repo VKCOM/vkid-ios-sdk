@@ -668,7 +668,7 @@ extension URL {
     }
 
     private var redirectUri: URL? {
-        var urlComponents = self.urlComponents
+        let urlComponents = self.urlComponents
 
         let redirectUriString = urlComponents.queryItems?
             .first { $0.name == "redirect_uri" }?
@@ -682,7 +682,7 @@ extension URL {
     fileprivate var oAuth2Params: String? {
         let redirectUri = self.redirectUri
 
-        var urlComponents = redirectUri?.urlComponents
+        let urlComponents = redirectUri?.urlComponents
 
         return urlComponents?.queryItems?
             .first { $0.name == "oauth2_params" }?

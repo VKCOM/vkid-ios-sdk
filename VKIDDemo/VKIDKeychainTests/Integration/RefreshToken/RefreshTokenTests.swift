@@ -101,6 +101,7 @@ final class UserSessionRefreshTokenTests: XCTestCase {
     func testRefreshTokenMissing() {
         Allure.report(
             .init(
+                id: 2313656,
                 name: "РТ просрочился или невалидный",
                 meta: self.testCaseMeta
             )
@@ -145,6 +146,7 @@ final class UserSessionRefreshTokenTests: XCTestCase {
     func testRefreshTokenFailed() {
         Allure.report(
             .init(
+                id: 2313657,
                 name: "Ошибка обновления токена - фейл запроса",
                 meta: self.testCaseMeta
             )
