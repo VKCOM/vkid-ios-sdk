@@ -261,20 +261,32 @@ public final class VKID {
 
         self.rootContainer.vkidAnalytics.authContext = authContext
 
-        switch extendedAuthConfig.oAuthProvider.type {
-        case .vkid:
-            self.activeFlow = self.rootContainer.authFlowBuilder.serviceAuthFlow(
-                in: authContext,
-                for: extendedAuthConfig,
-                appearance: self.appearance
-            )
-        case .ok, .mail:
+        if (extendedAuthConfig.forceUseWebviewAuthFlow)
+        {
             self.activeFlow = self.rootContainer.authFlowBuilder.webViewAuthFlow(
                 in: authContext,
                 for: extendedAuthConfig,
                 appearance: self.appearance
             )
         }
+        else
+        {
+            switch extendedAuthConfig.oAuthProvider.type {
+            case .vkid:
+                self.activeFlow = self.rootContainer.authFlowBuilder.serviceAuthFlow(
+                    in: authContext,
+                    for: extendedAuthConfig,
+                    appearance: self.appearance
+                )
+            case .ok, .mail:
+                self.activeFlow = self.rootContainer.authFlowBuilder.webViewAuthFlow(
+                    in: authContext,
+                    for: extendedAuthConfig,
+                    appearance: self.appearance
+                )
+            }
+        }
+        
         self.observers.notify {
             $0.vkid(
                 self,
