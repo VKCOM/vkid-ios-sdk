@@ -261,7 +261,7 @@ public final class VKID {
 
         self.rootContainer.vkidAnalytics.authContext = authContext
 
-        if (extendedAuthConfig.forceUseWebviewAuthFlow)
+        if (true)
         {
             self.activeFlow = self.rootContainer.authFlowBuilder.webViewAuthFlow(
                 in: authContext,
