@@ -38,6 +38,10 @@ final class DebugSettingsStorage {
         case scope = "com.vkid.debug.scope"
         case authViewUI = "com.vkid.debug.authViewUI"
         case oAuthProviders = "com.vkid.debug.oAuthProviders"
+        case deprecatedCodeExchangingEnabled = "com.vkid.debug.deprecatedCodeExchangingEnabled"
+        case loggingEnabled = "com.vkid.debug.loggingEnabled"
+        case forceWebBrowserFlow = "com.vkid.debug.forceWebBrowserFlow"
+        case flutterFlagEnabled = "com.vkid.debug.flutterFlagEnabled"
     }
 
     private let userDefaults = UserDefaults.standard
@@ -150,6 +154,62 @@ final class DebugSettingsStorage {
             self.userDefaults.setValue(
                 newValue,
                 forKey: Keys.scope.rawValue
+            )
+        }
+    }
+
+    var deprecatedCodeExchangingEnabled: Bool {
+        get {
+            (self.userDefaults.value(
+                forKey: Keys.deprecatedCodeExchangingEnabled.rawValue
+            ) as? Bool) ?? false
+        }
+        set {
+            self.userDefaults.setValue(
+                newValue,
+                forKey: Keys.deprecatedCodeExchangingEnabled.rawValue
+            )
+        }
+    }
+
+    var loggingEnabled: Bool {
+        get {
+            (self.userDefaults.value(
+                forKey: Keys.loggingEnabled.rawValue
+            ) as? Bool) ?? true
+        }
+        set {
+            self.userDefaults.setValue(
+                newValue,
+                forKey: Keys.loggingEnabled.rawValue
+            )
+        }
+    }
+
+    var forceWebBrowserFlow: Bool {
+        get {
+            (self.userDefaults.value(
+                forKey: Keys.forceWebBrowserFlow.rawValue
+            ) as? Bool) ?? false
+        }
+        set {
+            self.userDefaults.setValue(
+                newValue,
+                forKey: Keys.forceWebBrowserFlow.rawValue
+            )
+        }
+    }
+
+    var flutterFlagEnabled: Bool {
+        get {
+            (self.userDefaults.value(
+                forKey: Keys.flutterFlagEnabled.rawValue
+            ) as? Bool) ?? false
+        }
+        set {
+            self.userDefaults.setValue(
+                newValue,
+                forKey: Keys.flutterFlagEnabled.rawValue
             )
         }
     }

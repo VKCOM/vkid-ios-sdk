@@ -81,20 +81,35 @@ extension AuthFlow {
         completion: @escaping AuthFlowResultCompletion
     ) {
         do {
-            codeExchanger.exchangeAuthCode(
-                .init(
-                    from: authCodeResponse,
-                    codeVerifier: try pkceSecrets.codeVerifier,
-                    redirectURI: redirectURI
-                )
-            ) { result in
-                switch result {
-                case .success(let data):
-                    completion(.success(data))
-                case .failure(AuthFlowError.codeVerifierNotProvided):
-                    completion(.failure(.codeVerifierNotProvided))
-                default:
-                    completion(.failure(.authorizationFailed))
+            let codeVerifier = try pkceSecrets.codeVerifier
+            if let authCodeHandler = codeExchanger as? AuthCodeHandler {
+                authCodeHandler.exchange(
+                    .init(
+                        from: authCodeResponse,
+                        codeVerifier: codeVerifier,
+                        redirectURI: redirectURI
+                    )
+                ) {
+                    completion(.failure(.authCodeExchangedOnYourBackend))
+                }
+            } else {
+                (codeExchanger as any ConfFlowCodeHandler).exchangeAuthCode(
+                    .init(
+                        from: authCodeResponse,
+                        codeVerifier: codeVerifier,
+                        redirectURI: redirectURI
+                    )
+                ) { result in
+                    switch result {
+                    case .success(let data):
+                        completion(.success(data))
+                    case .failure(AuthFlowError.codeVerifierNotProvided):
+                        completion(.failure(.codeVerifierNotProvided))
+                    case .failure(AuthFlowError.authCodeExchangedOnYourBackend):
+                        completion(.failure(.authCodeExchangedOnYourBackend))
+                    default:
+                        completion(.failure(.authorizationFailed))
+                    }
                 }
             }
         } catch PKCEWalletError.secretsExpired {

@@ -23,6 +23,7 @@ create_podfile() {
 }
 
 install_pods() {
+    bundle exec pod repo update
     bundle exec pod install --repo-update --project-directory="$CHECK_INTEGRATION_DIR/CheckCocoaPodsIntegration"
 }
 

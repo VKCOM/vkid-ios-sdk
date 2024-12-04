@@ -191,11 +191,11 @@ final class ConfidentialFlowTests: XCTestCase {
         }
     }
 
-    func testProvidedCodeExchangerUsedInAuth() {
+    func testDeprecatedCodeExchangerUsedInAuth() {
         Allure.report(
             .init(
                 id: 2315454,
-                name: "Для обмена auth code на AT используем exchanger, предоставленный сервисом",
+                name: "Для обмена auth code на AT используем устаревший exchanger, предоставленный сервисом",
                 meta: self.testCaseMeta
             )
         )
@@ -216,6 +216,64 @@ final class ConfidentialFlowTests: XCTestCase {
                         return
                     }
                     expectation.fulfill()
+                }
+            }
+            self.mainTransportMock.responseProvider = { _, request -> Result<
+                VKIDCore.VKAPIResponse,
+                VKIDCore.VKAPIError
+            > in
+                guard
+                    request.path == "/oauth2/auth",
+                    request.parameters["code"] as? String == webViewResponse.code
+                else {
+                    return .failure(.unknown)
+                }
+                XCTFail("SDK should not exchange code in Confidential flow")
+                return .failure(.unknown)
+            }
+            self.webViewAuthStrategyMock.handler = { _, _, _, completion in
+                completion(.success(webViewResponse))
+            }
+        }
+        when("Запускаем авторизацию") {
+            self.vkid.authorize(
+                authContext: .init(launchedBy: .service),
+                authConfig: authConfig,
+                oAuthProviderConfig: .init(primaryProvider: .vkid),
+                presenter: .newUIWindow
+            ) { _ in
+                // no need to handle in the test
+            }
+            self.wait(for: [expectation], timeout: 1)
+        }
+    }
+
+    func testProvidedCodeExchangerUsedInAuth() {
+        Allure.report(
+            .init(
+                name: "Для обмена auth code на AT используем exchanger, предоставленный сервисом",
+                meta: self.testCaseMeta
+            )
+        )
+        let expectation = expectation(description: #function)
+        var authConfig: AuthConfiguration!
+        let codeExchanger = NewAuthCodeExchangerMock()
+        given("Задаем PKCE, обработку запросов в вебвью и на транспортном уровне") {
+            let webViewResponse = AuthCodeResponse.random(state: self.pkceSecrets.state)
+            authConfig = .init(
+                flow: .confidentialClientFlow(
+                    codeExchanger: codeExchanger,
+                    pkce: self.pkceSecrets
+                )
+            )
+            codeExchanger.handler = { authorizationCode, completion in
+                then("Ожидаем обмен кода в exchanger, предоставленный сервисом") {
+                    guard authorizationCode.code == webViewResponse.code else {
+                        XCTFail("Wrong auth code")
+                        return
+                    }
+                    expectation.fulfill()
+                    completion()
                 }
             }
             self.mainTransportMock.responseProvider = { _, request -> Result<

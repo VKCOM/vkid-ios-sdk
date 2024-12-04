@@ -113,7 +113,7 @@ final class AuthViewController: VKIDDemoViewController {
         label.numberOfLines = 0
         label
             .text =
-            "Нажимая “Войти c VK ID”, вы принимаете пользовательское соглашение и политику конфиденциальности"
+            "Нажимая “Войти с VK ID”, вы принимаете пользовательское соглашение и политику конфиденциальности"
         label.textAlignment = .center
         label.font = UIFont.systemFont(ofSize: 16, weight: .regular)
         label.textColor = label.textColor.withAlphaComponent(0.3)
@@ -473,28 +473,11 @@ final class AuthViewController: VKIDDemoViewController {
             self.providedAuthSecrets = authSecrets
             print("PKCE Secrets: \(authSecrets)")
         }
-
-        // condition for interface testing
-        if self.debugSettings.confidentialFlowEnabled {
-            return .init(
-                flow: .confidentialClientFlow(
-                    codeExchanger: self,
-                    pkce: self.providedAuthSecrets
-                ),
-                scope: Scope(self.debugSettings.scope)
-            )
-        } else {
-            if self.debugSettings.providedPKCESecretsEnabled {
-                return .init(
-                    flow: .publicClientFlow(pkce: self.providedAuthSecrets),
-                    scope: Scope(self.debugSettings.scope)
-                )
-            } else {
-                return .init(
-                    scope: Scope(self.debugSettings.scope)
-                )
-            }
-        }
+        return .init(
+            flow: self.createFlow(secrets: self.providedAuthSecrets),
+            scope: Scope(self.debugSettings.scope),
+            forceWebViewFlow: self.debugSettings.forceWebBrowserFlow
+        )
     }
 }
 
@@ -512,6 +495,9 @@ extension AuthViewController: VKIDObserver {
             self.showAlert(message: session.debugDescription)
         } catch AuthError.cancelled {
             print("Auth cancelled by user")
+        } catch AuthError.authCodeExchangedOnYourBackend {
+            print("Conf flow ended")
+            self.showAlert(message: "Успешное завершение Confidential flow")
         } catch {
             print("Auth failed with error: \(error)")
             self.showAlert(message: "Ошибка авторизации")

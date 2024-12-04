@@ -54,6 +54,10 @@ extension AuthViewController {
                     title: "Scope",
                     cells: self.scopeCells()
                 ),
+                .init(
+                    title: "SDK Configuration",
+                    cells: self.sdkConfigurationCells()
+                ),
             ]
         )
     }
@@ -130,6 +134,20 @@ extension AuthViewController {
             ) { [weak self] text in
                 self?.debugSettings.serviceToken = text
             },
+            DebugSettingsToggleCellViewModel(
+                title: "Deprecated code exchanging Enabled",
+                isOn: self.debugSettings.deprecatedCodeExchangingEnabled
+            ) { [weak self] in
+                self?.debugSettings.deprecatedCodeExchangingEnabled.toggle()
+                self?.updateSettings()
+            },
+            DebugSettingsToggleCellViewModel(
+                title: "Force Web browser flow",
+                isOn: self.debugSettings.forceWebBrowserFlow
+            ) { [weak self] in
+                self?.debugSettings.forceWebBrowserFlow.toggle()
+                self?.updateSettings()
+            },
         ]
     }
 
@@ -141,6 +159,25 @@ extension AuthViewController {
                 text: self.debugSettings.scope
             ) { [weak self] text in
                 self?.debugSettings.scope = text
+            },
+            DebugSettingsToggleCellViewModel(
+                title: "Logging Enabled",
+                isOn: self.debugSettings.loggingEnabled
+            ) { [weak self] in
+                self?.debugSettings.loggingEnabled.toggle()
+                self?.updateSettings()
+            },
+        ]
+    }
+
+    private func sdkConfigurationCells() -> [any DebugSettingsCellViewModel] {
+        [
+            DebugSettingsToggleCellViewModel(
+                title: "Flutter flag",
+                isOn: self.debugSettings.flutterFlagEnabled
+            ) { [weak self] in
+                self?.debugSettings.flutterFlagEnabled.toggle()
+                self?.updateSettings()
             },
         ]
     }

@@ -27,8 +27,8 @@
 //
 
 import VKIDAllureReport
-import VKIDTestingInfra
 import XCTest
+@testable import VKIDTestingInfra
 
 @_spi(VKIDDebug)
 @testable import VKID
@@ -47,6 +47,7 @@ final class WebViewAuthorizationTests: XCTestCase {
     private let secrets = PKCESecrets(codeChallenge: "testCodeChallenge", state: "testState")
     private var vkid: VKID!
     private var webViewAuthStrategyMock: WebViewAuthStrategyMock!
+    private var isTopMostViewControllerSafariController = true
 
     override func setUpWithError() throws {
         self.webViewAuthStrategyMock = WebViewAuthStrategyMock()
@@ -176,6 +177,72 @@ final class WebViewAuthorizationTests: XCTestCase {
             }
         }
         self.wait(for: [expectation], timeout: 1)
+    }
+
+    func testAuthResultWaitingForHidingViewController() {
+        Allure.report(
+            .init(
+                name: "Результат авторизации получен после скрытия вью контроллера",
+                meta: self.testCaseMeta
+            )
+        )
+        let expectation = expectation(description: #function)
+        let webViewResponse = AuthCodeResponse.random(state: self.secrets.state)
+        let userId = UserID(value: 135)
+        let scope = Scope("vkid.personal_info")
+        let accessToken = AccessToken(
+            userId: userId,
+            value: UUID().uuidString,
+            expirationDate: .defaultExpirationDate,
+            scope: scope
+        )
+        let refreshToken = RefreshToken(
+            userId: userId,
+            value: UUID().uuidString,
+            scope: scope
+        )
+        let idToken = IDToken(userId: userId, value: UUID().uuidString)
+        let codeExchangerMock = AuthCodeExchangerMock()
+        codeExchangerMock.handler = { code, completion in
+            guard code.state == webViewResponse.state else {
+                XCTFail("Wrong state")
+                return
+            }
+            let authFlowData = AuthFlowData(
+                accessToken: accessToken,
+                refreshToken: refreshToken,
+                idToken: idToken,
+                deviceId: code.deviceId
+            )
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                self.isTopMostViewControllerSafariController = false
+            }
+            completion(.success(authFlowData))
+        }
+        let authConfig = AuthConfiguration(
+            flow:.confidentialClientFlow(codeExchanger: codeExchangerMock, pkce: self.secrets)
+        )
+        given("Задаем ответ в вебвью и мок проверки вью контроллера") {
+            self.webViewAuthStrategyMock.handler = { _, _, _, completion in
+                completion(.success(webViewResponse))
+            }
+            let applicationManagerMock = ApplicationManagerMock()
+            applicationManagerMock.handler = {
+                self.isTopMostViewControllerSafariController
+            }
+            self.vkid.rootContainer.applicationManager = applicationManagerMock
+        }
+        when("Запускаем авторизацию") {
+            self.vkid.authorize(with: authConfig, using: .newUIWindow) { result in
+                then("Проверка вью контроллера при зваершении авторизации") {
+                    if self.isTopMostViewControllerSafariController {
+                        XCTFail("Wrong top most view controller logic")
+                    }
+                    expectation.fulfill()
+                }
+            }
+            self.wait(for: [expectation], timeout: 1)
+        }
     }
 
     func testSuccessfulAuthCodeExchangeInWebView() {

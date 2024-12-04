@@ -51,7 +51,7 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/danger/swift.git",
-            .upToNextMajor(from: "3.18.0")
+            .upToNextMajor(from: "3.20.2")
         ),
         .package(
             url: "https://github.com/apple/swift-tools-support-core.git",

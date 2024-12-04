@@ -35,6 +35,9 @@ public struct AuthConfiguration {
     /// Флоу авторизации
     let flow: Flow
 
+    /// Запускает флоу авторизации только в браузере, открывающемся с помощью SDK. Если значение 'true', то будет проигнорирован флоу авторизации через провайдера авторизации. Следует с осторожностью использовать эту настройку, так как выключение авторизации через провайдер может резко снизить конверсию.
+    let forceWebViewFlow: Bool
+
     /// Создает конфигурацию авторизации
     /// - Parameters:
     ///   - flow: Флоу авторизации Confidential client flow или Public client flow
@@ -42,12 +45,15 @@ public struct AuthConfiguration {
     ///   Запрашиваемые [права доступа](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/api-integration/api-description#Dostup-prilozheniya-k-dannym-polzovatelya).
     ///   Запрошенный список прав для приложения не может быть больше, чем разрешенный список в [настройках приложения](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/application-settings)
     ///   По умолчанию scope = nil, в этом случае будет выдано базовое право доступа `vkid.personal_info`.
+    ///   - forceWebViewFlow: Запуск авторизации только в браузере.
     public init (
         flow: Flow = .publicClientFlow(),
-        scope: Scope? = nil
+        scope: Scope? = nil,
+        forceWebViewFlow: Bool = false
     ) {
         self.flow = flow
         self.scope = scope
+        self.forceWebViewFlow = forceWebViewFlow
     }
 }
 
@@ -71,16 +77,45 @@ public struct AuthorizationCode {
     public let redirectURI: String
 }
 
-/// Протокол обмена кода авторизации на токены ```AccessToken```, ```RefreshToken```, ```IDToken```
-public protocol AuthCodeExchanging {
+public protocol ConfFlowCodeHandler {
+    func exchangeAuthCode(
+        _ code: AuthorizationCode,
+        completion: @escaping (Result<AuthFlowData, Error>) -> Void
+    )
+}
+
+/// Устаревший протокол обмена кода авторизации на токены ```AccessToken```, ```RefreshToken```, ```IDToken```
+public protocol AuthCodeExchanging: ConfFlowCodeHandler {
     /// Обмен кода авторизации на токены
     /// - Parameters:
     ///   - code: ```AuthorizationCode```, который необходимо заменить на токены, чтобы завершить авторизацию
     ///   - completion: колбек с результатом авторизации ```AuthFlowData```
+    @available(
+        *,
+        deprecated,
+        message: "'exchangeAuthCode' was replaced by 'exchange(_ code:, finishFlow:)' in 'AuthCodeHandler' and will be removed shortly"
+    )
     func exchangeAuthCode(
         _ code: AuthorizationCode,
-        completion: @escaping (Result<AuthFlowData, Error>)-> Void
+        completion: @escaping (Result<AuthFlowData, Error>) -> Void
     )
+}
+
+/// Протокол обмена кода авторизации на токены ```AccessToken```, ```RefreshToken```, ```IDToken``` на бекенде (Confidential flow).
+public protocol AuthCodeHandler: AuthCodeExchanging {
+    /// Обмен кода авторизации на токены
+    /// - Parameters:
+    ///   - code: ```AuthorizationCode```, который необходимо заменить на токены, чтобы завершить авторизацию
+    ///   - finishFlow: колбек, который необходимо вызвать после завершения авторизации на бекенде,
+    ///   чтобы завершить анимацию авторизации VKID
+    func exchange(_ code: AuthorizationCode, finishFlow: @escaping () -> Void)
+}
+
+extension AuthCodeExchanging {
+    public func exchangeAuthCode(
+        _ code: AuthorizationCode,
+        completion: @escaping (Result<AuthFlowData, Error>) -> Void
+    ) {}
 }
 
 extension AuthConfiguration {

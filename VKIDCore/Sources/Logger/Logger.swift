@@ -100,3 +100,8 @@ package final class Logger: Logging {
         self.backend.write("[\(self.subsystem)][\(level.rawValue)] \(message.string)")
     }
 }
+
+package final class LoggerStub: Logging {
+    package init() {}
+    package func log(level: LogLevel, message: LogMessage) {}
+}

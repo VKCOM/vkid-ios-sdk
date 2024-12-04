@@ -26,10 +26,18 @@
 // THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
 //
 
+import SafariServices
 import UIKit
 
 package protocol ApplicationManager {
     var activeWindow: UIWindow? { get }
+    var isTopMostViewControllerSafariController: Bool { get }
+}
+
+extension ApplicationManager {
+    package var isTopMostViewControllerSafariController: Bool {
+        self.activeWindow?.topmostViewController is SFSafariViewController
+    }
 }
 
 package final class ApplicationManagerImpl: ApplicationManager {

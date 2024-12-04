@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name = "VKIDCore"
-  spec.version = "2.2.1"
+  spec.version = "2.3.0"
   spec.summary = "VKID core functionality. Not for public use."
   spec.homepage = "https://id.vk.com/business"
     spec.authors = { 'VK ID' => 'devsupport@corp.vk.com' }

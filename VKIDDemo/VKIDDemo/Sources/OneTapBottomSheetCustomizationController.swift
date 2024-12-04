@@ -536,7 +536,8 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
             ),
             authConfiguration: .init(
                 flow: self.createFlow(secrets: self.providedAuthSecrets),
-                scope: Scope(self.debugSettings.scope)
+                scope: Scope(self.debugSettings.scope),
+                forceWebViewFlow: self.debugSettings.forceWebBrowserFlow
             ),
             oAuthProviderConfiguration: .init(
                 alternativeProviders: self.oAuthListWidgetSwitcher.isOn ? [.mail, .ok] : []

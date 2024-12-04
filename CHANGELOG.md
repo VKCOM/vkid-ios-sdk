@@ -2,43 +2,53 @@
 
 > **Note**\
 > Описание основных изменений в релизах VK ID SDK. Наш SDK следует [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## 2.3.0 - 2024-12-04
+
+### Added
++ Добавлен протокол `AuthCodeHandler`, который предоставляет `AuthorizationCode` для обмена кода авторизации на токены на бэкенде. 
++ Для удобства добавлена возможность отключения логов. 
++ Добавлена возможность выбрать альтернативные провайдеры авторизации и заголовок OneTap в одном инициализаторе. 
++ Для удобства добавлена проверка ID приложения (clientId) из Info.plist. 
++ Добавлена возможность авторизации только в WebView, без прыжка в провайдер авторизации. 
+
+### Fixed
++ Теперь авторизация завершается только после скрытия UIViewController.
 
 ## 2.2.1 - 2024-09-11
 
 ### Fixed
-- Проблема при авторизации через веб-вью с прыжком в приложение `VK`.
+- Исправлена проблема при авторизации через WebView с прыжком в приложение `VK`. Теперь всё работает корректно.
 
 ## 1.3.3 - 2024-09-04
 
 ### Added
-- Файл манифеста `PrivacyInfo.xcprivacy`, описывающий какие пользовательские данные использует VK ID SDK. Подробнее в статье Apple про [Privacy manifest files](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files)
+- В соответствии с [требованиями Apple](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files) добавлен файл манифеста 'PrivacyInfo.xcprivacy', который описывает, какие пользовательские данные использует VK ID SDK.
 
 ### Fixed
-- Проблема при авторизации через веб-вью с прыжком в приложение `VK`.
+- Исправлена проблема при авторизации через WebView с прыжком в приложение `VK`. Теперь всё работает корректно.
 
 ## 2.2.0 - 2024-08-27
-
-### Fixed
-- Проблема с двойным вызовом `completion` авторизации, если приложение `VK` сворачивается до того, как оно загрузится
 
 ### Changed
 - Поддержали ребрендинг Почты Mail: в SDK обновлены все экраны с логотипом Почты, а также изменено название сервиса с Mail.ru на Mail. Доработки в коде из-за ребрендинга не требуются.
 
+### Fixed
+- Ранее, если приложение `VK` сворачивалось до того, как оно загрузилось, могла наблюдаться проблема с двойным вызовом `completion` авторизации. Исправлено. Теперь всё работает корректно.
+
 ## 2.1.0 - 2024-08-08
 
 ### Added
-- Возможность выбрать текст `OneTapButton`. Это позволяет адаптировать кнопку для разных сценариев — например, для получения услуги отобразить текст «Записаться c VK ID». Подробнее о настройке текста в кнопке читайте в [документации](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/elements/onetap-button/onetap-ios)
-- Файл манифеста `PrivacyInfo.xcprivacy`, описывающий какие пользовательские данные использует VK ID SDK. Подробнее в статье Apple про [Privacy manifest files](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files) 
+- Добавлена возможность выбрать текст кнопки One Tap, который увидит пользователь. Это позволяет адаптировать кнопку для разных сценариев — например, для получения услуги отобразить текст «Записаться c VK ID» . Подробнее о настройке текста в кнопке читайте в [документации](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/elements/onetap-button/onetap-ios).
+- В соответствии с [требованиями Apple](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files) добавлен файл манифеста `PrivacyInfo.xcprivacy`, который описывает, какие пользовательские данные использует VK ID SDK.
 
 ## 2.0.0 - 2024-06-25
 
 ### Added
-- Поддержка авторизации по протоколу [OAuth 2.1](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-10)
-- Поддержка входа через акаунты Одноклассников и Mail
-- Возможность устанавливать провайдера авторизации при вызове `VKID.authorize`
+- [VK ID](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/intro/plan) теперь поддерживает авторизацию по [протоколу OAuth 2.1](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-10). За счет работы авторизации на передовом стандарте обеспечивается высокая защита пользовательских данных.
+- Для пользователя добавлена возможность входа через аккаунты «Одноклассников» и Mail.ru. Для отображения кнопок входа через эти сервисы интегрируйте [виджет 3 в 1](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/intro/main#Vidzhet-3-v-1) — блок с кнопками будет располагаться на окне авторизации вашего сервиса — или подключите [дополнительные OAuth](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/intro/main#Podklyuchenie-dopolnitelnyh-OAuth) — для показа кнопок на окне авторизации VK ID.
 
 ### Changed
-- **Breaking changes:** изменения в публичных интерфейсах `AuthConfiguration`, `OAuthListWidget`, `OneTapButton`, `OneTapBottomSheet`.
+- **Breaking changes:** Изменения в публичных интерфейсах `AuthConfiguration`, `OAuthListWidget`, `OneTapButton`, `OneTapBottomSheet`. Для перехода с SDK предыдущей версии и поддержки этих изменений воспользуйтесь [инструкцией](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/migration/ios/oauth-2.1).
 
 ## 1.3.2 - 2024-06-05
 

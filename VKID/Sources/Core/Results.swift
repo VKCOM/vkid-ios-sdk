@@ -53,6 +53,9 @@ public enum AuthError: Error {
 
     /// `codeVerifier` не предоставлен для `AuthConfiguration.Flow.publicClientFlow`
     case codeVerifierNotProvided
+
+    /// Сессия в SDK не была создана, но флоу авторизации завершен на стороне сервера сервиса.
+    case authCodeExchangedOnYourBackend
 }
 
 /// Основные ошибки выполнения логаута

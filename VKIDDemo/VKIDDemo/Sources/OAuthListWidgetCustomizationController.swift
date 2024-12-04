@@ -39,7 +39,8 @@ final class OAuthListWidgetCustomizationController: VKIDDemoViewController {
                 flow: self.createFlow(
                     secrets: self.providedAuthSecrets
                 ),
-                scope: Scope(self.debugSettings.scope)
+                scope: Scope(self.debugSettings.scope),
+                forceWebViewFlow: self.debugSettings.forceWebBrowserFlow
             ),
             buttonConfiguration: .init(
                 height: .large(.h56),

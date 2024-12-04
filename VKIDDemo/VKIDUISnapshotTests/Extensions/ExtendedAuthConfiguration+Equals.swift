@@ -40,7 +40,7 @@ extension ExtendedAuthConfiguration {
             }
         }
         let mirror = Mirror(reflecting: self)
-        let propsCount = 4
+        let propsCount = 5
         guard
             let style = mirror.displayStyle,
             style == .struct,

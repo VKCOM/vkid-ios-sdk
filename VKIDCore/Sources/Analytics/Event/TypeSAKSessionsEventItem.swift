@@ -33,14 +33,21 @@ package struct TypeSAKSessionsEventItem: Encodable {
     let step: Step
     /// Менеджер зависимостей, используется на iOS
     let additionalInfo: AdditionalInfo
+    /// Приложение создано через Flutter SDK
+    let wrapperSdkType: String
 
     /// Инициализация TypeSAKSessionsEventItem
     /// - Parameters:
     ///   - step:Тип события
     ///   - additionalInfo: Менеджер зависимостей
-    package init(step: Step, additionalInfo: AdditionalInfo) {
+    package init(
+        step: Step,
+        additionalInfo: AdditionalInfo,
+        wrapperSDK: String
+    ) {
         self.step = step
         self.additionalInfo = additionalInfo
+        self.wrapperSdkType = wrapperSDK
     }
 
     /// Тип события

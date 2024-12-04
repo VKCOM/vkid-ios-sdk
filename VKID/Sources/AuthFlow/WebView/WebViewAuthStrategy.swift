@@ -218,9 +218,3 @@ extension SafariViewControllerStrategy: SFSafariViewControllerDelegate {
         self.complete(with: .failure(.authCancelledByUser))
     }
 }
-
-extension ApplicationManager {
-    var isTopMostViewControllerSafariController: Bool {
-        self.activeWindow?.topmostViewController is SFSafariViewController
-    }
-}

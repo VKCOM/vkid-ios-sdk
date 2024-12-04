@@ -78,4 +78,5 @@ internal enum AuthFlowError: Error {
     case authCodeExchangingFailed(Error)
     // code verifier not provided for SDK auth code exchanging
     case codeVerifierNotProvided
+    case authCodeExchangedOnYourBackend
 }

@@ -52,6 +52,11 @@ internal protocol AuthURLBuilder {
     ) throws -> URL
 }
 
+struct StatsInfo: Encodable {
+    let sessionId: String
+    let flowSource: String
+}
+
 private let encoder: JSONEncoder = {
     let encoder = JSONEncoder()
     encoder.keyEncodingStrategy = .convertToSnakeCase
@@ -112,9 +117,8 @@ internal final class AuthURLBuilderImpl: AuthURLBuilder {
             .version(Env.VKIDVersion),
             .scope(scope ?? ""),
             .statsInfo(
-                statsInfo(
-                    from: authContext,
-                    shouldBeBase64Encoded: true
+                base64StatsInfo(
+                    from: authContext
                 )
             ),
             .redirectURI(
@@ -207,25 +211,19 @@ internal func redirectURL(
     return components.url!
 }
 
-internal func statsInfo(from authContext: AuthContext, shouldBeBase64Encoded: Bool) -> String? {
-    struct StatsInfo: Encodable {
-        let sessionId: String
-        let flowSource: String
-    }
-
-    let statsInfo = StatsInfo(
+internal func statsInfo(from authContext: AuthContext) -> StatsInfo {
+    StatsInfo(
         sessionId: authContext.uniqueSessionId,
         flowSource: authContext.flowSource
     )
+}
 
-    guard var jsonData = try? encoder.encode(statsInfo) else { return nil }
-
-    if shouldBeBase64Encoded {
-        jsonData = jsonData.base64EncodedData()
-    }
+internal func base64StatsInfo(from authContext: AuthContext) -> String? {
+    let statsInfo = statsInfo(from: authContext)
+    guard let jsonData = try? encoder.encode(statsInfo) else { return nil }
 
     return String(
-        data: jsonData ,
+        data: jsonData.base64EncodedData(),
         encoding: .utf8
     )
 }
@@ -233,12 +231,12 @@ internal func statsInfo(from authContext: AuthContext, shouldBeBase64Encoded: Bo
 internal func oAuth2Parameters(from authContext: AuthContext, with scope: String?) -> String? {
     struct OAuth2Parameters: Encodable {
         let scope: String?
-        let statsInfo: String?
+        let statsInfo: StatsInfo
     }
 
     let oAuth2Parameters = OAuth2Parameters(
         scope: scope,
-        statsInfo: statsInfo(from: authContext, shouldBeBase64Encoded: false)
+        statsInfo: statsInfo(from: authContext)
     )
 
     guard let jsonData = try? encoder.encode(oAuth2Parameters) else { return nil }

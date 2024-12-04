@@ -299,21 +299,92 @@ extension VKIDDemoViewController {
     ) -> AuthConfiguration.Flow {
         var flow: AuthConfiguration.Flow
         if self.debugSettings.confidentialFlowEnabled {
-            flow = .confidentialClientFlow(
-                codeExchanger: self,
-                pkce: secrets
-            )
+            if self.debugSettings.deprecatedCodeExchangingEnabled {
+                flow = .confidentialClientFlow(
+                    codeExchanger: DeprecatedAuthCodeExchanger(viewController: self),
+                    pkce: secrets
+                )
+            } else {
+                flow = .confidentialClientFlow(
+                    codeExchanger: self,
+                    pkce: secrets
+                )
+            }
         } else {
-            flow = .publicClientFlow(pkce: secrets)
+            if self.debugSettings.providedPKCESecretsEnabled {
+                flow = .publicClientFlow(pkce: secrets)
+            } else {
+                flow = .publicClientFlow()
+            }
         }
         return flow
     }
 }
 
-extension VKIDDemoViewController: AuthCodeExchanging {
+private class DeprecatedAuthCodeExchanger: AuthCodeExchanging {
+    let viewController :VKIDDemoViewController
+    init(viewController: VKIDDemoViewController) {
+        self.viewController = viewController
+    }
+
     func exchangeAuthCode(
         _ authCode: AuthorizationCode,
         completion: @escaping (Result<AuthFlowData, any Error>) -> Void
+    ) {
+        if self.viewController.debugSettings.deprecatedCodeExchangingEnabled {
+            self.viewController.performCodeExchanging(
+                authCode: authCode
+            ) { result in
+                switch result {
+                case .success((let response, let state)):
+                    guard state == response.state else {
+                        completion(.failure(AuthError.unknown))
+                        return
+                    }
+                    let expirationDate: Date = response.expiresIn > 0 ?
+                        Date().addingTimeInterval(response.expiresIn) :
+                        .distantFuture
+                    let userId = UserID(value: response.userId)
+                    completion(.success(.init(
+                        accessToken: .init(
+                            userId: userId,
+                            value: response.accessToken,
+                            expirationDate: expirationDate,
+                            scope: Scope(response.scope)
+                        ),
+                        refreshToken: .init(
+                            userId: userId,
+                            value: response.refreshToken,
+                            scope: Scope(response.scope)
+                        ),
+                        idToken: .init(
+                            userId: userId,
+                            value: response.idToken
+                        ),
+                        deviceId: authCode.deviceId
+                    )))
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            }
+        }
+    }
+}
+
+extension VKIDDemoViewController: AuthCodeHandler {
+    func exchange(_ code: AuthorizationCode, finishFlow: @escaping () -> Void) {
+        if !self.debugSettings.deprecatedCodeExchangingEnabled {
+            self.performCodeExchanging(
+                authCode: code
+            ) { result in
+                finishFlow()
+            }
+        }
+    }
+
+    fileprivate func performCodeExchanging(
+        authCode: AuthorizationCode,
+        completion: @escaping (Result<(API.ExchangeAuthCode.Response, String), Error>) -> Void
     ) {
         var codeVerifier: String
         let serviceToken = self.debugSettings.serviceToken ?? ""
@@ -336,7 +407,6 @@ extension VKIDDemoViewController: AuthCodeExchanging {
             codeVerifier = authCodeCodeVerifier
         }
         let state = UUID().uuidString
-
         // Only for debug purposes
         self.api?.exchangeAuthCode(.init(
             code: authCode.code,
@@ -347,37 +417,7 @@ extension VKIDDemoViewController: AuthCodeExchanging {
             clientId: clientId,
             serviceToken: serviceToken
         )) { result in
-            switch result {
-            case .success(let response):
-                guard state == response.state else {
-                    completion(.failure(AuthError.unknown))
-                    return
-                }
-                let expirationDate: Date = response.expiresIn > 0 ?
-                    Date().addingTimeInterval(response.expiresIn) :
-                    .distantFuture
-                let userId = UserID(value: response.userId)
-                completion(.success(.init(
-                    accessToken: .init(
-                        userId: userId,
-                        value: response.accessToken,
-                        expirationDate: expirationDate,
-                        scope: Scope(response.scope)
-                    ),
-                    refreshToken: .init(
-                        userId: userId,
-                        value: response.refreshToken,
-                        scope: Scope(response.scope)
-                    ),
-                    idToken: .init(
-                        userId: userId,
-                        value: response.idToken
-                    ),
-                    deviceId: authCode.deviceId
-                )))
-            case .failure(let error):
-                completion(.failure(error))
-            }
+            completion(result.map { ($0,state) })
         }
     }
 }

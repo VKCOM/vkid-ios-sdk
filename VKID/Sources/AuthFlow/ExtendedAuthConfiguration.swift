@@ -33,4 +33,5 @@ struct ExtendedAuthConfiguration {
     let codeExchanger: AuthCodeExchanging
     let oAuthProvider: OAuthProvider
     let scope: String?
+    let forceWebViewFlow: Bool
 }
