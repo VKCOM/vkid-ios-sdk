@@ -26,6 +26,7 @@
 		05A406FF2C53CF9900081726 /* OneTapBottomSheetSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05A406FE2C53CF9900081726 /* OneTapBottomSheetSnapshotTests.swift */; };
 		05A6A5612BC83B8E00B01882 /* UserSessionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05A6A5602BC83B8E00B01882 /* UserSessionData.swift */; };
 		05C606C62C651E80008ECB9C /* Descriptioner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C606C52C651E80008ECB9C /* Descriptioner.swift */; };
+		05D919072CABEAF200EC63E4 /* ApplicationManagerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05D919062CABEAF200EC63E4 /* ApplicationManagerMock.swift */; };
 		05DB5C892C119C3100663297 /* AuthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2E5F5F12A55A65D0079DE1F /* AuthViewController.swift */; };
 		05DB5C8A2C119C3100663297 /* String+snakeCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053014C92C0F079D00CF799D /* String+snakeCase.swift */; };
 		05DB5C8B2C119C3100663297 /* DictionaryRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053014CB2C0F083700CF799D /* DictionaryRepresentable.swift */; };
@@ -248,6 +249,7 @@
 		05A406FE2C53CF9900081726 /* OneTapBottomSheetSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneTapBottomSheetSnapshotTests.swift; sourceTree = "<group>"; };
 		05A6A5602BC83B8E00B01882 /* UserSessionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionData.swift; sourceTree = "<group>"; };
 		05C606C52C651E80008ECB9C /* Descriptioner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Descriptioner.swift; sourceTree = "<group>"; };
+		05D919062CABEAF200EC63E4 /* ApplicationManagerMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationManagerMock.swift; sourceTree = "<group>"; };
 		05DB5CAE2C119C3100663297 /* VKIDDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VKIDDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		05DB5CAF2C119C3100663297 /* VKIDCocoapodsDemo.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = VKIDCocoapodsDemo.plist; path = "/Users/yuriy.petrov/Projects/ios-sdk/VKIDDemo/VKIDCocoapodsDemo.plist"; sourceTree = "<absolute>"; };
 		05DB5CB02C11EAAA00663297 /* VKIDCocoapodsDemo-Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "VKIDCocoapodsDemo-Debug.xcconfig"; sourceTree = "<group>"; };
@@ -576,6 +578,7 @@
 				175A3B842C6A3AE100255779 /* URLSessionMock.swift */,
 				175A3B852C6A3AE100255779 /* URLSessionTransportMock.swift */,
 				175A3B872C6A3AE100255779 /* VKIDObserverMock.swift */,
+				05D919062CABEAF200EC63E4 /* ApplicationManagerMock.swift */,
 			);
 			path = Mocks;
 			sourceTree = "<group>";
@@ -1316,6 +1319,7 @@
 				17B86F7A2C78691D00B893CA /* ExchangeAuthCodeResponse+Random.swift in Sources */,
 				175A3C112C6A765D00255779 /* LogoutResult+Equatable.swift in Sources */,
 				175A3B932C6A3AE100255779 /* Scope+Random.swift in Sources */,
+				05D919072CABEAF200EC63E4 /* ApplicationManagerMock.swift in Sources */,
 				175A3B922C6A3AE100255779 /* PKCESecrets+Random.swift in Sources */,
 				175A3BA22C6A3AE100255779 /* LoggerMock.swift in Sources */,
 				175A3B942C6A3AE100255779 /* String+Random.swift in Sources */,

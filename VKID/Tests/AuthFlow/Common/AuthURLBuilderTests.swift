@@ -224,9 +224,8 @@ final class AuthURLBuilderTests: XCTestCase {
                     .version(Env.VKIDVersion),
                     .scope(self.scope),
                     .statsInfo(
-                        statsInfo(
-                            from: self.context,
-                            shouldBeBase64Encoded: true
+                        base64StatsInfo(
+                            from: self.context
                         )
                     ),
                     .init(
@@ -306,9 +305,8 @@ final class AuthURLBuilderTests: XCTestCase {
                     .version(Env.VKIDVersion),
                     .scope(self.scope),
                     .statsInfo(
-                        statsInfo(
-                            from: context,
-                            shouldBeBase64Encoded: true
+                        base64StatsInfo(
+                            from: context
                         )
                     ),
                     .redirectURI(

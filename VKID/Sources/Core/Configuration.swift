@@ -32,8 +32,13 @@ import UIKit
 public struct Configuration {
     /// Учетные данные для VK ID приложения
     public let appCredentials: AppCredentials
+    /// Включение/выключение логов
+    public let loggingEnabled: Bool
     /// Конфигурация внешнего вида визуальных элементов VK ID
     public var appearance: Appearance
+    /// Приложение использует функции SDK через адаптер. Только для внутреннего использования.
+    @_spi(VKIDPrivate)
+    public let wrapperSDK: WrapperSDK
 
     // Only for debug purposes
     @_spi(VKIDDebug)
@@ -41,7 +46,8 @@ public struct Configuration {
 
     public init(
         appCredentials: AppCredentials,
-        appearance: Appearance = Appearance()
+        appearance: Appearance = Appearance(),
+        loggingEnabled: Bool = true
     ) {
         self.init(
             appCredentials: appCredentials,
@@ -50,17 +56,30 @@ public struct Configuration {
         )
     }
 
+    // Only for internal using
+    @_spi(VKIDPrivate)
     // Only for debug purposes
     @_spi(VKIDDebug)
     public init(
         appCredentials: AppCredentials,
         appearance: Appearance = Appearance(),
+        loggingEnabled: Bool = true,
+        wrapperSDK: WrapperSDK = .none,
         network: NetworkConfiguration
     ) {
         self.appCredentials = appCredentials
         self.appearance = appearance
         self.network = network
+        self.loggingEnabled = loggingEnabled
+        self.wrapperSDK = wrapperSDK
     }
+}
+
+/// Адаптеры SDK. Только для внутреннего использования.
+@_spi(VKIDPrivate)
+public enum WrapperSDK: String {
+    case none
+    case flutter
 }
 
 /// Учетные данные для VK ID приложения

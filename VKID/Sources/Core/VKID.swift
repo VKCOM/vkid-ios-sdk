@@ -115,11 +115,13 @@ public final class VKID {
     /// Создает объект VKID с указанной конфигурацией
     /// - Parameter config: объект конфигурация VKID
     public convenience init(config: Configuration) throws {
+        RegisteredURLSchemeChecker.assertRequiredURLSchemes(clientId: config.appCredentials.clientId)
         try self.init(
             config: config,
             rootContainer: RootContainer(
                 appCredentials: config.appCredentials,
-                networkConfiguration: config.network
+                networkConfiguration: config.network,
+                loggingEnabled: config.loggingEnabled
             )
         )
     }
@@ -137,7 +139,9 @@ public final class VKID {
         self.observers.add(
             self.rootContainer.vkidAnalytics
         )
-        self.rootContainer.techAnalytcs.sdkInit.send()
+        self.rootContainer.techAnalytcs.sdkInit.send(
+            config.wrapperSDK.rawValue
+        )
     }
 
     public func add(observer: VKIDObserver) {
@@ -225,7 +229,8 @@ public final class VKID {
             pkceSecrets: pkceWallet,
             codeExchanger: codeExchanger,
             oAuthProvider: oAuthProviderConfig.primaryProvider,
-            scope: authConfig.scope?.description
+            scope: authConfig.scope?.description,
+            forceWebViewFlow: authConfig.forceWebViewFlow
         )
 
         self.authorize(
@@ -261,14 +266,16 @@ public final class VKID {
 
         self.rootContainer.vkidAnalytics.authContext = authContext
 
-        switch extendedAuthConfig.oAuthProvider.type {
-        case .vkid:
+        switch (extendedAuthConfig.oAuthProvider.type,
+                extendedAuthConfig.forceWebViewFlow)
+        {
+        case (.vkid, false):
             self.activeFlow = self.rootContainer.authFlowBuilder.serviceAuthFlow(
                 in: authContext,
                 for: extendedAuthConfig,
                 appearance: self.appearance
             )
-        case .ok, .mail:
+        case (_, _):
             self.activeFlow = self.rootContainer.authFlowBuilder.webViewAuthFlow(
                 in: authContext,
                 for: extendedAuthConfig,
@@ -304,15 +311,30 @@ public final class VKID {
             }
 
             let authResult = AuthResult(userSessionResult)
-
-            self.observers.notify {
-                $0.vkid(
-                    self,
-                    didCompleteAuthWith: authResult,
-                    in: extendedAuthConfig.oAuthProvider
-                )
+            func applyCompletionWithDelay(retries: UInt8 = 5) {
+                if self.rootContainer.applicationManager.isTopMostViewControllerSafariController, retries > 0 {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        applyCompletionWithDelay(retries: retries - 1)
+                    }
+                } else {
+                    applyCompletion()
+                }
             }
-            completion(authResult)
+            func applyCompletion() {
+                self.observers.notify {
+                    $0.vkid(
+                        self,
+                        didCompleteAuthWith: authResult,
+                        in: extendedAuthConfig.oAuthProvider
+                    )
+                }
+                completion(authResult)
+            }
+            if self.rootContainer.applicationManager.isTopMostViewControllerSafariController {
+                applyCompletionWithDelay()
+            } else {
+                applyCompletion()
+            }
         }
     }
 }
@@ -374,6 +396,8 @@ extension AuthResult {
             self = .failure(.cancelled)
         case .failure(.codeVerifierNotProvided):
             self = .failure(.codeVerifierNotProvided)
+        case .failure(.authCodeExchangedOnYourBackend):
+            self = .failure(.authCodeExchangedOnYourBackend)
         case .failure:
             self = .failure(.unknown)
         }

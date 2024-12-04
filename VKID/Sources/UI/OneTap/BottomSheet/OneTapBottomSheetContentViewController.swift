@@ -346,29 +346,35 @@ extension OneTapBottomSheetContentViewController: VKIDObserver {
     func vkid(_ vkid: VKID, didCompleteAuthWith result: AuthResult, in oAuth: OAuthProvider) {
         switch result {
         case .success:
-            self.authState = .success
-            guard self.autoDismissOnSuccess else {
-                self.onCompleteAuth?(result)
-                return
-            }
-            DispatchQueue
-                .main
-                .asyncAfter(deadline: .now() + 0.5) { [weak self, onComplete = self.onCompleteAuth] in
-                    if self?.isBeingDismissed == false {
-                        self?.dismiss(animated: true) {
-                            onComplete?(result)
-                        }
-                    } else {
-                        onComplete?(result)
-                    }
-                }
+            self.handleSuccessResult(result)
         case .failure(let error):
             switch error {
             case .cancelled: self.authState = .idle
+            case .authCodeExchangedOnYourBackend:
+                self.handleSuccessResult(result)
             case .unknown, .codeVerifierNotProvided: self.authState = .failure
             case .authAlreadyInProgress: break
             }
             self.onCompleteAuth?(result)
         }
+    }
+
+    func handleSuccessResult(_ result: AuthResult) {
+        self.authState = .success
+        guard self.autoDismissOnSuccess else {
+            self.onCompleteAuth?(result)
+            return
+        }
+        DispatchQueue
+            .main
+            .asyncAfter(deadline: .now() + 0.5) { [weak self, onComplete = self.onCompleteAuth] in
+                if self?.isBeingDismissed == false {
+                    self?.dismiss(animated: true) {
+                        onComplete?(result)
+                    }
+                } else {
+                    onComplete?(result)
+                }
+            }
     }
 }

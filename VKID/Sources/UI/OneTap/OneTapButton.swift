@@ -110,6 +110,7 @@ public struct OneTapButton: UIViewElement {
     /// В данной конфигурации кастомизация OneTap ограничена: можно задать только высоту, радиус закругления углов и цветовую тему.
     /// Данные параметры будут применены как для основной OneTap кнопки так и для кнопок альтернативных OAuth-провайдеров.
     /// - Parameters:
+    ///   - title: Текст внутри кнопки
     ///   - height: Детерменированная высота кнопок.
     ///   - cornerRadius: Радиус закругления углов кнопок.
     ///   - theme: Цветовая тема кнопок.
@@ -118,6 +119,7 @@ public struct OneTapButton: UIViewElement {
     ///   - presenter: Объект, отвечающий за отображение экранов авторизации.
     ///   - onCompleteAuth: Колбэк о завершении авторизации.
     public init(
+        title: Appearance.Title = .vkid,
         height: Layout.Height = .medium(),
         cornerRadius: CGFloat = LayoutConstants.defaultCornerRadius,
         theme: Appearance.Theme = .matchingColorScheme(.current),
@@ -130,6 +132,7 @@ public struct OneTapButton: UIViewElement {
             authConfiguration: authConfiguration,
             oAuthProviderConfiguration: oAuthProviderConfiguration,
             appearance: .init(
+                title: title,
                 style: .primary(),
                 theme: theme
             ),

@@ -52,7 +52,9 @@ internal final class ServiceAuthFlow: Component, AuthFlow {
             switch result {
             case .success(let success):
                 completion(.success(success))
-            case .failure:
+            case .failure(.authCodeExchangedOnYourBackend):
+                completion(result)
+            default:
                 switch self.deps.appStateProvider.state {
                 case .active:
                     self.deps.webViewAuthFlow.authorize(

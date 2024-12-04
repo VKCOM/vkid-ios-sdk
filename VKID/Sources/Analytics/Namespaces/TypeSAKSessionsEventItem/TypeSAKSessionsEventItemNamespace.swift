@@ -33,11 +33,14 @@ internal struct TypeSAKSessionsEventItemNamespace: AnalyticsTypeItemNamespace {
     var sdkInit: SDKInit { Never() }
 
     struct SDKInit: AnalyticsEventTypeAction {
-        static func typeAction(with parameters: Empty, context: AnalyticsEventContext) -> TypeAction {
+        typealias Parameters = String
+
+        static func typeAction(with parameters: Parameters, context: AnalyticsEventContext) -> TypeAction {
             TypeAction(
                 typeSAKSessionsEventItem: typeSAKSessionsEventItem(
                     step: .vkidSDKInit,
-                    context: context
+                    context: context,
+                    wrapperSDK: parameters
                 )
             )
         }
@@ -48,13 +51,15 @@ extension TypeSAKSessionsEventItemNamespace {
     // MARK: - Methods
     static func typeSAKSessionsEventItem(
         step: TypeSAKSessionsEventItem.Step,
-        context: AnalyticsEventContext
+        context: AnalyticsEventContext,
+        wrapperSDK: String
     ) -> TypeSAKSessionsEventItem {
         TypeSAKSessionsEventItem(
             step: step,
             additionalInfo: .init(
                 rawValue: Env.packageManager.rawValue
-            )
+            ),
+            wrapperSDK: wrapperSDK
         )
     }
 }

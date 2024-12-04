@@ -29,7 +29,9 @@
 import UIKit
 
 // Only for debug purposes. Do not use in your projects.
-@_spi(VKIDDebug) import VKID
+@_spi(VKIDPrivate)
+@_spi(VKIDDebug)
+import VKID
 import VKIDCore
 
 @main
@@ -59,6 +61,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                         clientId: clientId,
                         clientSecret: clientSecret
                     ),
+                    loggingEnabled: self.debugSettings.loggingEnabled,
+                    wrapperSDK: self.debugSettings.flutterFlagEnabled ? .flutter : .none,
                     // Only for debug purposes
                     network: NetworkConfiguration(
                         isSSLPinningEnabled: self.debugSettings.isSSLPinningEnabled,

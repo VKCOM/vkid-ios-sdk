@@ -47,3 +47,20 @@ public final class AuthCodeExchangerMock: AuthCodeExchanging {
         self.handler?(code, completion)
     }
 }
+
+public final class NewAuthCodeExchangerMock: AuthCodeHandler {
+    public typealias AuthCodeExchangerHandler = (AuthorizationCode, @escaping () -> Void) -> Void
+    public var handler: AuthCodeExchangerHandler?
+
+    public init(handler: AuthCodeExchangerHandler? = nil) {
+        self.handler = handler
+    }
+
+    public func exchange(_ code: AuthorizationCode, finishFlow: @escaping () -> Void) {
+        if let handler {
+            handler(code, finishFlow)
+        } else {
+            finishFlow()
+        }
+    }
+}

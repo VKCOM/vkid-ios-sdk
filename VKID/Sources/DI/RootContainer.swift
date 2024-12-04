@@ -36,12 +36,15 @@ internal final class RootContainer {
     private let defaultHeaders: VKAPIRequest.Headers
     private let deviceId = DeviceId.currentDeviceId
     private let apiHosts: APIHosts
+    private let loggingEnabled: Bool
 
     internal init(
         appCredentials: AppCredentials,
         networkConfiguration: NetworkConfiguration,
-        webViewStrategyFactory: WebViewAuthStrategyFactory? = nil
+        webViewStrategyFactory: WebViewAuthStrategyFactory? = nil,
+        loggingEnabled: Bool = true
     ) {
+        self.loggingEnabled = loggingEnabled
         self.appCredentials = appCredentials
         self.networkConfiguration = networkConfiguration
         self.defaultHeaders = ["User-Agent": "\(UserAgent.default) VKID/\(Env.VKIDVersion)"]
@@ -61,7 +64,11 @@ internal final class RootContainer {
                 vkidVersion: Env.VKIDVersion
             ),
             defaultHeaders: self.defaultHeaders,
-            sslPinningConfiguration: self.sslPinningConfiguration
+            sslPinningConfiguration: self.sslPinningConfiguration,
+            logger: self.createLogger(
+                subsystem: "VKAPI",
+                loggingEnabled: self.loggingEnabled
+            )
         )
     }()
 
@@ -98,7 +105,11 @@ internal final class RootContainer {
                 vkidVersion: Env.VKIDVersion
             ),
             defaultHeaders: self.defaultHeaders,
-            sslPinningConfiguration: self.sslPinningConfiguration
+            sslPinningConfiguration: self.sslPinningConfiguration,
+            logger: self.createLogger(
+                subsystem: "VKAPI",
+                loggingEnabled: self.loggingEnabled
+            )
         )
     }()
 
@@ -108,7 +119,7 @@ internal final class RootContainer {
     }
 
     internal lazy var keychain = Keychain()
-    internal lazy var applicationManager = ApplicationManagerImpl()
+    internal lazy var applicationManager: ApplicationManager = ApplicationManagerImpl()
     internal lazy var appInteropHandler: AppInteropCompositeHandling = AppInteropCompositeHandler()
     internal lazy var appInteropURLOpener: AppInteropURLOpening = AppInteropURLOpener(
         deps: .init(
@@ -117,7 +128,7 @@ internal final class RootContainer {
     )
     internal lazy var responseParser: AuthCodeResponseParser = AuthCodeResponseParserImpl()
     internal lazy var authURLBuilder: AuthURLBuilder = AuthURLBuilderImpl()
-    internal lazy var logger: Logging = Logger(subsystem: "VKID")
+    internal lazy var logger = self.createLogger(subsystem: "VKID", loggingEnabled: loggingEnabled)
     internal lazy var tokenService = TokenService(
         deps: .init(
             api: VKAPI<OAuth2>(transport: self.mainTransport),
@@ -240,6 +251,12 @@ internal final class RootContainer {
     internal lazy var pkceSecretsGenerator: PKCESecretsGenerator = {
         PKCESecretsS256Generator()
     }()
+
+    private func createLogger(subsystem: String, loggingEnabled: Bool) -> Logging {
+        loggingEnabled ?
+            (Logger(subsystem: subsystem) as Logging) :
+            (LoggerStub() as Logging)
+    }
 }
 
 // AuthFlowBuilder implementation

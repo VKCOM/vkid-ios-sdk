@@ -70,9 +70,8 @@ extension URL {
             .version(Env.VKIDVersion),
             .scope(scope?.description ?? ""),
             .statsInfo(
-                statsInfo(
-                    from: authContext,
-                    shouldBeBase64Encoded: true
+                base64StatsInfo(
+                    from: authContext
                 )
             ),
             .redirectURI(
