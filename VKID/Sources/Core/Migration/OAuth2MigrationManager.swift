@@ -201,7 +201,7 @@ final class OAuth2MigrationManagerImpl: OAuth2MigrationManager, Component {
         codeVerifier: String?,
         completion: @escaping (Result<UserSession, OAuth2MigrationError>) -> Void
     ) {
-        codeExchanger.exchangeAuthCode(
+        (codeExchanger as ConfFlowCodeHandler).exchangeAuthCode(
             .init(
                 from: response,
                 codeVerifier: codeVerifier,

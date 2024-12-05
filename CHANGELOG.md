@@ -2,6 +2,11 @@
 
 > **Note**\
 > Описание основных изменений в релизах VK ID SDK. Наш SDK следует [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## 2.3.1 - 2024-12-05
+
+### Fixed
++ Убрали предупреждение `'exchangeAuthCode (_:completion:) is deprecated`.
+
 ## 2.3.0 - 2024-12-04
 
 ### Added
@@ -12,7 +17,7 @@
 + Добавлена возможность авторизации только в WebView, без прыжка в провайдер авторизации. 
 
 ### Fixed
-+ Теперь авторизация завершается только после скрытия UIViewController.
++ Теперь сallback о завершении авторизации `vkid(_:, didCompleteAuthWith:, in:)` вызывается после закрытия контроллера с WebView. В этом сallback вы можете менять иерархию UIViewController-ов, не используя дополнительные задержки через DispatchQueue.main.asyncAfter.
 
 ## 2.2.1 - 2024-09-11
 
