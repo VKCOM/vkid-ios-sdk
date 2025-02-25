@@ -36,6 +36,11 @@ package struct AnalyticsEventContext: Equatable {
     }
 }
 
+public enum Authorizer {
+    case session(userId: Int)
+    case externalAccessToken(String)
+}
+
 /// Окружение типизированного события.
 package struct AnalyticsCallingContext<EventTypeAction: AnalyticsEventTypeAction> {
     /// Зависимости окружения типизированного события
@@ -96,8 +101,10 @@ package struct AnalyticsCallingContext<EventTypeAction: AnalyticsEventTypeAction
     }
 
     /// Отправка события с явно заданным типом, со своими параметрами
-    /// - Parameter parameters: Параметры события
-    package func send(_ parameters: EventTypeAction.Parameters) {
+    /// - Parameters
+    ///   - parameters: Параметры события
+    ///   - authorizer: авторизация запроса
+    package func send(_ parameters: EventTypeAction.Parameters, authorizer: Authorizer? = nil) {
         let typeAction = EventTypeAction.typeAction(
             with: parameters,
             context: self.deps.eventContext
@@ -111,12 +118,25 @@ package struct AnalyticsCallingContext<EventTypeAction: AnalyticsEventTypeAction
         guard let encodedEvent = AnalyticsEncodedEvent(event) else {
             return
         }
-
-        self.deps
-            .service
-            .send(
-                events: [encodedEvent],
-                context: self.deps.eventContext
-            )
+        if let authorizer {
+            let externalToken: String? = switch authorizer {
+            case.externalAccessToken(let accessToken): accessToken
+            case.session: nil
+            }
+            self.deps
+                .service
+                .sendAuthorized(
+                    events: [encodedEvent],
+                    context: self.deps.eventContext,
+                    externalToken: externalToken
+                )
+        } else {
+            self.deps
+                .service
+                .send(
+                    events: [encodedEvent],
+                    context: self.deps.eventContext
+                )
+        }
     }
 }

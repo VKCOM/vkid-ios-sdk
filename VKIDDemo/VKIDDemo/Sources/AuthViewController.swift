@@ -153,6 +153,10 @@ final class AuthViewController: VKIDDemoViewController {
         self.vkid?.remove(observer: self)
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+    }
+
     private func addAuthViewUI() {
         self.view.addSubview(self.authViewUISegmentControlLabel)
         self.view.addSubview(self.authViewUISegmentControl)
@@ -473,11 +477,45 @@ final class AuthViewController: VKIDDemoViewController {
             self.providedAuthSecrets = authSecrets
             print("PKCE Secrets: \(authSecrets)")
         }
+        var groupSubscriptionConfiguration: GroupSubscriptionConfiguration? = nil
+
+        if self.debugSettings.subscriptionEnabled,
+           !self.debugSettings.subscriptionExternalATEnabled
+        {
+            groupSubscriptionConfiguration = .init(subscribeToGroupId: self.debugSettings.groupId) { [weak self]
+                result in
+                    self?.handleSubscription(result: result)
+            }
+        }
+        let authConfiguration: AuthConfiguration = .init(
+            groupSubscriptionConfiguration: .init(
+                subscribeToGroupId: "1"
+            ) { result in
+                switch result {
+                case .success:
+                    print("Успешная подписка")
+                case.failure(let error):
+                    print("Не удалось подписаться на сообщество: \(error)")
+                }
+            }
+        )
+        let oneTapConfig = OneTapButton(authConfiguration: authConfiguration, onCompleteAuth: nil)
+        _ = self.vkid?.ui(for: oneTapConfig).uiView()
         return .init(
             flow: self.createFlow(secrets: self.providedAuthSecrets),
             scope: Scope(self.debugSettings.scope),
-            forceWebViewFlow: self.debugSettings.forceWebBrowserFlow
+            forceWebViewFlow: self.debugSettings.forceWebBrowserFlow,
+            groupSubscriptionConfiguration: groupSubscriptionConfiguration
         )
+    }
+
+    private func handleSubscription(result: GroupSubscriptionResult) {
+        switch result {
+        case .success:
+            self.showAlert(message: "Успешная подписка на сообщество")
+        case .failure(let error):
+            self.showAlert(message: "Не удалось подписаться на сообщество: \(error)")
+        }
     }
 }
 
@@ -492,7 +530,35 @@ extension AuthViewController: VKIDObserver {
         do {
             let session = try result.get()
             print("Auth succeeded with\n\(session)")
-            self.showAlert(message: session.debugDescription)
+            if !self.debugSettings.subscriptionEnabled {
+                self.showAlert(message: session.debugDescription)
+            } else {
+                if !self.debugSettings.subscriptionExternalATEnabled {
+                    let groupSubscriptionConfig = GroupSubscriptionSheet(
+                        subscribeToGroupId: self.debugSettings.groupId
+                    ) { [weak self]
+                        result in
+                            self?.handleSubscription(result: result)
+                    } accessTokenProvider: { force, completion in
+                        session.getFreshAccessToken(forceRefresh: force) { result in
+                            switch result {
+                            case .success((let accessToken, _)):
+                                completion(.success(accessToken.value))
+                            case .failure(let error):
+                                completion(.failure(error))
+                            }
+                        }
+                    }
+                    groupSubscriptionConfig._uiViewController(factory: vkid) { [weak self] result in
+                        switch result {
+                        case .success(let viewController):
+                            self?.present(viewController, animated: true)
+                        case .failure(let error):
+                            self?.showAlert(message: "Ошибка начала подписки на сообщество: \(error)")
+                        }
+                    }
+                }
+            }
         } catch AuthError.cancelled {
             print("Auth cancelled by user")
         } catch AuthError.authCodeExchangedOnYourBackend {

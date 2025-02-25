@@ -42,3 +42,11 @@
 "vkid_sheet_state_auth_success" = "Успешно";
 "vkid_sheet_state_auth_failed_retry" = "Повторить попытку";
 "vkid_sheet_state_auth_failed" = "Не удалось авторизоваться";
+
+"vkid_group_subscription_primary" = "Подписаться на сообщество";
+"vkid_group_subscription_secondary" = "В другой раз";
+"vkid_group_subscription_snackbar_label" = "Вы подписаны на сообщество";
+"vkid_group_subscription_fail_title" = "Не удалось подписаться";
+"vkid_group_subscription_fail_description" = "Попробуйте еще раз";
+"vkid_group_subscription_fail_primary" = "Повторить попытку";
+"vkid_group_subscription_fail_secondary" = "Отмена";

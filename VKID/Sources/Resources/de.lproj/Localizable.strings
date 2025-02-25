@@ -42,3 +42,11 @@
 "vkid_sheet_state_auth_success" = "Gelungen!";
 "vkid_sheet_state_auth_failed_retry" = "Erneut versuchen";
 "vkid_sheet_state_auth_failed" = "Anmeldung fehlgeschlagen";
+
+"vkid_group_subscription_primary" = "Community abonnieren";
+"vkid_group_subscription_secondary" = "Nächstes Mal";
+"vkid_group_subscription_snackbar_label" = "Sie haben die Community abonniert";
+"vkid_group_subscription_fail_title" = "Das Abonnieren ist fehlgeschlagen";
+"vkid_group_subscription_fail_description" = "Versuchen Sie es noch einmal";
+"vkid_group_subscription_fail_primary" = "Erneut versuchen";
+"vkid_group_subscription_fail_secondary" = "Abbrechen";

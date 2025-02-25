@@ -46,14 +46,14 @@
 Добавьте VKID как зависимость в ваш `Package.swift`:
 ```swift
 dependencies: [
-    .package(url: "https://github.com/VKCOM/vkid-ios-sdk.git", .upToNextMajor(from: "2.3.1"))
+    .package(url: "https://github.com/VKCOM/vkid-ios-sdk.git", .upToNextMajor(from: "2.2.0"))
 ]
 ```
 
 ### CocoaPods
 Добавьте в ваш `Podfile`:
 ```ruby
-pod 'VKID', '~> 2.3'
+pod 'VKID', '~> 2.2'
 ```
 Выполните следующие команды, чтобы установить зависимости:
 ```shell

@@ -156,7 +156,13 @@ public struct OneTapButton: UIViewElement {
         onTap: OnTapCallback?,
         onCompleteAuth: AuthResultCompletion?
     ) {
-        self.authConfig = authConfiguration
+        var config = authConfiguration
+        config.groupSubscriptionConfiguration?.inheritedButtonConfig = .init(
+            height: layout.height,
+            cornerRadius: layout.cornerRadius
+        )
+        config.groupSubscriptionConfiguration?.theme = .matchingColorScheme(appearance.theme.colorScheme)
+        self.authConfig = config
         self.oAuthProviderConfig = oAuthProviderConfiguration
         self.appearance = appearance
         self.layout = layout

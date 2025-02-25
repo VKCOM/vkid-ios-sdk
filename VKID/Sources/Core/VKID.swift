@@ -176,11 +176,14 @@ public final class VKID {
         using presenter: UIKitPresenter,
         completion: @escaping AuthResultCompletion
     ) {
+        var config = authConfig
+        config.groupSubscriptionConfiguration?.presenter = presenter
+        config.groupSubscriptionConfiguration?.theme = .matchingColorScheme(Appearance.ColorScheme.current)
         self.authorize(
             authContext: AuthContext(
                 launchedBy: .service
             ),
-            authConfig: authConfig,
+            authConfig: config,
             oAuthProviderConfig: .init(primaryProvider: oAuthProvider),
             presenter: presenter,
             completion: completion
@@ -225,12 +228,15 @@ public final class VKID {
                 deps: .init(codeExchangingService: self.rootContainer.codeExchangingService),
                 pkceSecrets: pkceWallet
             )
+        var groupConfig = authConfig.groupSubscriptionConfiguration
+        groupConfig?.presenter = presenter
         let extendedAuthConfiguration = ExtendedAuthConfiguration(
             pkceSecrets: pkceWallet,
             codeExchanger: codeExchanger,
             oAuthProvider: oAuthProviderConfig.primaryProvider,
             scope: authConfig.scope?.description,
-            forceWebViewFlow: authConfig.forceWebViewFlow
+            forceWebViewFlow: authConfig.forceWebViewFlow,
+            groupSubscriptionConfiguration: groupConfig
         )
 
         self.authorize(
@@ -321,6 +327,11 @@ public final class VKID {
                 }
             }
             func applyCompletion() {
+                if case .success(let session) = authResult,
+                   let config = extendedAuthConfig.groupSubscriptionConfiguration
+                {
+                    self.showGroupSubscription(config: config, userSession: session)
+                }
                 self.observers.notify {
                     $0.vkid(
                         self,
@@ -334,6 +345,21 @@ public final class VKID {
                 applyCompletionWithDelay()
             } else {
                 applyCompletion()
+            }
+        }
+    }
+
+    private func showGroupSubscription(config: GroupSubscriptionConfiguration, userSession: UserSession) {
+        let groupSubscriptionSheetConfig = GroupSubscriptionSheet(
+            groupSubscriptionConfiguration: config,
+            userSession: userSession
+        )
+        self.ui(for: groupSubscriptionSheetConfig).uiViewController { result in
+            switch result {
+            case.success(let viewController):
+                config.presenter.present(viewController, animated: true)
+            case.failure(let error):
+                config.onCompleteSubscription?(.failure(.failedToCreate(error)))
             }
         }
     }

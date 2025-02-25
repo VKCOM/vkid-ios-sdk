@@ -80,6 +80,12 @@ public struct OneTapBottomSheet: UIViewControllerElement {
         autoDismissOnSuccess: Bool = true,
         onCompleteAuth: AuthResultCompletion?
     ) {
+        var config = authConfiguration
+        config.groupSubscriptionConfiguration?.inheritedButtonConfig = .init(
+            height: oneTapButton.height,
+            cornerRadius: oneTapButton.cornerRadius
+        )
+        config.groupSubscriptionConfiguration?.theme = .matchingColorScheme(theme.colorScheme)
         self.serviceName = serviceName
         self.targetActionText = targetActionText
         self.oneTapButton = oneTapButton

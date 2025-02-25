@@ -42,6 +42,9 @@ final class DebugSettingsStorage {
         case loggingEnabled = "com.vkid.debug.loggingEnabled"
         case forceWebBrowserFlow = "com.vkid.debug.forceWebBrowserFlow"
         case flutterFlagEnabled = "com.vkid.debug.flutterFlagEnabled"
+        case subscriptionEnabled = "com.vkid.debug.groupSubscriptionEnabled"
+        case subscriptionExternalATEnabled = "com.vkid.debug.subscriptionExternalATEnabled"
+        case groupId = "com.vkid.debug.groupId"
     }
 
     private let userDefaults = UserDefaults.standard
@@ -210,6 +213,48 @@ final class DebugSettingsStorage {
             self.userDefaults.setValue(
                 newValue,
                 forKey: Keys.flutterFlagEnabled.rawValue
+            )
+        }
+    }
+
+    var subscriptionEnabled: Bool {
+        get {
+            (self.userDefaults.value(
+                forKey: Keys.subscriptionEnabled.rawValue
+            ) as? Bool) ?? false
+        }
+        set {
+            self.userDefaults.setValue(
+                newValue,
+                forKey: Keys.subscriptionEnabled.rawValue
+            )
+        }
+    }
+
+    var subscriptionExternalATEnabled: Bool {
+        get {
+            (self.userDefaults.value(
+                forKey: Keys.subscriptionExternalATEnabled.rawValue
+            ) as? Bool) ?? false
+        }
+        set {
+            self.userDefaults.setValue(
+                newValue,
+                forKey: Keys.subscriptionExternalATEnabled.rawValue
+            )
+        }
+    }
+
+    var groupId: String {
+        get {
+            (self.userDefaults.value(
+                forKey: Keys.groupId.rawValue
+            ) as? String) ?? ""
+        }
+        set {
+            self.userDefaults.setValue(
+                newValue,
+                forKey: Keys.groupId.rawValue
             )
         }
     }

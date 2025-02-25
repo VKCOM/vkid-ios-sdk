@@ -39,6 +39,15 @@ extension UIImage {
     internal static let logoDark = UIImage.moduleNamed("logo_vkid_dark")
     internal static let errorOutline = UIImage.moduleNamed("error_outline_56")
     internal static let checkCircleOutline = UIImage.moduleNamed("check_circle_outline_56")
+    internal static let vkLogoDark = UIImage.moduleNamed("new_vk_logo_color_48_dark")
+    internal static let vkLogoLight = UIImage.moduleNamed("new_vk_logo_color_48_light")
+    internal static let cancelDark = UIImage.moduleNamed("cancel_20_dark")
+    internal static let cancelLight = UIImage.moduleNamed("cancel_20_light")
+    internal static let cancelCircle = UIImage.moduleNamed("cancel_circle_outline_56")
+    internal static let snackbarCheckCircle = UIImage.moduleNamed("check_circle_outline_28")
+    internal static let communityAvatar = UIImage.moduleNamed("default_community_avatar")
+    internal static let avatar = UIImage.moduleNamed("default_avatar")
+    internal static let verified = UIImage.moduleNamed("verified")
 }
 
 extension UIImage {

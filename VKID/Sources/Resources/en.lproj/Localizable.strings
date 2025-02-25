@@ -42,3 +42,11 @@
 "vkid_sheet_state_auth_success" = "Success";
 "vkid_sheet_state_auth_failed_retry" = "Try again";
 "vkid_sheet_state_auth_failed" = "Failed to sign in";
+
+"vkid_group_subscription_primary" = "Follow community";
+"vkid_group_subscription_secondary" = "Maybe later";
+"vkid_group_subscription_snackbar_label" = "You now follow this community";
+"vkid_group_subscription_fail_title" = "Failed to follow community";
+"vkid_group_subscription_fail_description" = "Please try again";
+"vkid_group_subscription_fail_primary" = "Try again";
+"vkid_group_subscription_fail_secondary" = "Cancel";

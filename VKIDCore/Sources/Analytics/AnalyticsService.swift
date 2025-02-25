@@ -30,4 +30,11 @@ import Foundation
 
 package protocol AnalyticsService {
     func send(events: [AnalyticsEncodedEvent], context: AnalyticsEventContext)
+    func sendAuthorized(events: [AnalyticsEncodedEvent], context: AnalyticsEventContext, externalToken: String?)
+}
+
+extension AnalyticsService {
+    func sendAuthorized(events: [AnalyticsEncodedEvent], context: AnalyticsEventContext) {
+        self.sendAuthorized(events: events, context: context, externalToken: nil)
+    }
 }

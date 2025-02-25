@@ -58,6 +58,10 @@ extension AuthViewController {
                     title: "SDK Configuration",
                     cells: self.sdkConfigurationCells()
                 ),
+                .init(
+                    title: "Group Subscription",
+                    cells: self.groupSubscriptionCells()
+                ),
             ]
         )
     }
@@ -178,6 +182,33 @@ extension AuthViewController {
             ) { [weak self] in
                 self?.debugSettings.flutterFlagEnabled.toggle()
                 self?.updateSettings()
+            },
+        ]
+    }
+
+    private func groupSubscriptionCells() -> [any DebugSettingsCellViewModel] {
+        [
+            DebugSettingsToggleCellViewModel(
+                title: "Group Subscription",
+                isOn: self.debugSettings.subscriptionEnabled
+            ) { [weak self] in
+                self?.debugSettings.subscriptionEnabled.toggle()
+                self?.updateSettings()
+            },
+
+            DebugSettingsToggleCellViewModel(
+                title: "Subscription with external AT",
+                isOn: self.debugSettings.subscriptionExternalATEnabled
+            ) { [weak self] in
+                self?.debugSettings.subscriptionExternalATEnabled.toggle()
+                self?.updateSettings()
+            },
+            DebugSettingsTextFieldViewModel(
+                title: "Group Id",
+                placeholder: "Should be Integer",
+                text: self.debugSettings.groupId
+            ) { [weak self] text in
+                self?.debugSettings.groupId = text ?? ""
             },
         ]
     }

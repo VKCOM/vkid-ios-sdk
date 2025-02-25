@@ -81,6 +81,10 @@ public struct Scope: Equatable,
     public func hasGranted(_ access: String) -> Bool {
         self.value.contains(access)
     }
+
+    internal enum Permission: String {
+        case groups
+    }
 }
 
 /// Токен авторизации запросов

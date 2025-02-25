@@ -137,9 +137,14 @@ internal final class RootContainer {
     )
     internal lazy var userService = UserService(
         deps: .init(
-            api: VKAPI<OAuth2>(transport: self.mainTransport),
+            oAuth2API: VKAPI<OAuth2>(transport: self.mainTransport),
             appCredentials: self.appCredentials,
             deviceId: self.deviceId
+        )
+    )
+    internal lazy var groupSubscriptionService: GroupSubscriptionService = GroupSubscriptionServiceImpl(
+        deps: .init(
+            subscriptionAPI: VKAPI<GroupSubscription>(transport: self.mainTransport)
         )
     )
     internal lazy var userSessionManager: UserSessionManager = {
@@ -221,6 +226,12 @@ internal final class RootContainer {
     internal lazy var vkidAnalytics = VKIDAnalytics(
         deps: .init(
             analytics: self.productAnalytics
+        )
+    )
+    internal lazy var groupSubscriptionAnalytics = GroupSubscriptionAnalytics(
+        deps: .init(
+            analytics: self.productAnalytics,
+            appCreds: self.appCredentials
         )
     )
 
