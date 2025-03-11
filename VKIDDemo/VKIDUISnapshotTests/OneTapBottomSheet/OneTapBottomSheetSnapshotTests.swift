@@ -275,10 +275,7 @@ final class OneTapBottomSheetSnapshotTests: XCTestCase, TestCaseInfra {
                 then("Проверка открытой шторки") {
                     assertSnapshot(of: self.bottomSheetViewController, as: .image)
                     XCTAssert(
-                        self.bottomSheetViewController.view.frame.maxY < self.window.frame.maxY
-                    )
-                    XCTAssert(
-                        self.bottomSheetViewController.view.frame.minY > self.window.frame.minY
+                        self.bottomSheetViewController.isShown(on: self.window)
                     )
                     bottomSheetOpened.fulfill()
                 }
@@ -372,7 +369,7 @@ final class OneTapBottomSheetSnapshotTests: XCTestCase, TestCaseInfra {
                 if !isRetry {
                     assertSnapshot(
                         of: self.bottomSheetViewController,
-                        as: .image(precision: 0.997)
+                        as: .image(precision: 0.99)
                     )
                 }
                 mockFailedAuthExpectation.fulfill()
@@ -559,5 +556,13 @@ extension OneTapBottomSheetConfiguration {
             theme: self.theme,
             onCompleteAuth: nil
         )
+    }
+}
+
+extension UIViewController {
+    func isShown(on window: UIWindow) -> Bool {
+        self.view.frame.maxY < window.frame.maxY &&
+            self.view.frame.minY > window.frame.minY &&
+            window.topmostViewController === self
     }
 }

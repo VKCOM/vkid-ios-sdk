@@ -30,6 +30,24 @@ import Foundation
 import UIKit
 import VKIDCore
 
+/// Конфигурация автоматического показа UI элемента
+public struct AutoShowConfiguration {
+    let presenter: UIKitPresenter
+    let delayMilliseconds: Int
+
+    /// Инициализация конфигурации автоматического показа UI элемента
+    /// - Parameters:
+    ///   - presenter: Презентер UI элемента.
+    ///   - delayMilliseconds: Задержка перед автоматическим показом
+    public init(
+        presenter: UIKitPresenter = .newUIWindow,
+        delayMilliseconds: Int = 0
+    ) {
+        self.presenter = presenter
+        self.delayMilliseconds = delayMilliseconds < 0 ? 0 : delayMilliseconds
+    }
+}
+
 /// Конфигурация для модальной шторки авторизации
 public struct OneTapBottomSheet: UIViewControllerElement {
     public typealias Factory = VKID
@@ -91,6 +109,40 @@ public struct OneTapBottomSheet: UIViewControllerElement {
     }
 
     public func _uiViewController(factory: VKID) -> UIViewController {
+        self.uiViewController(factory: factory)
+    }
+
+    /// Автоматически показывает шторку.
+    /// - Parameter configuration: конфигурация автоматического показа шторки авторизации
+    /// - Parameter factory: объект взаимодействия с VKID
+    public func autoShow(configuration: AutoShowConfiguration = .init(), factory: VKID) {
+        let viewController = self.uiViewController(
+            factory: factory,
+            presenter: configuration.presenter
+        )
+        DispatchQueue.main.asyncAfter(
+            deadline: .now() + .milliseconds(configuration.delayMilliseconds)
+        ) {
+            configuration.presenter.present(viewController)
+        }
+    }
+
+    internal func autoShow(_ autoShowConfiguration: AutoShowConfiguration, factory: VKID, animated: Bool = true) {
+        let viewController = self.uiViewController(
+            factory: factory,
+            presenter: autoShowConfiguration.presenter
+        )
+        DispatchQueue.main.asyncAfter(
+            deadline: .now() + .milliseconds(autoShowConfiguration.delayMilliseconds)
+        ) {
+            autoShowConfiguration.presenter.present(viewController, animated: animated)
+        }
+    }
+
+    private func uiViewController(
+        factory: VKID,
+        presenter: UIKitPresenter? = nil
+    ) -> UIViewController {
         let oneTap = factory.ui(
             for: OneTapButton(
                 authConfiguration: self.authConfig,
@@ -122,21 +174,25 @@ public struct OneTapBottomSheet: UIViewControllerElement {
             serviceName: self.serviceName,
             targetActionText: self.targetActionText,
             autoDismissOnSuccess: self.autoDismissOnSuccess,
-            onCompleteAuth: self.onCompleteAuth
+            onCompleteAuth: self.onCompleteAuth,
+            presenter: presenter
         )
 
         let sheet = BottomSheetViewController(
             contentViewController: contentController,
             layoutConfiguration: .init(
-                cornerRadius: 14,
+                cornerRadius: 24,
                 edgeInsets: .init(
                     top: 0,
                     left: 8,
                     bottom: 8,
                     right: 8
                 )
-            )
-        )
+            ),
+            presenter: presenter
+        ) {
+            self.onCompleteAuth?(.failure(.cancelled))
+        }
 
         return sheet
     }
@@ -249,7 +305,7 @@ extension OneTapBottomSheet {
 
         public init(
             height: OneTapButton.Layout.Height = .medium(),
-            cornerRadius: CGFloat = 8.0
+            cornerRadius: CGFloat = 12.0
         ) {
             self.height = height
             self.cornerRadius = cornerRadius
@@ -271,7 +327,7 @@ extension OneTapBottomSheet {
         }
 
         internal struct Images {
-            internal var topBarLogo: any Image
+            internal var logo: any Image
             internal var topBarCloseButton: any Image
         }
 
@@ -319,9 +375,9 @@ extension OneTapBottomSheet {
                         )
                     ),
                     images: .init(
-                        topBarLogo: DynamicImage(
-                            light: light.images.topBarLogo.value,
-                            dark: dark.images.topBarLogo.value
+                        logo: DynamicImage(
+                            light: light.images.logo.value,
+                            dark: dark.images.logo.value
                         ),
                         topBarCloseButton: DynamicImage(
                             light: light.images.topBarCloseButton.value,
@@ -335,14 +391,14 @@ extension OneTapBottomSheet {
                     colors: .init(
                         background: UIColor.backgroundModalLight,
                         title: UIColor.textPrimaryLight,
-                        subtitle: UIColor.textSecondaryLight,
+                        subtitle: UIColor.oneTapSheetSubtitleLight,
                         topBarTitle: UIColor.textSecondaryLight,
                         topBarLogo: UIColor.textPrimaryLight,
                         retryButtonBackground: UIColor.backgroundSecondaryAlphaLight,
                         retryButtonTitle: UIColor.textAccentThemed
                     ),
                     images: .init(
-                        topBarLogo: UIImage.logoLight,
+                        logo: UIImage.vkIdLogoLight,
                         topBarCloseButton: UIImage.closeLight
                     ),
                     colorScheme: scheme
@@ -352,14 +408,14 @@ extension OneTapBottomSheet {
                     colors: .init(
                         background: UIColor.backgroundModalDark,
                         title: UIColor.textPrimaryDark,
-                        subtitle: UIColor.textSecondaryDark,
+                        subtitle: UIColor.oneTapSheetSubtitleDark,
                         topBarTitle: UIColor.textSecondaryDark,
                         topBarLogo: UIColor.textPrimaryDark,
                         retryButtonBackground: UIColor.backgroundSecondaryAlphaDark,
                         retryButtonTitle: UIColor.white
                     ),
                     images: .init(
-                        topBarLogo: UIImage.logoDark,
+                        logo: UIImage.vkIdLogoDark,
                         topBarCloseButton: UIImage.closeDark
                     ),
                     colorScheme: scheme

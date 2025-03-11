@@ -45,6 +45,16 @@ internal class OneTapBottomSheetInitialStateView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    private lazy var vkIdImageView: UIImageView = {
+        let imageView = UIImageView(image: self.config.vkIdImage.value)
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            imageView.widthAnchor.constraint(equalToConstant: 192),
+            imageView.heightAnchor.constraint(equalToConstant: 120),
+        ])
+        return imageView
+    }()
+
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.backgroundColor = .clear
@@ -76,6 +86,7 @@ internal class OneTapBottomSheetInitialStateView: UIView {
             attributes: [
                 .paragraphStyle: paragraph,
                 .font: self.config.subtitleFont,
+                .kern: 0.15,
             ]
         )
         label.numberOfLines = 0
@@ -84,9 +95,17 @@ internal class OneTapBottomSheetInitialStateView: UIView {
     }()
 
     private func setupUI() {
+        self.addSubview(self.vkIdImageView)
         self.addSubview(self.titleLabel)
         self.addSubview(self.subtitleLabel)
         NSLayoutConstraint.activate([
+            self.vkIdImageView.topAnchor.constraint(
+                equalTo: self.topAnchor,
+                constant: 0
+            ),
+            self.vkIdImageView.centerXAnchor.constraint(
+                equalTo: self.centerXAnchor
+            ),
             self.titleLabel.leadingAnchor.constraint(
                 equalTo: self.leadingAnchor,
                 constant: Constants.textContainerInsets.left
@@ -96,12 +115,12 @@ internal class OneTapBottomSheetInitialStateView: UIView {
                 constant: Constants.textContainerInsets.right
             ),
             self.titleLabel.topAnchor.constraint(
-                equalTo: self.topAnchor,
+                equalTo: self.vkIdImageView.bottomAnchor,
                 constant: Constants.textContainerInsets.top
             ),
             self.titleLabel.bottomAnchor.constraint(
                 equalTo: self.subtitleLabel.topAnchor,
-                constant: -8
+                constant: -12
             ),
             self.subtitleLabel.leadingAnchor.constraint(
                 equalTo: self.leadingAnchor,
@@ -140,16 +159,17 @@ internal class OneTapBottomSheetInitialStateView: UIView {
     private func apply(config: Configuration) {
         self.titleLabel.textColor = config.titleColor.value
         self.subtitleLabel.textColor = config.subtitleColor.value
+        self.vkIdImageView.image = config.vkIdImage.value
     }
 }
 
 extension OneTapBottomSheetInitialStateView {
     private enum Constants {
         static let textContainerInsets = UIEdgeInsets(
-            top: 22,
-            left: 32,
-            bottom: -36,
-            right: -32
+            top: 16,
+            left: 0,
+            bottom: -24,
+            right: 0
         )
     }
 }
