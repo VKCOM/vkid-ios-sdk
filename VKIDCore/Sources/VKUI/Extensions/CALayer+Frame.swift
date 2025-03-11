@@ -29,7 +29,7 @@
 import UIKit
 
 extension CALayer {
-    func update(frame: CGRect, cornerRadius: CGFloat) {
+    package func update(frame: CGRect, cornerRadius: CGFloat) {
         self.frame = frame
         self.shadowPath = UIBezierPath(
             roundedRect: self.bounds,

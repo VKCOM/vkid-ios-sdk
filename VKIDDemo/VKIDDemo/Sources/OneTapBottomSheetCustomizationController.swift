@@ -60,7 +60,27 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
         return texts
     }
 
+    private lazy var window: UIWindow = {
+        let window = UIWindow()
+        window.backgroundColor = .clear
+        window.rootViewController = UIViewController()
+        window.isUserInteractionEnabled = true
+        window.isHidden = true
+
+        return window
+    }()
+
+    private lazy var presenters: [(UIKitPresenter, String)] = {
+        [
+            (UIKitPresenter.newUIWindow, "NewUIWindow"),
+            (UIKitPresenter.uiViewController(self), "UIViewController"),
+            (UIKitPresenter.uiWindow(self.window), "UIWindow"),
+            (UIKitPresenter.custom(UIKitPresenter.uiViewController(self)), "custom"),
+        ]
+    }()
+
     private var serviceName: String = "\"Service Name\""
+    private var milliseconds: Int = 0
 
     private lazy var heightSegmentControlLabel: UILabel = {
         let label = UILabel()
@@ -141,6 +161,18 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
         return textField
     } ()
 
+    private lazy var millisecondsTextField: UITextField = {
+        let textField = UITextField()
+        textField.placeholder = "Auto show delay(milliseconds)"
+        textField.font = .systemFont(ofSize: 16)
+        textField.addTarget(self, action: #selector(self.onMillisecondsChanged), for: .editingChanged)
+        textField.translatesAutoresizingMaskIntoConstraints = false
+        textField.returnKeyType = UIReturnKeyType.done
+        textField.keyboardType = .numberPad
+        textField.delegate = self
+        return textField
+    } ()
+
     private lazy var pickerViewLabel: UILabel = {
         let label = UILabel()
         label.text = "Target action"
@@ -151,10 +183,27 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
 
     private lazy var pickerView: PickerView = {
         let pickerView = PickerView(items: self.targetActionTexts)
+        pickerView.accessibilityIdentifier = "Target action"
         pickerView.translatesAutoresizingMaskIntoConstraints = false
         pickerView.delegate = self
         return pickerView
     } ()
+
+    private lazy var presenterViewLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Auto show presenters"
+        label.font = .systemFont(ofSize: 16)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private lazy var presentersPickerView: PickerView = {
+        let pickerView = PickerView(items: self.presenters)
+        pickerView.accessibilityIdentifier = "Presenters"
+        pickerView.translatesAutoresizingMaskIntoConstraints = false
+        pickerView.delegate = self
+        return pickerView
+    }()
 
     private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -223,6 +272,27 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
         return switcher
     }()
 
+    private lazy var autoShowSwitcherLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Auto show is enabled"
+        label.font = .systemFont(ofSize: 16)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private lazy var autoShowSwitcher: UISwitch = {
+        let switcher = UISwitch()
+        switcher.isOn = false
+        switcher.onTintColor = UIColor.azure
+        switcher.translatesAutoresizingMaskIntoConstraints = false
+        switcher.addTarget(
+            self,
+            action: #selector(self.onAutoShowSwitchValueChanged),
+            for: .valueChanged
+        )
+        return switcher
+    }()
+
     override func viewDidLoad() {
         super.viewDidLoad()
         NotificationCenter.default.addObserver(
@@ -244,6 +314,29 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
         self.setupConstraints()
 
         self.addSettingsControls()
+
+        self.setToolbar()
+    }
+
+    private func setToolbar() {
+        let toolbar = UIToolbar(frame: .init(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 44))
+        toolbar.barStyle = .default
+        let flexsibleSpace = UIBarButtonItem(
+            barButtonSystemItem: UIBarButtonItem.SystemItem.flexibleSpace,
+            target: nil,
+            action: nil
+        )
+        toolbar.setItems([
+            flexsibleSpace,
+            UIBarButtonItem(
+                title: "Done",
+                style: .plain,
+                target: self,
+                action: #selector(self.done)
+            ),
+        ], animated: true)
+        self.millisecondsTextField.inputAccessoryView = toolbar
+        toolbar.sizeToFit()
     }
 
     private func setupConstraints() {
@@ -322,6 +415,13 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
 
         self.contentView.addSubview(self.oAuthListWidgetSwitcherLabel)
         self.contentView.addSubview(self.oAuthListWidgetSwitcher)
+
+        self.contentView.addSubview(self.autoShowSwitcherLabel)
+        self.contentView.addSubview(self.autoShowSwitcher)
+        self.contentView.addSubview(self.millisecondsTextField)
+
+        self.contentView.addSubview(self.presenterViewLabel)
+        self.contentView.addSubview(self.presentersPickerView)
 
         NSLayoutConstraint.activate([
             self.heightSegmentControlLabel.topAnchor.constraint(
@@ -471,9 +571,6 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
             self.oAuthListWidgetSwitcher.heightAnchor.constraint(
                 equalToConstant: 30
             ),
-            self.oAuthListWidgetSwitcher.bottomAnchor.constraint(
-                equalTo: self.contentView.bottomAnchor, constant: -16
-            ),
 
             self.oAuthListWidgetSwitcherLabel.trailingAnchor.constraint(
                 equalTo: self.oAuthListWidgetSwitcher.leadingAnchor, constant: -16
@@ -484,7 +581,73 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
             self.oAuthListWidgetSwitcherLabel.centerYAnchor.constraint(
                 equalTo: self.oAuthListWidgetSwitcher.centerYAnchor
             ),
+
+            self.autoShowSwitcherLabel.topAnchor.constraint(
+                equalTo: self.oAuthListWidgetSwitcher.bottomAnchor, constant: 16
+            ),
+            self.autoShowSwitcher.trailingAnchor.constraint(
+                equalTo: self.contentView.trailingAnchor, constant: -16
+            ),
+            self.autoShowSwitcher.heightAnchor.constraint(
+                equalToConstant: 30
+            ),
+
+            self.autoShowSwitcherLabel.trailingAnchor.constraint(
+                equalTo: self.autoShowSwitcher.leadingAnchor, constant: 16
+            ),
+            self.autoShowSwitcherLabel.leadingAnchor.constraint(
+                equalTo: self.contentView.leadingAnchor, constant: 16
+            ),
+            self.autoShowSwitcherLabel.centerYAnchor.constraint(
+                equalTo: self.autoShowSwitcher.centerYAnchor
+            ),
+
+            self.millisecondsTextField.leadingAnchor.constraint(
+                equalTo: self.contentView.leadingAnchor, constant: 16
+            ),
+            self.millisecondsTextField.trailingAnchor.constraint(
+                equalTo: self.contentView.trailingAnchor, constant: -16
+            ),
+            self.millisecondsTextField.topAnchor.constraint(
+                equalTo: self.autoShowSwitcher.bottomAnchor, constant: 16
+            ),
+
+            self.presenterViewLabel.topAnchor.constraint(
+                equalTo: self.millisecondsTextField.bottomAnchor, constant: 16
+            ),
+            self.presenterViewLabel.leadingAnchor.constraint(
+                equalTo: self.contentView.leadingAnchor, constant: 16
+            ),
+            self.presenterViewLabel.trailingAnchor.constraint(
+                equalTo: self.contentView.trailingAnchor, constant: -16
+            ),
+
+            self.presentersPickerView.topAnchor.constraint(
+                equalTo: self.presenterViewLabel.bottomAnchor, constant: 16
+            ),
+            self.presentersPickerView.leadingAnchor.constraint(
+                equalTo: self.contentView.leadingAnchor, constant: 16
+            ),
+            self.presentersPickerView.trailingAnchor.constraint(
+                equalTo: self.contentView.trailingAnchor, constant: -16
+            ),
+            self.presentersPickerView.heightAnchor.constraint(
+                equalToConstant: 70
+            ),
+            self.presentersPickerView.bottomAnchor.constraint(
+                equalTo: self.contentView.bottomAnchor, constant: -16
+            ),
         ])
+    }
+
+    /// UISwitcher
+
+    @objc
+    func onAutoShowSwitchValueChanged(_ switcher: UISwitch) {
+        self.presentButton.setTitle(
+            switcher.isOn ? "Auto show BottomSheet" : "Present BottomSheet",
+            for: .normal
+        )
     }
 
     /// UIPickerViewDelegate
@@ -498,7 +661,11 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
         let label = UILabel()
         label.font = .systemFont(ofSize: 16)
         label.textAlignment = .center
-        label.text = self.targetActionTexts[row].title
+        if pickerView.accessibilityIdentifier == "Presenters" {
+            label.text = self.presenters[row].1
+        } else {
+            label.text = self.targetActionTexts[row].title
+        }
 
         return label
     }
@@ -514,16 +681,45 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
 
     @objc
     private func onOpenOneTapSheet(sender: AnyObject) {
+        self.view.endEditing(true)
+        self.presentButton.isEnabled = false
+
+        self.presentButton.setTitle(
+            "In progress",
+            for: .normal
+        )
         let actionText = self.targetActionTexts[self.pickerView.selectedRow(inComponent: 0)]
         let onCompleteAuth: AuthResultCompletion = { [weak self] result in
+            self?.presentButton.setTitle(
+                (self?.autoShowSwitcher.isOn ?? false)
+                    ? "Auto show BottomSheet"
+                    : "Present BottomSheet",
+                for: .normal
+            )
+            self?.presentButton.isEnabled = true
             do {
+                guard let self else {
+                    return
+                }
+                if let keyWindow = UIApplication.shared.keyWindow, keyWindow === self.window {
+                    if #available(iOS 13.0, *) {
+                        self.window.windowScene = nil
+                    }
+                    self.window.isHidden = true
+                    self.window.resignKey()
+                }
+
                 let session = try result.get()
                 print("Auth succeeded with\n\(session)")
-                self?.alertPresentationController.showAlert(message: session.debugDescription)
+                self.alertPresentationController.showAlert(message: session.debugDescription)
             } catch AuthError.cancelled {
-                print("Auth cancelled by user")
+                self?.alertPresentationController.showAlert(
+                    message: "Auth cancelled by user"
+                )
             } catch {
-                print("Auth failed with error: \(error)")
+                self?.alertPresentationController.showAlert(
+                    message: "Auth failed with error: \(error)"
+                )
             }
         }
 
@@ -546,9 +742,28 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
             onCompleteAuth: onCompleteAuth
         )
 
-        let controller = self.vkid?.ui(for: sheet).uiViewController()
-        if let controller {
-            self.present(controller, animated: true)
+        if self.autoShowSwitcher.isOn, let vkid = self.vkid {
+            let (presenter, name) = self.presenters[self.pickerView.selectedRow(inComponent: 0)]
+            if name == "UIWindow" {
+                guard let keyWindow = UIApplication.shared.keyWindow else {
+                    return
+                }
+                if #available(iOS 13.0, *) {
+                    self.window.windowScene = keyWindow.windowScene
+                }
+                self.window.frame = keyWindow.frame
+                self.window.isHidden = false
+                self.window.makeKeyAndVisible()
+            }
+            sheet.autoShow(configuration: .init(
+                presenter: presenter,
+                delayMilliseconds: self.milliseconds
+            ), factory: vkid)
+        } else {
+            let controller = self.vkid?.ui(for: sheet).uiViewController()
+            if let controller {
+                self.present(controller, animated: true)
+            }
         }
     }
 
@@ -610,6 +825,16 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
             : self.serviceNameTextField.text!
         self.pickerView.items = self.targetActionTexts
         self.pickerView.reloadComponent(0)
+    }
+
+    @objc
+    func onMillisecondsChanged() {
+        self.milliseconds = Int(self.millisecondsTextField.text ?? "0") ?? 0
+    }
+
+    @objc
+    func done() {
+        self.millisecondsTextField.resignFirstResponder()
     }
 
     @objc

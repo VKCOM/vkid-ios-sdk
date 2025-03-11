@@ -39,6 +39,7 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
     private let theme: OneTapBottomSheet.Theme
     private let autoDismissOnSuccess: Bool
     private let onCompleteAuth: AuthResultCompletion?
+    private let presenter: UIKitPresenter?
 
     private var currentOAuthProivder: OAuthProvider?
 
@@ -59,7 +60,8 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
         targetActionText: OneTapBottomSheet.TargetActionText,
         autoDismissOnSuccess: Bool,
         onCompleteAuth: AuthResultCompletion?,
-        contentDelegate: BottomSheetContentDelegate? = nil
+        contentDelegate: BottomSheetContentDelegate? = nil,
+        presenter: UIKitPresenter? = nil
     ) {
         self.vkid = vkid
         self.theme = theme
@@ -69,6 +71,7 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
         self.autoDismissOnSuccess = autoDismissOnSuccess
         self.onCompleteAuth = onCompleteAuth
         self.contentDelegate = contentDelegate
+        self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
         vkid.add(observer: self)
     }
@@ -85,10 +88,11 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
         let view = OneTapBottomSheetInitialStateView(
             configuration:
             .init(
+                vkIdImage: self.theme.images.logo,
                 authButton: self.oneTapButton,
                 title: self.targetActionText.title,
                 titleColor: self.theme.colors.title,
-                titleFont: .systemFont(ofSize: 20, weight: .medium),
+                titleFont: .systemFont(ofSize: 23, weight: .semibold),
                 subtitle: self.targetActionText.subtitle,
                 subtitleColor: self.theme.colors.subtitle,
                 subtitleFont: .systemFont(ofSize: 16, weight: .regular)
@@ -108,7 +112,7 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
                 failedImage: .errorOutline,
                 failedButtonColor: self.theme.colors.retryButtonBackground,
                 failedButtonTitleColor: self.theme.colors.retryButtonTitle,
-                failedButtonTitleFont: .systemFont(ofSize: 14, weight: .medium),
+                failedButtonTitleFont: .systemFont(ofSize: 15, weight: .medium),
                 failedButtonCornerRadius: 10,
                 texts: .init(
                     loadingText: "vkid_sheet_state_auth_in_progress".localized,
@@ -123,23 +127,25 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
         return view
     }()
 
-    private lazy var topBar: UIView = {
-        let bar = OneTapBottomSheetTopBar(
-            configuration: .init(
-                title: self.serviceName,
-                titleColor: self.theme.colors.topBarTitle,
-                logoIDColor: self.theme.colors.topBarLogo,
-                logoIcon: self.theme.images.topBarLogo,
-                closeButtonIcon: self.theme.images.topBarCloseButton
-            ) { [weak self] in
-                guard let self else {
-                    return
-                }
-                self.onClose()
-            }
+    private lazy var closeButton: UIButton = {
+        let button = UIButton()
+        button.imageEdgeInsets = UIEdgeInsets(
+            top: 12,
+            left: 12,
+            bottom: 12,
+            right: 12
         )
-        bar.translatesAutoresizingMaskIntoConstraints = false
-        return bar
+        button.addTarget(
+            self,
+            action: #selector(self.onCloseClicked(sender:)),
+            for: .touchUpInside
+        )
+        button.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            button.widthAnchor.constraint(equalToConstant: 48),
+            button.heightAnchor.constraint(equalToConstant: 48),
+        ])
+        return button
     }()
 
     private lazy var contentPlaceholderView: UIView = {
@@ -153,6 +159,7 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
         super.viewDidLoad()
 
         self.setupUI()
+        self.apply(theme: self.theme)
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -171,21 +178,32 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
             )
     }
 
+    @objc
+    private func onCloseClicked(sender: Any) {
+        if let presenter, let parent {
+            presenter.dismiss(parent) {
+                self.onCompleteAuth?(.failure(.cancelled))
+            }
+        } else {
+            self.dismiss(animated: true) {
+                self.onCompleteAuth?(.failure(.cancelled))
+            }
+        }
+    }
+
     private func setupUI() {
         self.view.backgroundColor = .clear
-
-        self.view.addSubview(self.topBar)
         self.view.addSubview(self.contentPlaceholderView)
+        self.view.addSubview(self.closeButton)
 
         NSLayoutConstraint.activate([
-            self.topBar.topAnchor.constraint(
-                equalTo: self.view.topAnchor
+            self.closeButton.topAnchor.constraint(
+                equalTo: self.view.topAnchor,
+                constant: 4
             ),
-            self.topBar.leadingAnchor.constraint(
-                equalTo: self.view.leadingAnchor
-            ),
-            self.topBar.trailingAnchor.constraint(
-                equalTo: self.view.trailingAnchor
+            self.closeButton.trailingAnchor.constraint(
+                equalTo: self.view.trailingAnchor,
+                constant: -4
             ),
             self.contentPlaceholderView.leadingAnchor.constraint(
                 equalTo: self.view.leadingAnchor,
@@ -202,7 +220,8 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
         ])
 
         let verticalSpacer = self.contentPlaceholderView.topAnchor.constraint(
-            equalTo: self.topBar.bottomAnchor
+            equalTo: self.view.topAnchor,
+            constant: Constants.contentPlaceholderInsets.top
         )
         verticalSpacer.priority = .defaultLow
         verticalSpacer.isActive = true
@@ -210,10 +229,6 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
         self.contentPlaceholderView.addSubview(self.initialStateView) {
             $0.pinToEdges()
         }
-    }
-
-    private func onClose() {
-        self.dismiss(animated: true)
     }
 
     func preferredContentSize(withParentContainerSize parentSize: CGSize) -> CGSize {
@@ -231,6 +246,10 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
 
     private func apply(theme: OneTapBottomSheet.Theme) {
         self.view.backgroundColor = theme.colors.background.value
+        self.closeButton.setImage(
+            self.theme.images.topBarCloseButton.value,
+            for: .normal
+        )
     }
 
     private func render(authState: AuthState) {
@@ -313,10 +332,10 @@ extension OneTapBottomSheetContentViewController {
 
     enum Constants {
         static let contentPlaceholderInsets = UIEdgeInsets(
-            top: 16,
-            left: 16,
-            bottom: 16,
-            right: 16
+            top: 24,
+            left: 24,
+            bottom: 24,
+            right: 24
         )
     }
 }
@@ -369,8 +388,14 @@ extension OneTapBottomSheetContentViewController: VKIDObserver {
             .main
             .asyncAfter(deadline: .now() + 0.5) { [weak self, onComplete = self.onCompleteAuth] in
                 if self?.isBeingDismissed == false {
-                    self?.dismiss(animated: true) {
-                        onComplete?(result)
+                    if let presenter = self?.presenter, let parent = self?.parent {
+                        presenter.dismiss(parent) {
+                            onComplete?(result)
+                        }
+                    } else {
+                        self?.dismiss(animated: true) {
+                            onComplete?(result)
+                        }
                     }
                 } else {
                     onComplete?(result)

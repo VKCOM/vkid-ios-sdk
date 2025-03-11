@@ -86,33 +86,28 @@ final class OneTapBottomSheetAuthStateView: UIView {
 
     private lazy var retryButton: UIButton = {
         let button: UIButton
-        if #available(iOS 15.0, *) {
-            var config = UIButton.Configuration.plain()
-            config.contentInsets = .init(
-                top: Constants.buttonContentInsets.top,
-                leading: Constants.buttonContentInsets.left,
-                bottom: Constants.buttonContentInsets.bottom,
-                trailing: Constants.buttonContentInsets.right
-            )
-            button = UIButton(configuration: config)
-        } else {
-            button = UIButton()
-            button.contentEdgeInsets = Constants.buttonContentInsets
-        }
-        button.titleLabel?.font = self.config.retryButtonTitleFont
+        button = UIButton()
+        button.contentEdgeInsets = Constants.buttonContentInsets
+        button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = self.config.retryButtonCornerRadius
         button.setTitle(self.config.texts.failedButtonText, for: .normal)
         button.setTitleColor(self.config.retryButtonTitleColor.value, for: .normal)
+        button.titleLabel?.font = self.config.retryButtonTitleFont
         button.backgroundColor = self.config.retryButtonColor.value
         button.addTarget(self, action: #selector(self.retryButtonTap), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
         button.alpha = 0
         button.accessibilityIdentifier = AccessibilityIdentifier.OneTapBottomSheet.Button.retry.id
+        NSLayoutConstraint.activate([
+            button.heightAnchor.constraint(equalToConstant: 36),
+        ])
+
         return button
     }()
 
     private var titleLabelToBottomEdgeConstraint: NSLayoutConstraint?
     private var retryButtonToBottomEdgeConstraint: NSLayoutConstraint?
+    private var stateImageViewToBottomEdgeConstraint: NSLayoutConstraint?
+    private var stateImageViewToTopEdgeConstraint: NSLayoutConstraint?
 
     internal init(configuration: Configuration) {
         self.config = configuration
@@ -131,10 +126,6 @@ final class OneTapBottomSheetAuthStateView: UIView {
 
         self.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            self.stateImageViewContainer.topAnchor.constraint(
-                equalTo: self.topAnchor,
-                constant: Constants.authStateViewTopInset
-            ),
             self.stateImageViewContainer.centerXAnchor.constraint(
                 equalTo: self.centerXAnchor
             ),
@@ -171,12 +162,22 @@ final class OneTapBottomSheetAuthStateView: UIView {
             equalTo: self.bottomAnchor,
             constant: -Constants.titleInsets.bottom
         )
-        self.titleLabelToBottomEdgeConstraint?.isActive = true
+        self.titleLabelToBottomEdgeConstraint?.isActive = false
 
         self.retryButtonToBottomEdgeConstraint = self.retryButton.bottomAnchor.constraint(
             equalTo: self.bottomAnchor,
             constant: -Constants.retryButtonInsets.bottom
         )
+        self.stateImageViewToBottomEdgeConstraint = self.stateImageViewContainer.bottomAnchor.constraint(
+            equalTo: self.bottomAnchor,
+            constant: -88
+        )
+        self.stateImageViewToBottomEdgeConstraint?.isActive = true
+        self.stateImageViewToTopEdgeConstraint = self.stateImageViewContainer.topAnchor.constraint(
+            equalTo: self.topAnchor,
+            constant: 88
+        )
+        self.stateImageViewToTopEdgeConstraint?.isActive = true
     }
 
     @objc
@@ -206,7 +207,11 @@ extension OneTapBottomSheetAuthStateView {
             self.activityIndicator.alpha = 1
             self.activityIndicator.startAnimating()
             self.retryButtonToBottomEdgeConstraint?.isActive = false
-            self.titleLabelToBottomEdgeConstraint?.isActive = true
+            self.titleLabelToBottomEdgeConstraint?.isActive = false
+            self.titleLabel.isHidden = true
+            self.stateImageViewToBottomEdgeConstraint?.isActive = true
+            self.stateImageViewToTopEdgeConstraint?.constant = 88
+            self.stateImageViewToTopEdgeConstraint?.isActive = true
         case .success:
             self.retryButton.alpha = 0
             self.titleLabel.text = self.config.texts.successText
@@ -216,6 +221,10 @@ extension OneTapBottomSheetAuthStateView {
             self.activityIndicator.stopAnimating()
             self.retryButtonToBottomEdgeConstraint?.isActive = false
             self.titleLabelToBottomEdgeConstraint?.isActive = true
+            self.titleLabelToBottomEdgeConstraint?.constant = -72
+            self.titleLabel.isHidden = false
+            self.stateImageViewToBottomEdgeConstraint?.isActive = false
+            self.stateImageViewToTopEdgeConstraint?.constant = 72
         case .failure:
             self.retryButton.alpha = 1
             self.titleLabel.text = self.config.texts.failedText
@@ -223,8 +232,11 @@ extension OneTapBottomSheetAuthStateView {
             self.stateIconImageView.alpha = 1
             self.activityIndicator.alpha = 0
             self.activityIndicator.stopAnimating()
+            self.stateImageViewToBottomEdgeConstraint?.isActive = false
             self.titleLabelToBottomEdgeConstraint?.isActive = false
             self.retryButtonToBottomEdgeConstraint?.isActive = true
+            self.titleLabel.isHidden = false
+            self.stateImageViewToTopEdgeConstraint?.constant = 46
         case .idle:
             break
         }
@@ -239,23 +251,23 @@ extension OneTapBottomSheetAuthStateView {
         static let imageViewSize: CGSize = .init(width: 56, height: 56)
         static let activityIndicatorSize: CGSize = .init(width: 74, height: 74)
         static let spinnerLineWidth: CGFloat = 3.0
-        static let authStateViewTopInset: CGFloat = 48.0
+        static let authStateViewTopInset: CGFloat = 46.0
         static let buttonContentInsets: UIEdgeInsets = .init(
             top: 6,
-            left: 16,
+            left: 12,
             bottom: 6,
-            right: 16
+            right: 12
         )
         static let titleInsets: UIEdgeInsets = .init(
             top: 12,
             left: 32,
-            bottom: 48,
+            bottom: 46,
             right: 32
         )
         static let retryButtonInsets: UIEdgeInsets = .init(
             top: 16,
             left: 32,
-            bottom: 48,
+            bottom: 46,
             right: 32
         )
     }

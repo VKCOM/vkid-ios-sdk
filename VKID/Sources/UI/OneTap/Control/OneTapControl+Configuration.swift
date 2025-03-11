@@ -99,7 +99,7 @@ extension OneTapControl {
                 fontSize = 17.0
             }
 
-            let titleFont: UIFont = .systemFont(ofSize: fontSize, weight: .semibold)
+            let titleFont: UIFont = .systemFont(ofSize: fontSize, weight: .medium)
             let theme: OneTapButton.Appearance.Theme = appearance.theme
 
             switch appearance.style.rawType {
@@ -126,7 +126,32 @@ extension OneTapControl {
                     titleFont: titleFont,
                     titleColor: DynamicColor(
                         light: .black,
-                        dark: .white
+                        dark: .black
+                    ),
+                    borderColor: DynamicColor(
+                        light: theme.colors.secondary.value,
+                        dark: .clear
+                    ),
+                    borderWidth: 1,
+                    backgroundColor: UIColor.white,
+                    activityIndicatorColor: DynamicColor(
+                        light: .iconMediumLight,
+                        dark: .iconMediumDark
+                    ),
+                    cornerRadius: layout.cornerRadius,
+                    buttonHeight: layout.height.rawValue,
+                    logoSize: logoSize,
+                    logoImage: appearance.style.logo.image,
+                    isLogoOnlyLayout: layout.kind == .logoOnly
+                )
+            case .widget:
+                self.init(
+                    primaryTitle: appearance.title.primary,
+                    briefTitle: appearance.title.brief,
+                    titleFont: titleFont,
+                    titleColor: DynamicColor(
+                        light: .black,
+                        dark: .textPrimaryDark
                     ),
                     borderColor: theme.colors.secondary,
                     borderWidth: 1,

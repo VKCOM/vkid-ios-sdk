@@ -2,6 +2,10 @@
 
 > **Note**\
 > Описание основных изменений в релизах VK ID SDK. Наш SDK следует [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## 2.4.1 - 2025-03-11
+
+### Added
++ В `OneTapBottomSheet` добавлен метод `autoShow(configuration:,factory:)`, который позволяет автоматически показывать шторку авторизации сразу при входе пользователя в приложение или с задержкой. [Подробнее](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/elements/onetap-drawer/floating-onetap-ios#Nastrojka-avtomaticheskogo-otobrazheniya-shtorki)
 ## 2.3.1 - 2024-12-05
 
 ### Fixed

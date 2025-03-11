@@ -453,7 +453,7 @@ final class AuthViewController: VKIDDemoViewController {
             targetActionText: .signIn,
             oneTapButton: .init(
                 height: .medium(.h44),
-                cornerRadius: 8
+                cornerRadius: 12
             ),
             authConfiguration: self.makeConfiguration(),
             oAuthProviderConfiguration: self.makeOAuthProviderConfiguration(),

@@ -460,8 +460,8 @@ extension OneTapButton.Appearance {
             rawType: .ok
         )
 
-        /// Основной текст: "Войти с Почтой Mail".
-        /// Краткий текст: "Войти с Почтой Mail".
+        /// Основной текст: "Войти с Mail".
+        /// Краткий текст: "Войти с Mail".
         internal static let mail = Self(
             primary: "vkconnect_oauth_mail_button_primary_title".localized,
             brief: "vkconnect_oauth_mail_button_primary_title".localized,
@@ -480,6 +480,7 @@ extension OneTapButton.Appearance {
                     switch style {
                     case .primary: primary(logo: $0)
                     case .secondary: secondary(logo: $0)
+                    case .widget: widget(logo: $0)
                     }
                 }
             }
@@ -495,9 +496,14 @@ extension OneTapButton.Appearance {
             self.init(rawType: .secondary, logo: logo)
         }
 
+        internal static func widget(logo: LogoImage = .vkidSecondary) -> Self {
+            self.init(rawType: .widget, logo: logo)
+        }
+
         internal enum RawType: String, CaseIterable, RawRepresentable, Equatable {
             case primary
             case secondary
+            case widget
         }
 
         internal let rawType: RawType
@@ -713,19 +719,19 @@ extension OneTapButton.Appearance {
         case .vkid:
             return .init(
                 title: .vkid,
-                style: .secondary(logo: .vkidSecondary),
+                style: .widget(logo: .vkidSecondary),
                 theme: theme
             )
         case .ok:
             return .init(
                 title: .ok,
-                style: .secondary(logo: .okRuSecondary),
+                style: .widget(logo: .okRuSecondary),
                 theme: theme
             )
         case .mail:
             return .init(
                 title: .mail,
-                style: .secondary(logo: .mailRuSecondary),
+                style: .widget(logo: .mailRuSecondary),
                 theme: theme
             )
         }
