@@ -78,6 +78,10 @@ internal final class RequestAuthorizationInterceptor: VKAPIRequestInterceptor {
                             token: userSession.accessToken.value,
                             completion: completion)
             }
+        case .externalAccessToken(let externalAccessToken):
+            signRequest(request,
+                        token: externalAccessToken,
+                        completion: completion)
         case .anonymousToken:
             self.deps.anonymousTokenService.getFreshToken { result in
                 switch result {

@@ -81,7 +81,7 @@ open class BottomSheetViewController: UIViewController, BottomSheetContent {
     weak var delegate: BottomSheetViewControllerDelegate?
     weak var contentDelegate: BottomSheetContentDelegate?
 
-    private let _contentViewController: BottomSheetContentViewController
+    internal let contentViewController: BottomSheetContentViewController
     private var _transitioningDelegate: BottomSheetTransitioningDelegate?
 
     let layoutConfiguration: BottomSheetLayoutConfiguration
@@ -98,7 +98,7 @@ open class BottomSheetViewController: UIViewController, BottomSheetContent {
         onDismiss: (() -> Void)? = nil
     ) {
         self.presenter = presenter
-        self._contentViewController = contentViewController
+        self.contentViewController = contentViewController
         self.layoutConfiguration = layoutConfiguration
         super.init(nibName: nil, bundle: nil)
         self._transitioningDelegate = BottomSheetTransitioningDelegate(
@@ -119,11 +119,11 @@ open class BottomSheetViewController: UIViewController, BottomSheetContent {
         super.viewDidLoad()
         self.view.layer.cornerRadius = self.layoutConfiguration.cornerRadius
         self.view.layer.masksToBounds = true
-        self.addContentViewController(self._contentViewController)
+        self.addContentViewController(self.contentViewController)
     }
 
     package func preferredContentSize(withParentContainerSize parentSize: CGSize) -> CGSize {
-        self._contentViewController.preferredContentSize(withParentContainerSize: parentSize)
+        self.contentViewController.preferredContentSize(withParentContainerSize: parentSize)
     }
 }
 

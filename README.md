@@ -20,6 +20,7 @@
   - [CocoaPods](#cocoapods)
 - [Авторизация по кнопке OneTap](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/ios/onetap)
 - [Шторка авторизации](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/ios/floating-onetap)
+- [Виджет 3 в 1](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/elements/widget-3-1/three-in-one-ios)
 - [Пользовательские сессии](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/ios/sessions)
 - [Демонстрация](#демонстрация)
 - [Документация](https://vkcom.github.io/vkid-ios-sdk/documentation/vkid/)
@@ -46,14 +47,14 @@
 Добавьте VKID как зависимость в ваш `Package.swift`:
 ```swift
 dependencies: [
-    .package(url: "https://github.com/VKCOM/vkid-ios-sdk.git", .upToNextMajor(from: "2.3.1"))
+    .package(url: "https://github.com/VKCOM/vkid-ios-sdk.git", .upToNextMajor(from: "2.2.0"))
 ]
 ```
 
 ### CocoaPods
 Добавьте в ваш `Podfile`:
 ```ruby
-pod 'VKID', '~> 2.3'
+pod 'VKID', '~> 2.2'
 ```
 Выполните следующие команды, чтобы установить зависимости:
 ```shell

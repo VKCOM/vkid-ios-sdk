@@ -82,7 +82,8 @@ extension TestCaseInfra {
         appInteropOpener: AppInteropURLOpening = AppInteropOpenerMock(),
         userSessionDataStorage: any UserSessionDataStorage = UserSessionDataStorageMock(),
         mainTransport: VKAPITransport = URLSessionTransportMock(),
-        anonymousTokenTransport: VKAPITransport = URLSessionTransportMock()
+        anonymousTokenTransport: VKAPITransport = URLSessionTransportMock(),
+        groupSubscriptionsLimit: GroupSubscriptionsLimit? = nil
     ) -> VKID {
         let rootContainer = rootContainer ?? self.createRootContainer()
 
@@ -94,7 +95,8 @@ extension TestCaseInfra {
 
         return try! VKID(
             config: .init(
-                appCredentials: Entity.appCredentials
+                appCredentials: Entity.appCredentials,
+                groupSubscriptionsLimit: groupSubscriptionsLimit
             ),
             rootContainer: rootContainer
         )

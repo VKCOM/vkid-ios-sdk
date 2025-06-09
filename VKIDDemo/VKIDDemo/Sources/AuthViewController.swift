@@ -153,6 +153,10 @@ final class AuthViewController: VKIDDemoViewController {
         self.vkid?.remove(observer: self)
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+    }
+
     private func addAuthViewUI() {
         self.view.addSubview(self.authViewUISegmentControlLabel)
         self.view.addSubview(self.authViewUISegmentControl)
@@ -473,10 +477,35 @@ final class AuthViewController: VKIDDemoViewController {
             self.providedAuthSecrets = authSecrets
             print("PKCE Secrets: \(authSecrets)")
         }
+        var groupSubscriptionConfiguration: GroupSubscriptionConfiguration? = nil
+
+        if self.debugSettings.subscriptionEnabled,
+           !self.debugSettings.subscriptionExternalATEnabled
+        {
+            groupSubscriptionConfiguration = .init(subscribeToGroupId: self.debugSettings.groupId) { [weak self]
+                result in
+                    self?.handleSubscription(result: result)
+            }
+        }
+        let authConfiguration: AuthConfiguration = .init(
+            groupSubscriptionConfiguration: .init(
+                subscribeToGroupId: "1"
+            ) { result in
+                switch result {
+                case .success:
+                    print("Успешная подписка")
+                case.failure(let error):
+                    print("Не удалось подписаться на сообщество: \(error)")
+                }
+            }
+        )
+        let oneTapConfig = OneTapButton(authConfiguration: authConfiguration, onCompleteAuth: nil)
+        _ = self.vkid?.ui(for: oneTapConfig).uiView()
         return .init(
             flow: self.createFlow(secrets: self.providedAuthSecrets),
             scope: Scope(self.debugSettings.scope),
-            forceWebViewFlow: self.debugSettings.forceWebBrowserFlow
+            forceWebViewFlow: self.debugSettings.forceWebBrowserFlow,
+            groupSubscriptionConfiguration: groupSubscriptionConfiguration
         )
     }
 }
@@ -492,7 +521,9 @@ extension AuthViewController: VKIDObserver {
         do {
             let session = try result.get()
             print("Auth succeeded with\n\(session)")
-            self.showAlert(message: session.debugDescription)
+            if !self.debugSettings.subscriptionEnabled {
+                self.showAlert(message: session.debugDescription)
+            }
         } catch AuthError.cancelled {
             print("Auth cancelled by user")
         } catch AuthError.authCodeExchangedOnYourBackend {

@@ -96,6 +96,12 @@ public struct OAuthListWidget: UIViewElement {
         presenter: UIKitPresenter = .newUIWindow,
         onCompleteAuth: AuthResultCompletion?
     ) {
+        var config = authConfiguration
+        config.groupSubscriptionConfiguration?.inheritedButtonConfig = .init(
+            height: buttonConfiguration.height,
+            cornerRadius: buttonConfiguration.cornerRadius
+        )
+        config.groupSubscriptionConfiguration?.theme = .matchingColorScheme(theme.colorScheme)
         self.oAuthProviders = oAuthProviders
         self.authConfig = authConfiguration
         self.buttonConfiguration = buttonConfiguration
@@ -110,7 +116,9 @@ public struct OAuthListWidget: UIViewElement {
             self.oAuthButton(
                 authConfiguration: AuthConfiguration(
                     flow: self.authConfig.flow,
-                    scope: self.authConfig.scope
+                    scope: self.authConfig.scope,
+                    forceWebViewFlow: self.authConfig.forceWebViewFlow,
+                    groupSubscriptionConfiguration: self.authConfig.groupSubscriptionConfiguration
                 ),
                 oAuthProviderConfiguration: OAuthProviderConfiguration(primaryProvider: provider),
                 using: factory,

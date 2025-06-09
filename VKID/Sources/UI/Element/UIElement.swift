@@ -73,6 +73,18 @@ public protocol UIViewControllerElement: UIElement {
     func _uiViewController(factory: Self.Factory) -> Self.UIViewControllerType
 }
 
+/// UI элемент с представлением в виде UIViewController
+public protocol AsyncUIViewControllerElement: UIElement {
+    /// Тип представления, поддерживаемый данным UIElement.
+    associatedtype UIViewControllerType: UIViewController
+    associatedtype UIViewControllerError: Error
+
+    func _uiViewController(
+        factory: Self.Factory,
+        completion: @escaping (Result<Self.UIViewControllerType, Self.UIViewControllerError>) -> Void
+    ) -> Void
+}
+
 /// UI элемент с представлением в виде SwiftUI.View
 @available(iOS 13.0, *)
 public protocol SwiftUIViewElement: UIElement {
@@ -102,6 +114,18 @@ public struct UITrampoline<Element: UIElement> {
     /// - Returns: наследник UIViewController
     public func uiViewController() -> Element.UIViewControllerType where Element: UIViewControllerElement {
         self.element._uiViewController(factory: self.factory)
+    }
+
+    /// Создает UIViewController представление для указанного ``UIElement``
+    /// - Returns: наследник UIViewController
+    public func uiViewController(completion: @escaping(Result<
+        Element.UIViewControllerType,
+        Element.UIViewControllerError
+    >) -> Void)
+    where Element: AsyncUIViewControllerElement {
+        self.element._uiViewController(factory: self.factory) { result in
+            completion(result)
+        }
     }
 
     /// Создает SwiftUI.View представление для указанного ``UIElement``

@@ -48,6 +48,7 @@ package struct VKAPIRequest {
         case none
         case anonymousToken
         case accessToken(userId: Int? = nil)
+        case externalAccessToken(String)
     }
 
     package let id: UUID = .init()

@@ -61,13 +61,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                         clientId: clientId,
                         clientSecret: clientSecret
                     ),
+                    appearance: .init(
+                        locale: .init(
+                            rawValue: self.debugSettings.currentLanguageCode ?? ""
+                        ) ?? .system
+                    ),
                     loggingEnabled: self.debugSettings.loggingEnabled,
                     wrapperSDK: self.debugSettings.flutterFlagEnabled ? .flutter : .none,
                     // Only for debug purposes
                     network: NetworkConfiguration(
                         isSSLPinningEnabled: self.debugSettings.isSSLPinningEnabled,
                         customDomainTemplate: self.debugSettings.customDomainTemplate
-                    )
+                    ),
+                    groupSubscriptionsLimit:
+                    self.debugSettings.groupSubscriptionsLimitEnabled ?
+                        GroupSubscriptionsLimit(
+                            maxSubsctiptionsToShow:
+                            self.debugSettings.groupShowingCountLimit ?? 0,
+                            periodInDays: self.debugSettings.limitPeriodInDays ?? 0
+                        ) : nil
                 )
             )
             self.vkid = vkid

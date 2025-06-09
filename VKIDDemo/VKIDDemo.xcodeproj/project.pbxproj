@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 60;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -19,12 +19,16 @@
 		053014C82C0F03CB00CF799D /* API.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053014C72C0F03CB00CF799D /* API.swift */; };
 		053014CA2C0F079D00CF799D /* String+snakeCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053014C92C0F079D00CF799D /* String+snakeCase.swift */; };
 		053014CC2C0F083700CF799D /* DictionaryRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053014CB2C0F083700CF799D /* DictionaryRepresentable.swift */; };
+		054BA8862D660C2A00DFF2B0 /* GroupSubscriptionCustomizationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 054BA8852D660C1100DFF2B0 /* GroupSubscriptionCustomizationController.swift */; };
+		054BA8872D660C2A00DFF2B0 /* GroupSubscriptionCustomizationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 054BA8852D660C1100DFF2B0 /* GroupSubscriptionCustomizationController.swift */; };
 		057500D12B0E0635008EEB4B /* PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057500D02B0E0635008EEB4B /* PickerView.swift */; };
 		057E33E12C242813004AA45E /* VKIDAllureReport in Frameworks */ = {isa = PBXBuildFile; productRef = 057E33E02C242813004AA45E /* VKIDAllureReport */; };
 		0591B0252BA9E8C200B18F98 /* DebugSettingsTextFieldCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0591B0242BA9E8C200B18F98 /* DebugSettingsTextFieldCell.swift */; };
 		05A406FD2C53CF6C00081726 /* OneTapBottomSheetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05A406FC2C53CF6C00081726 /* OneTapBottomSheetTests.swift */; };
 		05A406FF2C53CF9900081726 /* OneTapBottomSheetSnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05A406FE2C53CF9900081726 /* OneTapBottomSheetSnapshotTests.swift */; };
 		05A6A5612BC83B8E00B01882 /* UserSessionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05A6A5602BC83B8E00B01882 /* UserSessionData.swift */; };
+		05B316E02D80405900C4F178 /* GroupSubscriptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B316DF2D80405200C4F178 /* GroupSubscriptionTests.swift */; };
+		05B316EE2D818F7000C4F178 /* GroupSubscriptionServiceMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B316ED2D818F6400C4F178 /* GroupSubscriptionServiceMock.swift */; };
 		05C606C62C651E80008ECB9C /* Descriptioner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C606C52C651E80008ECB9C /* Descriptioner.swift */; };
 		05D919072CABEAF200EC63E4 /* ApplicationManagerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05D919062CABEAF200EC63E4 /* ApplicationManagerMock.swift */; };
 		05DB5C892C119C3100663297 /* AuthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2E5F5F12A55A65D0079DE1F /* AuthViewController.swift */; };
@@ -48,9 +52,7 @@
 		05DB5C9B2C119C3100663297 /* VKIDDemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17CA41882AF1BB93008C81C1 /* VKIDDemoViewController.swift */; };
 		05DB5C9C2C119C3100663297 /* UserSessionTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175365592B7F3D67008AB285 /* UserSessionTableViewCell.swift */; };
 		05DB5C9D2C119C3100663297 /* OneTapBottomSheetCustomizationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26A35FF2B0D151E008A4F99 /* OneTapBottomSheetCustomizationController.swift */; };
-		05DB5C9E2C119C3100663297 /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175364DF2B7D1BD4008AB285 /* ImageLoader.swift */; };
 		05DB5C9F2C119C3100663297 /* UIColot+Palette.swift in Sources */ = {isa = PBXBuildFile; fileRef = A24B64C32AA1FD6B00E45F3B /* UIColot+Palette.swift */; };
-		05DB5CA02C119C3100663297 /* UIImageView+LoadImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175364E22B7D2366008AB285 /* UIImageView+LoadImage.swift */; };
 		05DB5CA12C119C3100663297 /* PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057500D02B0E0635008EEB4B /* PickerView.swift */; };
 		05DB5CA22C119C3100663297 /* InfoPlist.swift in Sources */ = {isa = PBXBuildFile; fileRef = A201B19D2AAB375900E8FA58 /* InfoPlist.swift */; };
 		05DB5CA32C119C3100663297 /* UserSessionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05A6A5602BC83B8E00B01882 /* UserSessionData.swift */; };
@@ -67,8 +69,6 @@
 		173900AF2C6E3621008AFFDD /* OAuthProviders+Description.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175A3BAD2C6A3E4500255779 /* OAuthProviders+Description.swift */; };
 		173900B02C6E3624008AFFDD /* UIView+Tools.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175A3BAF2C6A3E4500255779 /* UIView+Tools.swift */; };
 		1752AE322AF135890013D976 /* StepSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1752AE302AF135890013D976 /* StepSlider.swift */; };
-		175364E02B7D1BD4008AB285 /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175364DF2B7D1BD4008AB285 /* ImageLoader.swift */; };
-		175364E32B7D2366008AB285 /* UIImageView+LoadImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175364E22B7D2366008AB285 /* UIImageView+LoadImage.swift */; };
 		175365582B7E6E7B008AB285 /* UserSessionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175365572B7E6E7B008AB285 /* UserSessionsViewController.swift */; };
 		1753655A2B7F3D67008AB285 /* UserSessionTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175365592B7F3D67008AB285 /* UserSessionTableViewCell.swift */; };
 		175A3B8C2C6A3AE100255779 /* AppCredentials+Random.swift in Sources */ = {isa = PBXBuildFile; fileRef = 175A3B672C6A3AE100255779 /* AppCredentials+Random.swift */; };
@@ -243,11 +243,14 @@
 		053014C72C0F03CB00CF799D /* API.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = API.swift; sourceTree = "<group>"; };
 		053014C92C0F079D00CF799D /* String+snakeCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+snakeCase.swift"; sourceTree = "<group>"; };
 		053014CB2C0F083700CF799D /* DictionaryRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryRepresentable.swift; sourceTree = "<group>"; };
+		054BA8852D660C1100DFF2B0 /* GroupSubscriptionCustomizationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSubscriptionCustomizationController.swift; sourceTree = "<group>"; };
 		057500D02B0E0635008EEB4B /* PickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerView.swift; sourceTree = "<group>"; };
 		0591B0242BA9E8C200B18F98 /* DebugSettingsTextFieldCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugSettingsTextFieldCell.swift; sourceTree = "<group>"; };
 		05A406FC2C53CF6C00081726 /* OneTapBottomSheetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneTapBottomSheetTests.swift; sourceTree = "<group>"; };
 		05A406FE2C53CF9900081726 /* OneTapBottomSheetSnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneTapBottomSheetSnapshotTests.swift; sourceTree = "<group>"; };
 		05A6A5602BC83B8E00B01882 /* UserSessionData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionData.swift; sourceTree = "<group>"; };
+		05B316DF2D80405200C4F178 /* GroupSubscriptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSubscriptionTests.swift; sourceTree = "<group>"; };
+		05B316ED2D818F6400C4F178 /* GroupSubscriptionServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSubscriptionServiceMock.swift; sourceTree = "<group>"; };
 		05C606C52C651E80008ECB9C /* Descriptioner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Descriptioner.swift; sourceTree = "<group>"; };
 		05D919062CABEAF200EC63E4 /* ApplicationManagerMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationManagerMock.swift; sourceTree = "<group>"; };
 		05DB5CAE2C119C3100663297 /* VKIDDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VKIDDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -356,6 +359,14 @@
 		C5D6D7AB386D0289BBD8BEEA /* Pods-VKIDCocoapodsDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VKIDCocoapodsDemo.debug.xcconfig"; path = "Target Support Files/Pods-VKIDCocoapodsDemo/Pods-VKIDCocoapodsDemo.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		056E5E812D54CA310014D37D /* GroupSubscription */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = GroupSubscription;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		051189F02C4FBD0A005F9FDC /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -436,6 +447,7 @@
 		051189F42C4FBD0A005F9FDC /* VKIDUISnapshotTests */ = {
 			isa = PBXGroup;
 			children = (
+				05B316DE2D80404500C4F178 /* GroupSubscription */,
 				175A3BB62C6A3ED600255779 /* Extensions */,
 				05F0DF0A2C5B7A350041EB20 /* OAuthListWidget */,
 				05A406FB2C53CE7200081726 /* OneTapBottomSheet */,
@@ -471,6 +483,14 @@
 				05A406FE2C53CF9900081726 /* OneTapBottomSheetSnapshotTests.swift */,
 			);
 			path = OneTapBottomSheet;
+			sourceTree = "<group>";
+		};
+		05B316DE2D80404500C4F178 /* GroupSubscription */ = {
+			isa = PBXGroup;
+			children = (
+				05B316DF2D80405200C4F178 /* GroupSubscriptionTests.swift */,
+			);
+			path = GroupSubscription;
 			sourceTree = "<group>";
 		};
 		05F0DF0A2C5B7A350041EB20 /* OAuthListWidget */ = {
@@ -563,6 +583,7 @@
 		175A3B892C6A3AE100255779 /* Mocks */ = {
 			isa = PBXGroup;
 			children = (
+				05B316ED2D818F6400C4F178 /* GroupSubscriptionServiceMock.swift */,
 				175A3B7B2C6A3AE100255779 /* AppInteropOpenerMock.swift */,
 				175A3B7C2C6A3AE100255779 /* AuthCodeExchangerMock.swift */,
 				175A3B812C6A3AE100255779 /* PKCESecretsGeneratorMock.swift */,
@@ -666,6 +687,7 @@
 		175A3BDC2C6A667700255779 /* Unit */ = {
 			isa = PBXGroup;
 			children = (
+				056E5E812D54CA310014D37D /* GroupSubscription */,
 				175A3BCD2C6A667700255779 /* ConfidentialFlow */,
 				175A3BCF2C6A667700255779 /* ProviderAuthorizationTests */,
 				175A3BD12C6A667700255779 /* PublicClientFlow */,
@@ -776,6 +798,7 @@
 				A26A35FD2B0D0CED008A4F99 /* OneTapButtonCustomizationController.swift */,
 				A26A35FF2B0D151E008A4F99 /* OneTapBottomSheetCustomizationController.swift */,
 				A271F7192B0FD4670015B61C /* OAuthListWidgetCustomizationController.swift */,
+				054BA8852D660C1100DFF2B0 /* GroupSubscriptionCustomizationController.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -929,6 +952,9 @@
 				175A3C2F2C6A7DDC00255779 /* PBXTargetDependency */,
 				175A3C312C6A7DDC00255779 /* PBXTargetDependency */,
 				175A3C072C6A6F8000255779 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				056E5E812D54CA310014D37D /* GroupSubscription */,
 			);
 			name = VKIDCriticalTests;
 			packageProductDependencies = (
@@ -1091,7 +1117,6 @@
 				};
 			};
 			buildConfigurationList = A2E5F5E52A55A65D0079DE1F /* Build configuration list for PBXProject "VKIDDemo" */;
-			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -1110,6 +1135,7 @@
 				A2188CE42C04E30E009FE82B /* XCLocalSwiftPackageReference "../scripts/testing-infra" */,
 				051189FE2C4FBF03005F9FDC /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */,
 			);
+			preferredProjectObjectVersion = 77;
 			productRefGroup = A2E5F5EB2A55A65D0079DE1F /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -1228,6 +1254,7 @@
 				05118A102C5114D7005F9FDC /* OneTapButtonTests.swift in Sources */,
 				05F0DF0C2C5B7A680041EB20 /* OAuthListWidgetSnapshotTests.swift in Sources */,
 				05F0DF102C5B91990041EB20 /* OAuthListWidgetTests.swift in Sources */,
+				05B316E02D80405900C4F178 /* GroupSubscriptionTests.swift in Sources */,
 				05118A042C4FC1C4005F9FDC /* OneTapButtonSnapshotTests.swift in Sources */,
 				05C606C62C651E80008ECB9C /* Descriptioner.swift in Sources */,
 				173900AF2C6E3621008AFFDD /* OAuthProviders+Description.swift in Sources */,
@@ -1271,6 +1298,7 @@
 				05DB5C8C2C119C3100663297 /* OAuthListWidgetCustomizationController.swift in Sources */,
 				05DB5C8D2C119C3100663297 /* AuthViewController+DebugSettings.swift in Sources */,
 				05DB5C8E2C119C3100663297 /* DebugSettingsStorage.swift in Sources */,
+				054BA8872D660C2A00DFF2B0 /* GroupSubscriptionCustomizationController.swift in Sources */,
 				05DB5C8F2C119C3100663297 /* ControlsViewController.swift in Sources */,
 				05DB5C902C119C3100663297 /* StepSlider.swift in Sources */,
 				05DB5C912C119C3100663297 /* DebugSettingsViewController.swift in Sources */,
@@ -1286,9 +1314,7 @@
 				05DB5C9B2C119C3100663297 /* VKIDDemoViewController.swift in Sources */,
 				05DB5C9C2C119C3100663297 /* UserSessionTableViewCell.swift in Sources */,
 				05DB5C9D2C119C3100663297 /* OneTapBottomSheetCustomizationController.swift in Sources */,
-				05DB5C9E2C119C3100663297 /* ImageLoader.swift in Sources */,
 				05DB5C9F2C119C3100663297 /* UIColot+Palette.swift in Sources */,
-				05DB5CA02C119C3100663297 /* UIImageView+LoadImage.swift in Sources */,
 				05DB5CA12C119C3100663297 /* PickerView.swift in Sources */,
 				05DB5CA22C119C3100663297 /* InfoPlist.swift in Sources */,
 				05DB5CA32C119C3100663297 /* UserSessionData.swift in Sources */,
@@ -1311,6 +1337,7 @@
 				175A3B9D2C6A3AE100255779 /* AnonymousTokenServiceMock.swift in Sources */,
 				175A3BC12C6A419500255779 /* UserSessionManagerDelegateMock.swift in Sources */,
 				175A3B8C2C6A3AE100255779 /* AppCredentials+Random.swift in Sources */,
+				05B316EE2D818F7000C4F178 /* GroupSubscriptionServiceMock.swift in Sources */,
 				175A3B972C6A3AE100255779 /* Date+DefaultExpiration.swift in Sources */,
 				175A3BC22C6A419500255779 /* LegacyLogoutServiceStub.swift in Sources */,
 				175A3BA32C6A3AE100255779 /* LogoutServiceMock.swift in Sources */,
@@ -1368,6 +1395,7 @@
 				A271F71A2B0FD4670015B61C /* OAuthListWidgetCustomizationController.swift in Sources */,
 				A24B64612A9E407B00E45F3B /* AuthViewController+DebugSettings.swift in Sources */,
 				A27EFD332B185245001CF285 /* DebugSettingsStorage.swift in Sources */,
+				054BA8862D660C2A00DFF2B0 /* GroupSubscriptionCustomizationController.swift in Sources */,
 				A26A35FC2B0D005A008A4F99 /* ControlsViewController.swift in Sources */,
 				1752AE322AF135890013D976 /* StepSlider.swift in Sources */,
 				A24B645D2A9E2C4400E45F3B /* DebugSettingsViewController.swift in Sources */,
@@ -1383,9 +1411,7 @@
 				17CA41892AF1BB93008C81C1 /* VKIDDemoViewController.swift in Sources */,
 				1753655A2B7F3D67008AB285 /* UserSessionTableViewCell.swift in Sources */,
 				A26A36002B0D151E008A4F99 /* OneTapBottomSheetCustomizationController.swift in Sources */,
-				175364E02B7D1BD4008AB285 /* ImageLoader.swift in Sources */,
 				A24B64C42AA1FD6B00E45F3B /* UIColot+Palette.swift in Sources */,
-				175364E32B7D2366008AB285 /* UIImageView+LoadImage.swift in Sources */,
 				057500D12B0E0635008EEB4B /* PickerView.swift in Sources */,
 				A201B19E2AAB375900E8FA58 /* InfoPlist.swift in Sources */,
 				05A6A5612BC83B8E00B01882 /* UserSessionData.swift in Sources */,

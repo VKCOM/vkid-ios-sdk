@@ -68,6 +68,32 @@ internal final class AnalyticsServiceImpl: AnalyticsService {
         )
     }
 
+    /// Отправить авторизованное событие.
+    func sendAuthorized(
+        events: [AnalyticsEncodedEvent],
+        context: AnalyticsEventContext,
+        externalToken: String? = nil
+    ) {
+        let eventIds = Set(events.map { $0.id })
+        let events = events.jsonString
+
+        self.deps.logger.info("Start sending events with ids:\n\(eventIds)")
+
+        self.deps.api.statEventsAddVKID.execute(
+            with: .init(
+                events: events,
+                sakVersion: Env.VKIDVersion.description,
+                externalAccessToken: externalToken
+            ),
+            completion: { result in
+                self.handleStatEventsAddVKID(
+                    result: result,
+                    eventIds: eventIds
+                )
+            }
+        )
+    }
+
     private func handleStatEventsAddVKID(
         result: Result<StatEvents.StatEventsResponse, VKAPIError>,
         eventIds: Set<Int>

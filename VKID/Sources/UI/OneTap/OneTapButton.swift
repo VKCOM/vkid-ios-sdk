@@ -156,7 +156,13 @@ public struct OneTapButton: UIViewElement {
         onTap: OnTapCallback?,
         onCompleteAuth: AuthResultCompletion?
     ) {
-        self.authConfig = authConfiguration
+        var config = authConfiguration
+        config.groupSubscriptionConfiguration?.inheritedButtonConfig = .init(
+            height: layout.height,
+            cornerRadius: layout.cornerRadius
+        )
+        config.groupSubscriptionConfiguration?.theme = .matchingColorScheme(appearance.theme.colorScheme)
+        self.authConfig = config
         self.oAuthProviderConfig = oAuthProviderConfiguration
         self.appearance = appearance
         self.layout = layout
@@ -382,91 +388,113 @@ extension OneTapButton.Appearance {
 
         /// Основной текст: "Записаться с VK ID".
         /// Краткий текст: "Записаться".
-        public static let signUp = Self(
-            primary: "vkconnect_auth_onetap_btn_sign_up_with_vkid".localized,
-            brief: "vkconnect_auth_onetap_btn_sign_up".localized,
-            rawType: .signUp
-        )
+        public static var signUp: Self {
+            Self(
+                primary: "vkconnect_auth_onetap_btn_sign_up_with_vkid".localized,
+                brief: "vkconnect_auth_onetap_btn_sign_up".localized,
+                rawType: .signUp
+            )
+        }
 
         /// Основной текст: "Получить с VK ID".
         /// Краткий текст: "Получить".
-        public static let get = Self(
-            primary: "vkconnect_auth_onetap_btn_get_with_vkid".localized,
-            brief: "vkconnect_auth_onetap_btn_get".localized,
-            rawType: .get
-        )
+        public static var get: Self {
+            Self(
+                primary: "vkconnect_auth_onetap_btn_get_with_vkid".localized,
+                brief: "vkconnect_auth_onetap_btn_get".localized,
+                rawType: .get
+            )
+        }
 
         /// Основной текст: "Открыть с VK ID".
         /// Краткий текст: "Открыть".
-        public static let open = Self(
-            primary: "vkconnect_auth_onetap_btn_open_with_vkid".localized,
-            brief: "vkconnect_auth_onetap_btn_open".localized,
-            rawType: .open
-        )
+        public static var open: Self {
+            Self(
+                primary: "vkconnect_auth_onetap_btn_open_with_vkid".localized,
+                brief: "vkconnect_auth_onetap_btn_open".localized,
+                rawType: .open
+            )
+        }
 
         /// Основной текст: "Рассчитать с VK ID".
         /// Краткий текст: "Рассчитать".
-        public static let calculate = Self(
-            primary: "vkconnect_auth_onetap_btn_calculate_with_vkid".localized,
-            brief: "vkconnect_auth_onetap_btn_calculate".localized,
-            rawType: .calculate
-        )
+        public static var calculate: Self {
+            Self(
+                primary: "vkconnect_auth_onetap_btn_calculate_with_vkid".localized,
+                brief: "vkconnect_auth_onetap_btn_calculate".localized,
+                rawType: .calculate
+            )
+        }
 
         /// Основной текст: "Заказать с VK ID".
         /// Краткий текст: "Заказать".
-        public static let order = Self(
-            primary: "vkconnect_auth_onetap_btn_order_with_vkid".localized,
-            brief: "vkconnect_auth_onetap_btn_order".localized,
-            rawType: .order
-        )
+        public static var order: Self {
+            Self(
+                primary: "vkconnect_auth_onetap_btn_order_with_vkid".localized,
+                brief: "vkconnect_auth_onetap_btn_order".localized,
+                rawType: .order
+            )
+        }
 
         /// Основной текст: "Оформить заказ с VK ID".
         /// Краткий текст: "Оформить заказ".
-        public static let makeOrder = Self(
-            primary: "vkconnect_auth_onetap_btn_make_order_with_vkid".localized,
-            brief: "vkconnect_auth_onetap_btn_make_order".localized,
-            rawType: .makeOrder
-        )
+        public static var makeOrder: Self {
+            Self(
+                primary: "vkconnect_auth_onetap_btn_make_order_with_vkid".localized,
+                brief: "vkconnect_auth_onetap_btn_make_order".localized,
+                rawType: .makeOrder
+            )
+        }
 
         /// Основной текст: "Оставить заявку с VK ID".
         /// Краткий текст: "Оставить заявку".
-        public static let submitRequest = Self(
-            primary: "vkconnect_auth_onetap_btn_submit_request_with_vkid".localized,
-            brief: "vkconnect_auth_onetap_btn_submit_request".localized,
-            rawType: .submitRequest
-        )
+        public static var submitRequest: Self {
+            Self(
+                primary: "vkconnect_auth_onetap_btn_submit_request_with_vkid".localized,
+                brief: "vkconnect_auth_onetap_btn_submit_request".localized,
+                rawType: .submitRequest
+            )
+        }
 
         /// Основной текст: "Участвовать с VK ID".
         /// Краткий текст: "Участвовать".
-        public static let participate = Self(
-            primary: "vkconnect_auth_onetap_btn_participate_with_vkid".localized,
-            brief: "vkconnect_auth_onetap_btn_participate".localized,
-            rawType: .participate
-        )
+        public static var participate: Self {
+            Self(
+                primary: "vkconnect_auth_onetap_btn_participate_with_vkid".localized,
+                brief: "vkconnect_auth_onetap_btn_participate".localized,
+                rawType: .participate
+            )
+        }
 
         /// Основной текст: "Войти с VK ID".
         /// Краткий текст: "VK ID".
-        public static let vkid = Self(
-            primary: "vkconnect_auth_onetap_login_via_vkid".localized,
-            brief: "vkconnect_auth_onetap_vkid".localized,
-            rawType: .vkid
-        )
+        public static var vkid: Self {
+            Self(
+                primary: "vkconnect_auth_onetap_login_via_vkid".localized,
+                brief: "vkconnect_auth_onetap_vkid".localized,
+                rawType: .vkid
+            )
+        }
 
         /// Основной текст: "Войти через ОК".
         /// Краткий текст: "Войти через ОК".
-        internal static let ok = Self(
-            primary: "vkconnect_oauth_ok_button_primary_title".localized,
-            brief: "vkconnect_oauth_ok_button_primary_title".localized,
-            rawType: .ok
-        )
+        internal static var ok: Self {
+            Self(
+                primary: "vkconnect_oauth_ok_button_primary_title".localized,
+                brief: "vkconnect_oauth_ok_button_primary_title".localized,
+                rawType: .ok
+            )
+        }
 
         /// Основной текст: "Войти с Mail".
         /// Краткий текст: "Войти с Mail".
-        internal static let mail = Self(
-            primary: "vkconnect_oauth_mail_button_primary_title".localized,
-            brief: "vkconnect_oauth_mail_button_primary_title".localized,
-            rawType: .mail
-        )
+        internal static var mail: Self {
+            Self(
+                primary: "vkconnect_oauth_mail_button_primary_title".localized,
+                brief: "vkconnect_oauth_mail_button_primary_title".localized,
+                rawType: .mail
+            )
+        }
     }
 }
 

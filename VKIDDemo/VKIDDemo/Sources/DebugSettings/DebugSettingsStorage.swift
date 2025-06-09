@@ -42,6 +42,13 @@ final class DebugSettingsStorage {
         case loggingEnabled = "com.vkid.debug.loggingEnabled"
         case forceWebBrowserFlow = "com.vkid.debug.forceWebBrowserFlow"
         case flutterFlagEnabled = "com.vkid.debug.flutterFlagEnabled"
+        case subscriptionEnabled = "com.vkid.debug.groupSubscriptionEnabled"
+        case subscriptionExternalATEnabled = "com.vkid.debug.subscriptionExternalATEnabled"
+        case groupId = "com.vkid.debug.groupId"
+        case groupShowingCountLimit = "com.vkid.debug.groupShowingCountLimit"
+        case limitPeriodInDays = "com.vkid.debug.limitPeriodInDays"
+        case groupSubscriptionsLimitEnabled = "com.vkid.debug.groupSubscriptionsLimitEnabled"
+        case currentLanguageCode = "com.vkid.debug.currentLanguageCode"
     }
 
     private let userDefaults = UserDefaults.standard
@@ -210,6 +217,104 @@ final class DebugSettingsStorage {
             self.userDefaults.setValue(
                 newValue,
                 forKey: Keys.flutterFlagEnabled.rawValue
+            )
+        }
+    }
+
+    var subscriptionEnabled: Bool {
+        get {
+            (self.userDefaults.value(
+                forKey: Keys.subscriptionEnabled.rawValue
+            ) as? Bool) ?? false
+        }
+        set {
+            self.userDefaults.setValue(
+                newValue,
+                forKey: Keys.subscriptionEnabled.rawValue
+            )
+        }
+    }
+
+    var subscriptionExternalATEnabled: Bool {
+        get {
+            (self.userDefaults.value(
+                forKey: Keys.subscriptionExternalATEnabled.rawValue
+            ) as? Bool) ?? false
+        }
+        set {
+            self.userDefaults.setValue(
+                newValue,
+                forKey: Keys.subscriptionExternalATEnabled.rawValue
+            )
+        }
+    }
+
+    var groupId: String {
+        get {
+            (self.userDefaults.value(
+                forKey: Keys.groupId.rawValue
+            ) as? String) ?? ""
+        }
+        set {
+            self.userDefaults.setValue(
+                newValue,
+                forKey: Keys.groupId.rawValue
+            )
+        }
+    }
+
+    var groupSubscriptionsLimitEnabled: Bool {
+        get {
+            (self.userDefaults.value(
+                forKey: Keys.groupSubscriptionsLimitEnabled.rawValue
+            ) as? Bool) ?? false
+        }
+        set {
+            self.userDefaults.setValue(
+                newValue,
+                forKey: Keys.groupSubscriptionsLimitEnabled.rawValue
+            )
+        }
+    }
+
+    var groupShowingCountLimit: UInt? {
+        get {
+            (self.userDefaults.value(
+                forKey: Keys.groupShowingCountLimit.rawValue
+            ) as? UInt)
+        }
+        set {
+            self.userDefaults.setValue(
+                newValue,
+                forKey: Keys.groupShowingCountLimit.rawValue
+            )
+        }
+    }
+
+    var limitPeriodInDays: UInt? {
+        get {
+            (self.userDefaults.value(
+                forKey: Keys.limitPeriodInDays.rawValue
+            ) as? UInt)
+        }
+        set {
+            self.userDefaults.setValue(
+                newValue,
+                forKey: Keys.limitPeriodInDays.rawValue
+            )
+        }
+    }
+
+    var currentLanguageCode: String? {
+        get {
+            (self.userDefaults.value(
+                forKey: Keys.currentLanguageCode.rawValue
+            ) as? String)
+        }
+        set {
+            self.userDefaults.setValue(
+                newValue,
+                forKey: Keys.currentLanguageCode.rawValue
             )
         }
     }

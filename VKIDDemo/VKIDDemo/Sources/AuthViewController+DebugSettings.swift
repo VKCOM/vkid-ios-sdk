@@ -58,6 +58,10 @@ extension AuthViewController {
                     title: "SDK Configuration",
                     cells: self.sdkConfigurationCells()
                 ),
+                .init(
+                    title: "Group Subscription",
+                    cells: self.groupSubscriptionCells()
+                ),
             ]
         )
     }
@@ -177,6 +181,59 @@ extension AuthViewController {
                 isOn: self.debugSettings.flutterFlagEnabled
             ) { [weak self] in
                 self?.debugSettings.flutterFlagEnabled.toggle()
+                self?.updateSettings()
+            },
+        ]
+    }
+
+    private func groupSubscriptionCells() -> [any DebugSettingsCellViewModel] {
+        [
+            DebugSettingsToggleCellViewModel(
+                title: "Group Subscription",
+                isOn: self.debugSettings.subscriptionEnabled
+            ) { [weak self] in
+                self?.debugSettings.subscriptionEnabled.toggle()
+                self?.updateSettings()
+            },
+
+            DebugSettingsToggleCellViewModel(
+                title: "Subscription with external AT",
+                isOn: self.debugSettings.subscriptionExternalATEnabled
+            ) { [weak self] in
+                self?.debugSettings.subscriptionExternalATEnabled.toggle()
+                self?.updateSettings()
+            },
+            DebugSettingsTextFieldViewModel(
+                title: "Group Id",
+                placeholder: "Group Id - should be integer",
+                text: self.debugSettings.groupId
+            ) { [weak self] text in
+                self?.debugSettings.groupId = text ?? ""
+                self?.updateSettings()
+            },
+            DebugSettingsToggleCellViewModel(
+                title: "Subscription limit enabled",
+                isOn: self.debugSettings.groupSubscriptionsLimitEnabled
+            ) { [weak self] in
+                self?.debugSettings.groupSubscriptionsLimitEnabled.toggle()
+                self?.updateSettings()
+            },
+            DebugSettingsTextFieldViewModel(
+                title: "Limit group subscription",
+                placeholder: "Limit group subscription",
+                text: self.debugSettings.groupShowingCountLimit.map { String($0) },
+                keyboardType: .numberPad
+            ) { [weak self] text in
+                self?.debugSettings.groupShowingCountLimit = UInt(text ?? "")
+                self?.updateSettings()
+            },
+            DebugSettingsTextFieldViewModel(
+                title: "Period of subscription limit",
+                placeholder: "Period of subscription limit",
+                text: self.debugSettings.limitPeriodInDays.map { String($0) },
+                keyboardType: .numberPad
+            ) { [weak self] text in
+                self?.debugSettings.limitPeriodInDays = UInt(text ?? "")
                 self?.updateSettings()
             },
         ]

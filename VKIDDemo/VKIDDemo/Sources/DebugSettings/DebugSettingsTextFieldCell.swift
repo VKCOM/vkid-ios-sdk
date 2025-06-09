@@ -77,10 +77,12 @@ class DebugSettingsTextFieldCell: UITableViewCell {
     func configure(
         placeholder: String,
         text: String?,
+        keyboardType: UIKeyboardType = .default,
         action: @escaping (String?) -> Void
     ) {
         self.textField.text = text
         self.textField.placeholder = placeholder
+        self.textField.keyboardType = keyboardType
         self.onChange = action
     }
 }

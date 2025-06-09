@@ -42,3 +42,11 @@
 "vkid_sheet_state_auth_success" = "Başarılı";
 "vkid_sheet_state_auth_failed_retry" = "Tekrar dene";
 "vkid_sheet_state_auth_failed" = "Üye girişi yapılamadı";
+
+"vkid_group_subscription_primary" = "Topluluğa kaydol";
+"vkid_group_subscription_secondary" = "Başka sefer";
+"vkid_group_subscription_snackbar_label" = "Topluluğa abonesiniz";
+"vkid_group_subscription_fail_title" = "Abone olunamadı";
+"vkid_group_subscription_fail_description" = "Tekrar deneyin";
+"vkid_group_subscription_fail_primary" = "Tekrar dene";
+"vkid_group_subscription_fail_secondary" = "İptal";

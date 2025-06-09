@@ -39,6 +39,8 @@ public struct Configuration {
     /// Приложение использует функции SDK через адаптер. Только для внутреннего использования.
     @_spi(VKIDPrivate)
     public let wrapperSDK: WrapperSDK
+    /// Ограничение показов шторки подписки на сообщество
+    public let groupSubscriptionsLimit: GroupSubscriptionsLimit?
 
     // Only for debug purposes
     @_spi(VKIDDebug)
@@ -47,12 +49,14 @@ public struct Configuration {
     public init(
         appCredentials: AppCredentials,
         appearance: Appearance = Appearance(),
-        loggingEnabled: Bool = true
+        loggingEnabled: Bool = true,
+        groupSubscriptionsLimit: GroupSubscriptionsLimit? = .init()
     ) {
         self.init(
             appCredentials: appCredentials,
             appearance: appearance,
-            network: .init(isSSLPinningEnabled: true)
+            network: .init(isSSLPinningEnabled: true),
+            groupSubscriptionsLimit: groupSubscriptionsLimit
         )
     }
 
@@ -65,13 +69,15 @@ public struct Configuration {
         appearance: Appearance = Appearance(),
         loggingEnabled: Bool = true,
         wrapperSDK: WrapperSDK = .none,
-        network: NetworkConfiguration
+        network: NetworkConfiguration,
+        groupSubscriptionsLimit: GroupSubscriptionsLimit? = nil
     ) {
         self.appCredentials = appCredentials
         self.appearance = appearance
         self.network = network
         self.loggingEnabled = loggingEnabled
         self.wrapperSDK = wrapperSDK
+        self.groupSubscriptionsLimit = groupSubscriptionsLimit
     }
 }
 
@@ -146,7 +152,31 @@ public struct Appearance {
     }
 }
 
+/// Настройка показов шторки подписки на сообщество
+public struct GroupSubscriptionsLimit {
+    /// Максимальное количество показов шторки за период времени
+    public let maxSubscriptionsToShow: UInt
+    /// Цикличный период с ограничением показов
+    public let periodInDays: UInt
+
+    public init(maxSubsctiptionsToShow: UInt = 2, periodInDays: UInt = 30) {
+        self.maxSubscriptionsToShow = maxSubsctiptionsToShow
+        self.periodInDays = periodInDays
+    }
+}
+
 extension Appearance.ColorScheme {
     /// Цветовая схема, указанная при инициализации VK ID SDK
     public internal(set) static var current: Appearance.ColorScheme = .system
+}
+
+extension Appearance.Locale {
+    public internal(set) static var current: Appearance.Locale = .system
+
+    public var languageCode: String? {
+        guard self != .system else {
+            return nil
+        }
+        return self.rawValue
+    }
 }

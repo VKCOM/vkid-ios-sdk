@@ -126,25 +126,33 @@ final class DebugSettingsTextFieldViewModel: DebugSettingsCellViewModel {
     var placeholder: String
     var text: String?
     var action: (String?) -> Void
+    var keyboardType: UIKeyboardType = .default
 
     init(
         title: String,
         placeholder: String,
         text: String?,
+        keyboardType: UIKeyboardType = .default,
         action: @escaping (String?) -> Void
     ) {
         self.title = title
         self.action = action
         self.text = text
         self.placeholder = placeholder
+        self.keyboardType = keyboardType
     }
 
     func configureCell(_ cell: UITableViewCell) {
         guard let cell = (cell as? DebugSettingsTextFieldCell) else { return }
 
-        cell.configure(placeholder: self.placeholder, text: self.text) { [weak self] text in
-            self?.text = text
-            self?.action(text)
+        cell.configure(
+            placeholder: self.placeholder,
+            text: self.text,
+            keyboardType: self.keyboardType
+        ) { [weak self] text in
+            guard let self else { return }
+            self.text = text
+            self.action(text)
         }
     }
 }

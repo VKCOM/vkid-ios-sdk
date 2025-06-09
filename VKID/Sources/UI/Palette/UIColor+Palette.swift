@@ -47,6 +47,23 @@ extension UIColor {
     internal static let backgroundSecondaryAlphaDark = UIColor.moduleNamed("color_background_secondary_alpha_dark")
     internal static let backgroundSecondaryAlphaLight = UIColor.moduleNamed("color_background_secondary_alpha_light")
     internal static let textAccentThemed = UIColor.moduleNamed("color_text_accent_themed")
+
+    internal static let groupModalCardBackgroundDark = UIColor.moduleNamed("color_group_modal_background_dark")
+    internal static let groupModalCardBackgroundLight = UIColor.moduleNamed("color_group_modal_background_light")
+    internal static let blackTitleLight = UIColor.moduleNamed("color_black_title_light")
+    internal static let blackTitleDark = UIColor.moduleNamed("color_black_title_dark")
+    internal static let groupCancelLight = UIColor.moduleNamed("color_group_cancel_light")
+    internal static let groupCancelDark = UIColor.moduleNamed("color_group_cancel_dark")
+    internal static let groupSubscribeLight = UIColor.moduleNamed("color_group_subscribe_light")
+    internal static let groupSubscribeDark = UIColor.moduleNamed("color_group_subscribe_dark")
+    internal static let greySubtitleLight = UIColor.moduleNamed("color_grey_subtitle_light")
+    internal static let greySubtitleDark = UIColor.moduleNamed("color_grey_subtitle_dark")
+
+    internal static let snackbarTextLight = UIColor.moduleNamed("color_snackbar_text_light")
+    internal static let snackbarTextDark = UIColor.moduleNamed("color_snackbar_text_dark")
+
+    internal static let snackbarBackgroundLight = UIColor.moduleNamed("color_snackbar_background_light")
+    internal static let snackbarBackgroundDark = UIColor.moduleNamed("color_snackbar_background_dark")
 }
 
 extension UIColor {

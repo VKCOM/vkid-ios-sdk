@@ -155,7 +155,9 @@ extension OneTapControl {
                     ),
                     borderColor: theme.colors.secondary,
                     borderWidth: 1,
-                    backgroundColor: UIColor.clear,
+                    backgroundColor: Self.widgetBackgroundColor(
+                        appearance: appearance
+                    ),
                     activityIndicatorColor: DynamicColor(
                         light: .iconMediumLight,
                         dark: .iconMediumDark
@@ -166,6 +168,18 @@ extension OneTapControl {
                     logoImage: appearance.style.logo.image,
                     isLogoOnlyLayout: layout.kind == .logoOnly
                 )
+            }
+        }
+
+        static func widgetBackgroundColor(appearance: OneTapButton.Appearance) -> any Color {
+            switch appearance.theme.colorScheme {
+            case .dark: UIColor.clear as (any Color)
+            case .light: UIColor.white as (any Color)
+            case .system:
+                DynamicColor(
+                    light: .white,
+                    dark: .clear
+                ) as (any Color)
             }
         }
     }

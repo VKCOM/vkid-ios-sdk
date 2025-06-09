@@ -38,6 +38,8 @@ package struct TypeRegistrationItem: Encodable {
     /// Поля события регистрации
     package var fields: [FieldItem]
 
+    package var appId: Int?
+
     // MARK: - Дополнительные поля
     /// Источник/Инициатор флоу
     package var flowSource: String?
@@ -47,10 +49,12 @@ package struct TypeRegistrationItem: Encodable {
     ///   - eventType: тип события.
     ///   - error: ошибка авторизации/регистрации.
     ///   - fields: поля события аналитики.
-    package init(eventType: EventType, error: Error? = nil, fields: [FieldItem]) {
+    ///   - appId: идентификатор приложения
+    package init(eventType: EventType, error: Error? = nil, fields: [FieldItem], appId: String? = nil) {
         self.eventType = eventType
         self.error = error
         self.fields = fields
+        self.appId = appId.map { Int($0) ?? 0 }
     }
 
     /// Типы событий регистрации
