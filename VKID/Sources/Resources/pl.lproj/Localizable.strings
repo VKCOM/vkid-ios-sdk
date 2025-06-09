@@ -42,3 +42,11 @@
 "vkid_sheet_state_auth_success" = "Pomyślnie";
 "vkid_sheet_state_auth_failed_retry" = "Powtórz próbę";
 "vkid_sheet_state_auth_failed" = "Nieudana autoryzacja";
+
+"vkid_group_subscription_primary" = "Subskrybuj społeczność";
+"vkid_group_subscription_secondary" = "Innym razem";
+"vkid_group_subscription_snackbar_label" = "Subskrybujesz społeczność";
+"vkid_group_subscription_fail_title" = "Nie udało się zasubskrybować";
+"vkid_group_subscription_fail_description" = "Spróbuj jeszcze raz";
+"vkid_group_subscription_fail_primary" = "Powtórz próbę";
+"vkid_group_subscription_fail_secondary" = "Anuluj";

@@ -159,6 +159,26 @@ internal struct TypeRegistrationItemNamespace: AnalyticsTypeItemNamespace {
         }
     }
 
+    struct GroupSubscriptionParameters {
+        var language: String? = nil
+        var themeType: String? = nil
+        var groupId: Int?
+        var appId: String? = nil
+        init(
+            groupId: Int? = 0,
+            language: String? = nil,
+            themeType: Appearance.ColorScheme? = nil,
+            appId: String? = nil
+        ) {
+            self.language = Appearance.Locale.preferredLocale?.rawLocale
+            if let themeType {
+                self.themeType = AnalyticsMappings.colorSchemeToText(colorScheme: themeType)
+            }
+            self.groupId = groupId
+            self.appId = appId
+        }
+    }
+
     // MARK: - General
     var screenProceed: ScreenProceed { Never() }
     var authProviderUsed: AuthProviderUsed { Never() }
@@ -182,6 +202,17 @@ internal struct TypeRegistrationItemNamespace: AnalyticsTypeItemNamespace {
     var vkButtonTap: VKButtonTap { Never() }
     var okButtonTap: OkButtonTap { Never() }
     var mailButtonTap: MailButtonTap { Never() }
+
+    // MARK: - Group Subscription
+    var groupSubscriptionShown: GroupSubscriptionShown { Never() }
+    var groupSubscriptionTap: GroupSubscriptionTap { Never() }
+    var groupSubscriptionNextTimeTap: GroupSubscriptionNextTimeTap { Never() }
+    var groupSubscriptionCloseTap: GroupSubscriptionCloseTap { Never() }
+    var groupSubscriptionErrorShown: GroupSubscriptionErrorShown { Never() }
+    var groupSubscriptionErrorCancelTap: GroupSubscriptionErrorCancelTap { Never() }
+    var groupSubscriptionErrorCloseTap: GroupSubscriptionErrorCloseTap { Never() }
+    var groupSubscriptionSuccess: GroupSubscriptionSuccess { Never() }
+    var groupSubscriptionErrorRetryTap: GroupSubscriptionErrorRetryTap { Never() }
 
     // MARK: - General
     struct ScreenProceed: AnalyticsEventTypeAction {
@@ -374,20 +405,158 @@ internal struct TypeRegistrationItemNamespace: AnalyticsTypeItemNamespace {
             )
         }
     }
+
+    // MARK: - Group Subscription
+    struct GroupSubscriptionShown: AnalyticsEventTypeAction {
+        static func typeAction(
+            with parameters: GroupSubscriptionParameters,
+            context: AnalyticsEventContext
+        ) -> TypeAction {
+            TypeAction(
+                typeRegistrationItem: typeRegistrationItem(
+                    eventType: .communityFollowModalWindowShow,
+                    parameters: parameters,
+                    context: context
+                )
+            )
+        }
+    }
+
+    struct GroupSubscriptionTap: AnalyticsEventTypeAction {
+        static func typeAction(
+            with parameters: GroupSubscriptionParameters,
+            context: AnalyticsEventContext
+        ) -> TypeAction {
+            TypeAction(
+                typeRegistrationItem: typeRegistrationItem(
+                    eventType: .communityFollowClick,
+                    parameters: parameters,
+                    context: context
+                )
+            )
+        }
+    }
+
+    struct GroupSubscriptionNextTimeTap: AnalyticsEventTypeAction {
+        static func typeAction(
+            with parameters: GroupSubscriptionParameters,
+            context: AnalyticsEventContext
+        ) -> TypeAction {
+            TypeAction(
+                typeRegistrationItem: typeRegistrationItem(
+                    eventType: .communityFollowNextTimeClick,
+                    parameters: parameters,
+                    context: context
+                )
+            )
+        }
+    }
+
+    struct GroupSubscriptionCloseTap: AnalyticsEventTypeAction {
+        static func typeAction(
+            with parameters: GroupSubscriptionParameters,
+            context: AnalyticsEventContext
+        ) -> TypeAction {
+            TypeAction(
+                typeRegistrationItem: typeRegistrationItem(
+                    eventType: .communityFollowClose,
+                    parameters: parameters,
+                    context: context
+                )
+            )
+        }
+    }
+
+    struct GroupSubscriptionErrorShown: AnalyticsEventTypeAction {
+        static func typeAction(
+            with parameters: GroupSubscriptionParameters,
+            context: AnalyticsEventContext
+        ) -> TypeAction {
+            TypeAction(
+                typeRegistrationItem: typeRegistrationItem(
+                    eventType: .communityFollowErrorShow,
+                    parameters: parameters,
+                    context: context
+                )
+            )
+        }
+    }
+
+    struct GroupSubscriptionErrorCancelTap: AnalyticsEventTypeAction {
+        static func typeAction(
+            with parameters: GroupSubscriptionParameters,
+            context: AnalyticsEventContext
+        ) -> TypeAction {
+            TypeAction(
+                typeRegistrationItem: typeRegistrationItem(
+                    eventType: .communityFollowErrorCancelClick,
+                    parameters: parameters,
+                    context: context
+                )
+            )
+        }
+    }
+
+    struct GroupSubscriptionErrorCloseTap: AnalyticsEventTypeAction {
+        static func typeAction(
+            with parameters: GroupSubscriptionParameters,
+            context: AnalyticsEventContext
+        ) -> TypeAction {
+            TypeAction(
+                typeRegistrationItem: typeRegistrationItem(
+                    eventType: .communityFollowErrorClose,
+                    parameters: parameters,
+                    context: context
+                )
+            )
+        }
+    }
+
+    struct GroupSubscriptionSuccess: AnalyticsEventTypeAction {
+        static func typeAction(
+            with parameters: GroupSubscriptionParameters,
+            context: AnalyticsEventContext
+        ) -> TypeAction {
+            TypeAction(
+                typeRegistrationItem: typeRegistrationItem(
+                    eventType: .communityFollowSuccess,
+                    parameters: parameters,
+                    context: context
+                )
+            )
+        }
+    }
+
+    struct GroupSubscriptionErrorRetryTap: AnalyticsEventTypeAction {
+        static func typeAction(
+            with parameters: GroupSubscriptionParameters,
+            context: AnalyticsEventContext
+        ) -> TypeAction {
+            TypeAction(
+                typeRegistrationItem: typeRegistrationItem(
+                    eventType: .communityFollowErrorRetryClick,
+                    parameters: parameters,
+                    context: context
+                )
+            )
+        }
+    }
 }
 
 extension TypeRegistrationItemNamespace {
     // MARK: - Methods
     static func typeRegistrationItem(
         eventType: TypeRegistrationItem.EventType,
-        error: TypeRegistrationItem.Error? = nil
+        error: TypeRegistrationItem.Error? = nil,
+        appId: String? = nil
     ) -> TypeRegistrationItem {
         TypeRegistrationItem(
             eventType: eventType,
             error: error,
             fields: [
                 .init(name: .sdkType, value: "vkid"),
-            ]
+            ],
+            appId: appId
         )
     }
 
@@ -513,6 +682,26 @@ extension TypeRegistrationItemNamespace {
 
         return typeRegistrationItem
     }
+
+    static func typeRegistrationItem(
+        eventType: TypeRegistrationItem.EventType,
+        parameters: GroupSubscriptionParameters,
+        context: AnalyticsEventContext
+    ) -> TypeRegistrationItem {
+        var typeRegistrationItem = self.typeRegistrationItem(
+            eventType: eventType,
+            appId: parameters.appId
+        )
+        typeRegistrationItem.addField(groupId: String(parameters.groupId ?? 0))
+        if let language = parameters.language {
+            typeRegistrationItem.addField(language: language)
+        }
+        if let themeType = parameters.themeType {
+            typeRegistrationItem.addField(themeType: themeType)
+        }
+
+        return typeRegistrationItem
+    }
 }
 
 extension TypeRegistrationItem {
@@ -586,6 +775,14 @@ extension TypeRegistrationItem {
     ) {
         self.fields.append(
             .init(name: .styleType, value: styleType)
+        )
+    }
+
+    fileprivate mutating func addField(
+        groupId: String
+    ) {
+        self.fields.append(
+            .init(name: .groupId, value: groupId)
         )
     }
 }

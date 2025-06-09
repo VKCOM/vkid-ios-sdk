@@ -32,3 +32,7 @@ import VKIDCore
 extension TypeSAKSessionsEventItem.Step {
     static let vkidSDKInit: Self = "vkid_sdk_init"
 }
+
+extension TypeSAKSessionsEventItem.FieldItem.Name {
+    static let limitSettings: Self = "limit_settings"
+}

@@ -33,14 +33,18 @@ internal struct TypeSAKSessionsEventItemNamespace: AnalyticsTypeItemNamespace {
     var sdkInit: SDKInit { Never() }
 
     struct SDKInit: AnalyticsEventTypeAction {
-        typealias Parameters = String
+        struct SDKInitParameters {
+            let wrapperSDK: String
+            let groupSubscriptionsLimit: GroupSubscriptionsLimit?
+        }
 
-        static func typeAction(with parameters: Parameters, context: AnalyticsEventContext) -> TypeAction {
+        static func typeAction(with parameters: SDKInitParameters, context: AnalyticsEventContext) -> TypeAction {
             TypeAction(
                 typeSAKSessionsEventItem: typeSAKSessionsEventItem(
                     step: .vkidSDKInit,
                     context: context,
-                    wrapperSDK: parameters
+                    wrapperSDK: parameters.wrapperSDK,
+                    groupSubscriptionsLimit: parameters.groupSubscriptionsLimit
                 )
             )
         }
@@ -52,14 +56,23 @@ extension TypeSAKSessionsEventItemNamespace {
     static func typeSAKSessionsEventItem(
         step: TypeSAKSessionsEventItem.Step,
         context: AnalyticsEventContext,
-        wrapperSDK: String
+        wrapperSDK: String,
+        groupSubscriptionsLimit: GroupSubscriptionsLimit?
     ) -> TypeSAKSessionsEventItem {
         TypeSAKSessionsEventItem(
             step: step,
             additionalInfo: .init(
                 rawValue: Env.packageManager.rawValue
             ),
-            wrapperSDK: wrapperSDK
+            wrapperSDK: wrapperSDK,
+            fields: groupSubscriptionsLimit.map {
+                [
+                    .init(
+                        name: .limitSettings,
+                        value: "\($0.maxSubscriptionsToShow);\($0.periodInDays)"
+                    ),
+                ]
+            }
         )
     }
 }

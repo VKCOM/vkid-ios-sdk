@@ -30,6 +30,12 @@ import Foundation
 import VKIDCore
 
 final class AnalyticsServiceMock: AnalyticsService {
+    func sendAuthorized(
+        events: [VKIDCore.AnalyticsEncodedEvent],
+        context: VKIDCore.AnalyticsEventContext,
+        externalToken: String?
+    ) {}
+
     var onSend: (([AnalyticsEncodedEvent], AnalyticsEventContext) -> Void)?
 
     func send(events: [AnalyticsEncodedEvent], context: AnalyticsEventContext) {

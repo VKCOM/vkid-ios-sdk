@@ -30,7 +30,13 @@ import Foundation
 
 extension String {
     internal var localized: String {
-        if let bundle = Bundle.resources.bundle(forResource: Bundle.preferredLocalization(), ofType: "lproj") {
+        self.localized(locale: Appearance.Locale.current)
+    }
+
+    internal func localized(locale: Appearance.Locale? = nil) -> String {
+        if let bundle = Bundle.resources.bundle(
+            forResource: locale?.languageCode ?? Bundle.preferredLocalization(), ofType: "lproj"
+        ) {
             return NSLocalizedString(self, bundle: bundle, comment: "")
         }
 

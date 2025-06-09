@@ -39,7 +39,7 @@ internal protocol LogoutService {
 
 internal final class UserService: LogoutService, UserInfoService {
     struct Dependencies: Dependency {
-        let api: VKAPI<OAuth2>
+        let oAuth2API: VKAPI<OAuth2>
         let appCredentials: AppCredentials
         let deviceId: DeviceId
     }
@@ -56,7 +56,7 @@ internal final class UserService: LogoutService, UserInfoService {
     /// Логаут сессии
     func logout(with accessToken: AccessToken, completion: @escaping (LogoutResult) -> Void) {
         self.deps
-            .api
+            .oAuth2API
             .logout
             .execute(
                 with: .init(
@@ -82,7 +82,7 @@ internal final class UserService: LogoutService, UserInfoService {
 
     func fetchUserData(in session: UserSession, completion: @escaping (Result<User, UserFetchingError>) -> Void) {
         self.deps
-            .api
+            .oAuth2API
             .userInfo
             .execute(
                 with: .init(

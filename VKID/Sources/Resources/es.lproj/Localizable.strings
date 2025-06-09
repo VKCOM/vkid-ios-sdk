@@ -42,3 +42,11 @@
 "vkid_sheet_state_auth_success" = "Éxito!";
 "vkid_sheet_state_auth_failed_retry" = "Probar de nuevo";
 "vkid_sheet_state_auth_failed" = "Error al iniciar sesión";
+
+"vkid_group_subscription_primary" = "Seguir a la comunidad";
+"vkid_group_subscription_secondary" = "Quizás más tarde";
+"vkid_group_subscription_snackbar_label" = "Ahora sigues a esta comunidad";
+"vkid_group_subscription_fail_title" = "No se pudo seguir a la comunidad";
+"vkid_group_subscription_fail_description" = "Prueba de nuevo";
+"vkid_group_subscription_fail_primary" = "Probar de nuevo";
+"vkid_group_subscription_fail_secondary" = "Cancelar";

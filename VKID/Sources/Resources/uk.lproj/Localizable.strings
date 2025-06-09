@@ -42,3 +42,11 @@
 "vkid_sheet_state_auth_success" = "Успішно";
 "vkid_sheet_state_auth_failed_retry" = "Повторити спробу";
 "vkid_sheet_state_auth_failed" = "Не вдалося авторизуватися";
+
+"vkid_group_subscription_primary" = "Підписатися на спільноту";
+"vkid_group_subscription_secondary" = "Іншим разом";
+"vkid_group_subscription_snackbar_label" = "Ви підписані на спільноту";
+"vkid_group_subscription_fail_title" = "Не вдалося підписатися";
+"vkid_group_subscription_fail_description" = "Спробуйте ще раз";
+"vkid_group_subscription_fail_primary" = "Повторити спробу";
+"vkid_group_subscription_fail_secondary" = "Скасувати";

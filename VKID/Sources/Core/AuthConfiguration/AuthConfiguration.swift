@@ -38,6 +38,8 @@ public struct AuthConfiguration {
     /// Запускает флоу авторизации только в браузере, открывающемся с помощью SDK. Если значение 'true', то будет проигнорирован флоу авторизации через провайдера авторизации. Следует с осторожностью использовать эту настройку, так как выключение авторизации через провайдер может резко снизить конверсию.
     let forceWebViewFlow: Bool
 
+    public internal(set) var groupSubscriptionConfiguration: GroupSubscriptionConfiguration?
+
     /// Создает конфигурацию авторизации
     /// - Parameters:
     ///   - flow: Флоу авторизации Confidential client flow или Public client flow
@@ -49,11 +51,19 @@ public struct AuthConfiguration {
     public init (
         flow: Flow = .publicClientFlow(),
         scope: Scope? = nil,
-        forceWebViewFlow: Bool = false
+        forceWebViewFlow: Bool = false,
+        groupSubscriptionConfiguration: GroupSubscriptionConfiguration? = nil
     ) {
         self.flow = flow
-        self.scope = scope
         self.forceWebViewFlow = forceWebViewFlow
+        self.groupSubscriptionConfiguration = groupSubscriptionConfiguration
+        guard let groupSubscriptionConfiguration else {
+            self.scope = scope
+            return
+        }
+        var updatingSetOfScopes = (scope?.value ?? Set())
+        updatingSetOfScopes.insert(Scope.Permission.groups.rawValue)
+        self.scope = Scope(updatingSetOfScopes)
     }
 }
 

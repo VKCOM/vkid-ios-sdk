@@ -35,6 +35,8 @@ package struct TypeSAKSessionsEventItem: Encodable {
     let additionalInfo: AdditionalInfo
     /// Приложение создано через Flutter SDK
     let wrapperSdkType: String
+    /// Поля инициализации SDK
+    let fields: [FieldItem]?
 
     /// Инициализация TypeSAKSessionsEventItem
     /// - Parameters:
@@ -43,11 +45,13 @@ package struct TypeSAKSessionsEventItem: Encodable {
     package init(
         step: Step,
         additionalInfo: AdditionalInfo,
-        wrapperSDK: String
+        wrapperSDK: String,
+        fields: [FieldItem]?
     ) {
         self.step = step
         self.additionalInfo = additionalInfo
         self.wrapperSdkType = wrapperSDK
+        self.fields = fields
     }
 
     /// Тип события
@@ -65,6 +69,28 @@ package struct TypeSAKSessionsEventItem: Encodable {
 
         package init(rawValue: String) {
             self.rawValue = rawValue
+        }
+    }
+
+    /// Поле событий инициализации SDK
+    package struct FieldItem: Encodable {
+        /// Имя поля
+        let name: Name
+        /// Значение поля
+        let value: String?
+
+        package init(name: Name, value: String?) {
+            self.name = name
+            self.value = value
+        }
+
+        /// Поле событий инициализации SDK
+        package struct Name: StringRawRepresentable, Encodable {
+            package var rawValue: String
+
+            package init(rawValue: String) {
+                self.rawValue = rawValue
+            }
         }
     }
 }

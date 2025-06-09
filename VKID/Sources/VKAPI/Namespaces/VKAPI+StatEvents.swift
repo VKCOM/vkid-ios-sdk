@@ -34,13 +34,15 @@ internal struct StatEvents: VKAPINamespace {
         let failedIds: [Int]
     }
 
-    struct StatEventsParameters: VKAPIDictionaryRepresentable {
+    struct StatEventsParameters: VKAPIExternalAccessTokenProviding {
+        var externalAccessToken: String?
         let events: String
         let sakVersion: String
 
-        init(events: String, sakVersion: String) {
+        init(events: String, sakVersion: String, externalAccessToken: String? = nil) {
             self.events = events
             self.sakVersion = sakVersion
+            self.externalAccessToken = externalAccessToken
         }
     }
 
@@ -53,8 +55,8 @@ internal struct StatEvents: VKAPINamespace {
                 host: .api,
                 path: "/method/statEvents.addVKID",
                 httpMethod: .post,
-                parameters: parameters.dictionaryRepresentation,
-                authorization: .accessToken(userId: userId)
+                parameters: parameters.dictionaryWithoutExternalAccessToken,
+                authorization: parameters.externalAccessToken.getAuthorization(userId: userId)
             )
         }
     }
@@ -68,7 +70,7 @@ internal struct StatEvents: VKAPINamespace {
                 host: .api,
                 path: "/method/statEvents.addVKIDAnonymously",
                 httpMethod: .post,
-                parameters: parameters.dictionaryRepresentation,
+                parameters: parameters.dictionaryWithoutExternalAccessToken,
                 authorization: .anonymousToken
             )
         }

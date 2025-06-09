@@ -53,6 +53,17 @@ extension TypeRegistrationItem.EventType {
     static let vkButtonTap: Self = "vk_button_tap"
     static let okButtonTap: Self = "ok_button_tap"
     static let mailButtonTap: Self = "mail_button_tap"
+
+    // MARK: - GroupSubscription
+    static let communityFollowModalWindowShow: Self = "community_follow_modal_window_show"
+    static let communityFollowClick: Self = "community_follow_click"
+    static let communityFollowNextTimeClick: Self = "community_follow_next_time_click"
+    static let communityFollowClose: Self = "community_follow_close"
+    static let communityFollowErrorShow: Self = "community_follow_error_show"
+    static let communityFollowErrorCancelClick: Self = "community_follow_error_cancel_click"
+    static let communityFollowErrorClose: Self = "community_follow_error_close"
+    static let communityFollowSuccess: Self = "community_follow_success"
+    static let communityFollowErrorRetryClick: Self = "community_follow_error_retry_click"
 }
 
 extension TypeRegistrationItem.FieldItem.Name {
@@ -69,6 +80,7 @@ extension TypeRegistrationItem.FieldItem.Name {
     static let fromOneTap: Self = "from_one_tap"
     static let fromFloatingOneTap: Self = "from_floating_one_tap"
     static let fromMultibranding: Self = "from_multibranding"
+    static let groupId: Self = "group_id"
 }
 
 extension TypeRegistrationItem.Error {

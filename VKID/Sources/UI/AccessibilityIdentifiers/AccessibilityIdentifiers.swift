@@ -39,4 +39,11 @@ extension AccessibilityIdentifier {
             case retry
         }
     }
+
+    enum GroupSubscriptionSheet {
+        enum Button: AccessibilityIdentifiable {
+            case followCommunity
+            case cancel
+        }
+    }
 }

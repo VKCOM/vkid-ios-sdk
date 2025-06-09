@@ -40,6 +40,7 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
     private let autoDismissOnSuccess: Bool
     private let onCompleteAuth: AuthResultCompletion?
     private let presenter: UIKitPresenter?
+    private var result: AuthResult?
 
     private var currentOAuthProivder: OAuthProvider?
 
@@ -343,7 +344,7 @@ extension OneTapBottomSheetContentViewController {
 extension OneTapBottomSheetContentViewController: OneTapBottomSheetAuthStateViewDelegate {
     func authStateViewDidTapOnRetryButton(_ view: OneTapBottomSheetAuthStateView) {
         guard let oAuth = self.currentOAuthProivder, !vkid.isAuthorizing else { return }
-
+        self.result = nil
         self.vkid.authorize(
             authContext: .init(launchedBy: .oneTapBottomSheetRetry),
             authConfig: .init(),
@@ -363,43 +364,50 @@ extension OneTapBottomSheetContentViewController: VKIDObserver {
     }
 
     func vkid(_ vkid: VKID, didCompleteAuthWith result: AuthResult, in oAuth: OAuthProvider) {
-        switch result {
-        case .success:
-            self.handleSuccessResult(result)
-        case .failure(let error):
-            switch error {
-            case .cancelled: self.authState = .idle
-            case .authCodeExchangedOnYourBackend:
+        if self.result == nil {
+            self.result = result
+            switch result {
+            case .success:
                 self.handleSuccessResult(result)
-            case .unknown, .codeVerifierNotProvided: self.authState = .failure
-            case .authAlreadyInProgress: break
+            case .failure(let error):
+                switch error {
+                case .cancelled: self.authState = .idle
+                case .authCodeExchangedOnYourBackend:
+                    self.handleSuccessResult(result)
+                    return
+                case .unknown, .codeVerifierNotProvided: self.authState = .failure
+                case .authAlreadyInProgress: break
+                }
+                self.onCompleteAuth?(result)
             }
-            self.onCompleteAuth?(result)
         }
     }
 
     func handleSuccessResult(_ result: AuthResult) {
-        self.authState = .success
-        guard self.autoDismissOnSuccess else {
-            self.onCompleteAuth?(result)
-            return
-        }
-        DispatchQueue
-            .main
-            .asyncAfter(deadline: .now() + 0.5) { [weak self, onComplete = self.onCompleteAuth] in
-                if self?.isBeingDismissed == false {
-                    if let presenter = self?.presenter, let parent = self?.parent {
-                        presenter.dismiss(parent) {
-                            onComplete?(result)
+        if self.authState != .success {
+            self.result = result
+            self.authState = .success
+            guard self.autoDismissOnSuccess else {
+                self.onCompleteAuth?(result)
+                return
+            }
+            DispatchQueue
+                .main
+                .asyncAfter(deadline: .now() + 0.1) { [weak self, onComplete = self.onCompleteAuth] in
+                    if self?.isBeingDismissed == false {
+                        if let presenter = self?.presenter, let parent = self?.parent {
+                            presenter.dismiss(parent) {
+                                onComplete?(result)
+                            }
+                        } else {
+                            self?.dismiss(animated: true) {
+                                onComplete?(result)
+                            }
                         }
                     } else {
-                        self?.dismiss(animated: true) {
-                            onComplete?(result)
-                        }
+                        onComplete?(result)
                     }
-                } else {
-                    onComplete?(result)
                 }
-            }
+        }
     }
 }

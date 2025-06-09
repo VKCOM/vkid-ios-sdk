@@ -109,7 +109,12 @@ public final class VKID {
         set {
             self.config.appearance = newValue
             Appearance.ColorScheme.current = newValue.colorScheme
+            Appearance.Locale.current = newValue.locale
         }
+    }
+
+    public var groupSubscriptionsLimit: GroupSubscriptionsLimit? {
+        self.config.groupSubscriptionsLimit
     }
 
     /// Создает объект VKID с указанной конфигурацией
@@ -131,6 +136,7 @@ public final class VKID {
         rootContainer: RootContainer
     ) throws {
         Appearance.ColorScheme.current = config.appearance.colorScheme
+        Appearance.Locale.current = config.appearance.locale
 
         self.config = config
         self.rootContainer = rootContainer
@@ -140,7 +146,10 @@ public final class VKID {
             self.rootContainer.vkidAnalytics
         )
         self.rootContainer.techAnalytcs.sdkInit.send(
-            config.wrapperSDK.rawValue
+            .init(
+                wrapperSDK: config.wrapperSDK.rawValue,
+                groupSubscriptionsLimit: config.groupSubscriptionsLimit
+            )
         )
     }
 
@@ -176,11 +185,14 @@ public final class VKID {
         using presenter: UIKitPresenter,
         completion: @escaping AuthResultCompletion
     ) {
+        var config = authConfig
+        config.groupSubscriptionConfiguration?.presenter = presenter
+        config.groupSubscriptionConfiguration?.theme = .matchingColorScheme(Appearance.ColorScheme.current)
         self.authorize(
             authContext: AuthContext(
                 launchedBy: .service
             ),
-            authConfig: authConfig,
+            authConfig: config,
             oAuthProviderConfig: .init(primaryProvider: oAuthProvider),
             presenter: presenter,
             completion: completion
@@ -225,12 +237,15 @@ public final class VKID {
                 deps: .init(codeExchangingService: self.rootContainer.codeExchangingService),
                 pkceSecrets: pkceWallet
             )
+        var groupConfig = authConfig.groupSubscriptionConfiguration
+        groupConfig?.presenter = presenter
         let extendedAuthConfiguration = ExtendedAuthConfiguration(
             pkceSecrets: pkceWallet,
             codeExchanger: codeExchanger,
             oAuthProvider: oAuthProviderConfig.primaryProvider,
             scope: authConfig.scope?.description,
-            forceWebViewFlow: authConfig.forceWebViewFlow
+            forceWebViewFlow: authConfig.forceWebViewFlow,
+            groupSubscriptionConfiguration: groupConfig
         )
 
         self.authorize(
@@ -311,9 +326,19 @@ public final class VKID {
             }
 
             let authResult = AuthResult(userSessionResult)
-            func applyCompletionWithDelay(retries: UInt8 = 5) {
-                if self.rootContainer.applicationManager.isTopMostViewControllerSafariController, retries > 0 {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            func applyCompletionWithDelay(retries: UInt8 = 3) {
+                let isBottomSheetShown = self.rootContainer.applicationManager.activeWindow?
+                    .topmostViewController is BottomSheetViewController
+                if self.rootContainer.applicationManager.isTopMostViewControllerSafariController || isBottomSheetShown,
+                   retries > 0
+                {
+                    if let bottomSheetViewController = self.rootContainer.applicationManager.activeWindow?
+                        .topmostViewController as? BottomSheetViewController
+                    {
+                        (bottomSheetViewController.contentViewController as? OneTapBottomSheetContentViewController)?
+                            .vkid(self, didCompleteAuthWith: authResult, in: extendedAuthConfig.oAuthProvider)
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                         applyCompletionWithDelay(retries: retries - 1)
                     }
                 } else {
@@ -321,6 +346,11 @@ public final class VKID {
                 }
             }
             func applyCompletion() {
+                if case .success(let session) = authResult,
+                   let config = extendedAuthConfig.groupSubscriptionConfiguration
+                {
+                    self.showGroupSubscription(config: config, userSession: session)
+                }
                 self.observers.notify {
                     $0.vkid(
                         self,
@@ -330,10 +360,27 @@ public final class VKID {
                 }
                 completion(authResult)
             }
-            if self.rootContainer.applicationManager.isTopMostViewControllerSafariController {
+            if self.rootContainer.applicationManager.isTopMostViewControllerSafariController ||
+                (self.rootContainer.applicationManager.activeWindow?.topmostViewController is BottomSheetViewController)
+            {
                 applyCompletionWithDelay()
             } else {
                 applyCompletion()
+            }
+        }
+    }
+
+    private func showGroupSubscription(config: GroupSubscriptionConfiguration, userSession: UserSession) {
+        let groupSubscriptionSheetConfig = GroupSubscriptionSheet(
+            groupSubscriptionConfiguration: config,
+            userSession: userSession
+        )
+        self.ui(for: groupSubscriptionSheetConfig).uiViewController { result in
+            switch result {
+            case.success(let viewController):
+                config.presenter.present(viewController, animated: true)
+            case.failure(let error):
+                config.onCompleteSubscription?(.failure(.failedToCreate(error)))
             }
         }
     }

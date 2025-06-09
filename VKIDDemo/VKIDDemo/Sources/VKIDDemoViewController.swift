@@ -95,10 +95,14 @@ class VKIDDemoViewController: UIViewController {
 
     var appearance: Appearance {
         get {
-            self.vkid?.appearance ?? .init()
+            guard let code = self.debugSettings.currentLanguageCode else {
+                return self.vkid?.appearance ?? .init()
+            }
+            return .init(locale: Appearance.Locale(rawValue: code) ?? .system)
         }
         set {
             self.vkid?.appearance = newValue
+            self.debugSettings.currentLanguageCode = newValue.locale.languageCode
         }
     }
 
@@ -282,6 +286,15 @@ class VKIDDemoViewController: UIViewController {
         } else {
             self.rightSideContentWidthConstraint?.isActive = false
             self.layoutType = .oneColumn
+        }
+    }
+
+    internal func handleSubscription(result: GroupSubscriptionResult) {
+        switch result {
+        case .success:
+            self.showAlert(message: "Успешная подписка на сообщество")
+        case .failure(let error):
+            self.showAlert(message: "Не удалось подписаться на сообщество: \(error)")
         }
     }
 }

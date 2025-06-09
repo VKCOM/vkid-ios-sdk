@@ -711,7 +711,33 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
 
                 let session = try result.get()
                 print("Auth succeeded with\n\(session)")
-                self.alertPresentationController.showAlert(message: session.debugDescription)
+                if !self.debugSettings.subscriptionEnabled {
+                    self.alertPresentationController.showAlert(message: session.debugDescription)
+                } else if self.debugSettings.subscriptionExternalATEnabled {
+                    let groupSubscriptionConfig = GroupSubscriptionSheet(
+                        subscribeToGroupId: self.debugSettings.groupId
+                    ) { [weak self]
+                        result in
+                            self?.handleSubscription(result: result)
+                    } accessTokenProvider: { force, completion in
+                        session.getFreshAccessToken(forceRefresh: force) { result in
+                            switch result {
+                            case .success((let accessToken, _)):
+                                completion(.success(accessToken.value))
+                            case .failure(let error):
+                                completion(.failure(error))
+                            }
+                        }
+                    }
+                    groupSubscriptionConfig._uiViewController(factory: vkid!) { [weak self] result in
+                        switch result {
+                        case .success(let viewController):
+                            self?.present(viewController, animated: true)
+                        case .failure(let error):
+                            self?.showAlert(message: "Ошибка начала подписки на сообщество: \(error)")
+                        }
+                    }
+                }
             } catch AuthError.cancelled {
                 self?.alertPresentationController.showAlert(
                     message: "Auth cancelled by user"
@@ -720,6 +746,14 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
                 self?.alertPresentationController.showAlert(
                     message: "Auth failed with error: \(error)"
                 )
+            }
+        }
+        var groupSubscriptionConfiguration: GroupSubscriptionConfiguration? = nil
+
+        if self.debugSettings.subscriptionEnabled {
+            groupSubscriptionConfiguration = .init(subscribeToGroupId: self.debugSettings.groupId) { [weak self]
+                result in
+                    self?.handleSubscription(result: result)
             }
         }
 
@@ -733,7 +767,8 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
             authConfiguration: .init(
                 flow: self.createFlow(secrets: self.providedAuthSecrets),
                 scope: Scope(self.debugSettings.scope),
-                forceWebViewFlow: self.debugSettings.forceWebBrowserFlow
+                forceWebViewFlow: self.debugSettings.forceWebBrowserFlow,
+                groupSubscriptionConfiguration: groupSubscriptionConfiguration
             ),
             oAuthProviderConfiguration: .init(
                 alternativeProviders: self.oAuthListWidgetSwitcher.isOn ? [.mail, .ok] : []
