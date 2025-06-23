@@ -57,7 +57,7 @@ public struct AuthConfiguration {
         self.flow = flow
         self.forceWebViewFlow = forceWebViewFlow
         self.groupSubscriptionConfiguration = groupSubscriptionConfiguration
-        guard let groupSubscriptionConfiguration else {
+        guard groupSubscriptionConfiguration != nil else {
             self.scope = scope
             return
         }

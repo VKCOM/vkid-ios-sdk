@@ -47,7 +47,7 @@ extension UITabBarController {
 }
 
 extension UIWindow {
-    package var topmostViewController: UIViewController? {
+    public var topmostViewController: UIViewController? {
         rootViewController?.topmostViewController
     }
 }
