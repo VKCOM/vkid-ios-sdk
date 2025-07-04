@@ -75,11 +75,33 @@ extension VKIDObserver {
 
 /// Объект, через который идет все взаимодействие с VKID
 public final class VKID {
-    private var config: Configuration
+    private var _config: Configuration?
+    private var config: Configuration {
+        get {
+            guard let _config else {
+                fatalError("Configuration is not set")
+            }
+            return _config
+        }
+        set {
+            self._config = newValue
+        }
+    }
+
     private var observers = WeakObservers<VKIDObserver>()
     private var activeFlow: AuthFlow?
-
-    internal let rootContainer: RootContainer
+    private(set) var _rootContainer: RootContainer?
+    internal var rootContainer: RootContainer {
+        get {
+            guard let _rootContainer else {
+                fatalError("Configuration is not set")
+            }
+            return _rootContainer
+        }
+        set {
+            self._rootContainer = newValue
+        }
+    }
 
     // Менеджер для миграции сессии на OAuth2
     public var oAuth2MigrationManager: OAuth2MigrationManager {
@@ -117,8 +139,34 @@ public final class VKID {
         self.config.groupSubscriptionsLimit
     }
 
+    // Объект взаимодействия с VKID
+    public static let shared: VKID = .init()
+
+    /// Устанавливает указанную конфигурацию в VKID SDK
+    /// - Parameter config: объект конфигурация VKID
+    public func set(config: Configuration) throws {
+        RegisteredURLSchemeChecker.assertRequiredURLSchemes(clientId: config.appCredentials.clientId)
+        try self.update(
+            config: config,
+            rootContainer: .init(
+                appCredentials: config.appCredentials,
+                networkConfiguration: config.network,
+                loggingEnabled: config.loggingEnabled
+            )
+        )
+    }
+
+    /// Создает объект VKID без конфигурации
+    private init() {}
+
     /// Создает объект VKID с указанной конфигурацией
     /// - Parameter config: объект конфигурация VKID
+    @available(
+        *,
+        deprecated,
+        renamed: "VKID.shared.set",
+        message: "Please, use VKID.shared.set(config:). Instance available by VKID.shared."
+    )
     public convenience init(config: Configuration) throws {
         RegisteredURLSchemeChecker.assertRequiredURLSchemes(clientId: config.appCredentials.clientId)
         try self.init(
@@ -132,6 +180,16 @@ public final class VKID {
     }
 
     internal init(
+        config: Configuration,
+        rootContainer: RootContainer
+    ) throws {
+        try self.update(
+            config: config,
+            rootContainer: rootContainer
+        )
+    }
+
+    private func update(
         config: Configuration,
         rootContainer: RootContainer
     ) throws {

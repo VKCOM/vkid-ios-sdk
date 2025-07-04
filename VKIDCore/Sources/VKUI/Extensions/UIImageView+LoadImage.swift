@@ -28,7 +28,7 @@
 
 import UIKit
 
-package extension UIImageView {
+extension UIImageView {
     package func loadImage(with url: URL, completion: @escaping (ImageLoader.ImageResult) -> Void) {
         ImageLoader.shared.getImage(for: url) { result in
             DispatchQueue.main.async {
