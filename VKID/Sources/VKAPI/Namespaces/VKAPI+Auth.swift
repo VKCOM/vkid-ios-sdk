@@ -99,6 +99,72 @@ internal struct Auth: VKAPINamespace {
         }
     }
 
+    struct CaptchaDomain: VKAPIMethod {
+        struct Response: VKAPIResponse {
+            let items: [Provider]
+        }
+
+        struct Provider: Decodable {
+            let appId: Int
+            let weight: Int
+            let universalLink: URL
+            let isProvider: Bool
+        }
+
+        struct Parameters: VKAPIDictionaryRepresentable {
+            let extended = true
+        }
+
+        static func request(with parameters: Parameters, for userId: Int?) -> VKAPIRequest {
+            VKAPIRequest(
+                host: .api,
+                path: "/method/auth.getVKConnectSettings",
+                httpMethod: .post,
+                parameters: parameters.dictionaryRepresentation,
+                authorization: .anonymousToken,
+                domainCaptcha: true
+            )
+        }
+    }
+
+    struct CaptchaDefault: VKAPIMethod {
+        static func request(with parameters: Parameters, for userId: Int?) -> VKIDCore.VKAPIRequest {
+            VKAPIRequest(
+                host: .api,
+                path: "/method/captcha.force",
+                httpMethod: .get,
+                parameters: parameters.dictionaryRepresentation,
+                authorization: .none,
+                onlyVersionGenericHeader: true
+            )
+        }
+
+        typealias Response = SingleValueContainer<Int>
+
+        struct Parameters: VKAPIDictionaryRepresentable {}
+    }
+
+    struct CaptchaCombined: VKAPIMethod {
+        static func request(with parameters: Parameters, for userId: Int?) -> VKIDCore.VKAPIRequest {
+            VKAPIRequest(
+                host: .api,
+                path: "/method/captcha.force",
+                httpMethod: .get,
+                parameters: parameters.dictionaryRepresentation,
+                authorization: .none,
+                domainCaptcha: true,
+                onlyVersionGenericHeader: true
+            )
+        }
+
+        typealias Response = SingleValueContainer<Int>
+
+        struct Parameters: VKAPIDictionaryRepresentable {}
+    }
+
+    var captchaDomain: CaptchaDomain { Never() }
+    var captchaDefault: CaptchaDefault { Never() }
+    var captchaCombined: CaptchaCombined { Never() }
     var legacyLogout: LegacyLogout { Never() }
     var getAuthProviders: GetAuthProviders { Never() }
     var getAnonymousToken: GetAnonymousToken { Never() }

@@ -51,7 +51,8 @@ class UserFetchingTests: XCTestCase {
     override func setUpWithError() throws {
         self.userInfoService = UserService(deps:
             .init(
-                oAuth2API: VKAPI<OAuth2>(transport: self.transportMock),
+                apiAuth: VKAPI<Auth>(transport: self.transportMock),
+                api: VKAPI<OAuth2>(transport: self.transportMock),
                 appCredentials: Entity.appCredentials,
                 deviceId: DeviceId.currentDeviceId
             ))

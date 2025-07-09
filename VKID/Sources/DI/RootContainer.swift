@@ -78,6 +78,7 @@ internal final class RootContainer {
         )
     )
     internal lazy var expiredAccessTokenInterceptor = ExpiredAccessTokenInterceptor()
+    internal lazy var captchaInterceptor = CaptchaInterceptor(deps: .init(logger: self.logger))
     internal lazy var anonTokenService = AnonymousTokenServiceImpl(
         deps: .init(
             keychain: Keychain(),
@@ -97,6 +98,7 @@ internal final class RootContainer {
             responseInterceptors: [
                 ExpiredAnonymousTokenInterceptor(anonymousTokenService: self.anonTokenService),
                 self.expiredAccessTokenInterceptor,
+                self.captchaInterceptor,
             ],
             genericParameters: VKAPIGenericParameters(
                 deviceId: self.deviceId.description,
@@ -137,10 +139,14 @@ internal final class RootContainer {
     )
     internal lazy var userService = UserService(
         deps: .init(
-            oAuth2API: VKAPI<OAuth2>(transport: self.mainTransport),
+            apiAuth: VKAPI<Auth>(transport: self.mainTransport),
+            api: VKAPI<OAuth2>(transport: self.mainTransport),
             appCredentials: self.appCredentials,
             deviceId: self.deviceId
         )
+    )
+    internal lazy var captchaService: CaptchaService = CaptchaServiceImpl(
+        deps: .init(apiAuth: VKAPI<Auth>(transport: self.mainTransport))
     )
     internal lazy var groupSubscriptionService: GroupSubscriptionService = GroupSubscriptionServiceImpl(
         deps: .init(
@@ -160,7 +166,7 @@ internal final class RootContainer {
         )
         self.requestAuthorizationInterceptor.userSessionManager = userSessionManager
         self.expiredAccessTokenInterceptor.userSessionManager = userSessionManager
-
+        self.captchaInterceptor.userSessionManager = userSessionManager
         return userSessionManager
     }()
 

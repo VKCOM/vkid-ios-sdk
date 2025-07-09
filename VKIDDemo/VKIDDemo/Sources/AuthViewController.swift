@@ -27,9 +27,9 @@
 //
 
 import UIKit
-import VKIDCore
 // Only for debug purposes. Do not use in your projects.
 import VKID
+import VKIDCore
 
 final class AuthViewController: VKIDDemoViewController {
     private enum Constants {

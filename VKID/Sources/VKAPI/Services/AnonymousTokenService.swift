@@ -54,7 +54,7 @@ internal final class AnonymousTokenServiceImpl: AnonymousTokenService {
     /// Зависимости сервиса
     private let deps: Dependencies
 
-    /// Инициализация сервиса логаута сессии.
+    /// Инициализация сервиса.
     /// - Parameter deps: Зависимости.
     init(deps: Dependencies) {
         self.deps = deps
