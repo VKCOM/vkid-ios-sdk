@@ -43,6 +43,12 @@ package struct VKAPIGenericParameters: VKAPIDictionaryRepresentable {
         ]
     }
 
+    package var apiVersionRepresentation: [String : Any] {
+        [
+            "v": self.apiVersion.description,
+        ]
+    }
+
     package init(
         deviceId: String,
         clientId: String,

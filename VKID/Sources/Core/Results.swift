@@ -84,6 +84,9 @@ public enum UserFetchingError: Error {
     /// Невалидный токен
     case invalidAccessToken
 
+    /// Ошибка прохождения капчи
+    case captchaError
+
     /// Причина неизвестна
     case unknown
 }

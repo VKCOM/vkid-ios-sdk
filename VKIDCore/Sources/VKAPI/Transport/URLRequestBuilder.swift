@@ -41,18 +41,21 @@ package final class URLRequestBuilder: URLRequestBuilding {
 
     package func buildURLRequest(from request: VKAPIRequest) throws -> URLRequest {
         var urlRequest: URLRequest
-        let components = self.urlComponents(for: request)
+        var components = self.urlComponents(for: request)
 
         switch request.httpMethod {
         case .post:
             var componentsWithoutQuery = components
-            componentsWithoutQuery.queryItems = nil
+            componentsWithoutQuery.queryItems = request.domainCaptcha ? [.init(name: "hitman", value: "ban")] : nil
             guard let url = componentsWithoutQuery.url else {
                 throw VKAPIError.invalidRequest(reason: .invalidURL)
             }
             urlRequest = URLRequest(url: url)
             urlRequest.httpBody = components.percentEncodedQuery?.data(using: .utf8)
         case .get:
+            if request.domainCaptcha {
+                components.queryItems?.append(.init(name: "hitman", value: "ban"))
+            }
             guard let url = components.url else {
                 throw VKAPIError.invalidRequest(reason: .invalidURL)
             }
@@ -74,9 +77,12 @@ package final class URLRequestBuilder: URLRequestBuilding {
         components.scheme = "https"
         components.host = self.apiHosts.getHostBy(requestHost: request.host)
         components.path = request.path
-        components.queryItems = request.parameters
-            .map { ($0.key, String(describing: $0.value)) }
-            .map(URLQueryItem.init(name:value:))
+        if !request.parameters.isEmpty {
+            var queryItems = request.parameters
+                .map { ($0.key, String(describing: $0.value)) }
+                .map(URLQueryItem.init(name:value:))
+            components.queryItems = queryItems
+        }
 
         return components
     }

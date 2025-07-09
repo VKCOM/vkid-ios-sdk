@@ -50,12 +50,14 @@ let package = Package(
             name: "testing-infra",
             path: "scripts/testing-infra"
         ),
+        .package(url: "https://github.com/VKCOM/vkid-captcha-ios-sdk", .upToNextMajor(from: "0.1.0")),
     ],
     targets: [
         .target(
             name: "VKID",
             dependencies: [
                 "VKIDCore",
+                .product(name: "VKCaptchaSDK", package: "vkid-captcha-ios-sdk"),
             ],
             path: "VKID/Sources",
             resources: [.process("Resources")]
@@ -73,7 +75,7 @@ let package = Package(
         ),
         .target(
             name: "VKIDCore",
-            dependencies: [],
+            dependencies: [.product(name: "VKCaptchaSDK", package: "vkid-captcha-ios-sdk")],
             path: "VKIDCore/Sources",
             resources: [.process("Resources")]
         ),

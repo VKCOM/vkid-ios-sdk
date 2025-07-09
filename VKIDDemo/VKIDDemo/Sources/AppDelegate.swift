@@ -28,6 +28,7 @@
 
 import UIKit
 
+import VKCaptchaSDK
 // Only for debug purposes. Do not use in your projects.
 @_spi(VKIDPrivate)
 @_spi(VKIDDebug)
@@ -55,7 +56,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         do {
-            let vkid = try VKID(
+            try VKID.shared.set(
                 config: Configuration(
                     appCredentials: AppCredentials(
                         clientId: clientId,
@@ -82,9 +83,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                         ) : nil
                 )
             )
-            self.vkid = vkid
+            self.vkid = VKID.shared
         } catch {
-            preconditionFailure("Failed to initialize VKID: \(error)")
+            preconditionFailure("Failed to set configuration for VKID: \(error)")
         }
 
         let tabBarController = UITabBarController()

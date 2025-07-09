@@ -27,6 +27,7 @@
 //
 
 import Foundation
+import VKCaptchaSDK
 
 package enum VKAPIError: Swift.Error {
     package enum InvalidRequestReason {
@@ -51,4 +52,8 @@ package enum VKAPIError: Swift.Error {
     case slowDown
     case accessDenied
     case cancelled
+    case captcha(VKCaptchaData)
+    case captchaError(Error)
+    case notImplementedCaptcha
+    case captchaInProgress
 }

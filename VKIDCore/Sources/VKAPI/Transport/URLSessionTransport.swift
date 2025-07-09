@@ -27,6 +27,7 @@
 //
 
 import Foundation
+import VKCaptchaSDK
 
 package protocol URLSessionProtocol {
     func dataTask(
@@ -133,7 +134,10 @@ package final class URLSessionTransport: NSObject, VKAPITransport {
 
         self.processingQueue.async {
             var mutableRequest = request
-            mutableRequest.add(parameters: self.genericParameters.dictionaryRepresentation)
+            mutableRequest.add(
+                parameters: request.onlyVersionGenericHeader ? self.genericParameters.apiVersionRepresentation : self
+                    .genericParameters.dictionaryRepresentation
+            )
             mutableRequest.add(headers: self.defaultHeaders, overwriteIfAlreadyExists: false)
             self.requestInterceptors.intercept(
                 request: mutableRequest
@@ -223,7 +227,6 @@ package final class URLSessionTransport: NSObject, VKAPITransport {
             }
 
             self.logger.info("\(request.id) successfully completed")
-
             do {
                 let decoded: T
                 switch request.host {
@@ -232,10 +235,12 @@ package final class URLSessionTransport: NSObject, VKAPITransport {
                         response as? HTTPURLResponse,
                         data: data
                     )
+
                 case .api:
                     decoded = try self.handleAPIHostResponse(
                         response as? HTTPURLResponse,
-                        data: data
+                        data: data,
+                        request: urlRequest
                     )
                 case .oauth:
                     decoded = try self.handleOAuthHostResponse(
@@ -255,20 +260,43 @@ package final class URLSessionTransport: NSObject, VKAPITransport {
 
     private func handleAPIHostResponse<T: VKAPIResponse>(
         _ response: HTTPURLResponse?,
-        data: Data
+        data: Data,
+        request: URLRequest
     ) throws -> T {
         dispatchPrecondition(condition: .onQueue(self.processingQueue))
-
-        let apiResponse = try jsonDecoder.decode(
-            APIHostResponse<T>.self,
-            from: data
-        )
-        switch apiResponse {
-        case .response(let resp):
-            return resp
-        case .error(let err):
-            throw err.apiError
+        let domain: String
+        if #available(iOS 16.0, *) {
+            domain = request.url?.host() ?? ""
+        } else {
+            domain = request.url?.host ?? ""
         }
+        let headers = response?.allHeaderFields
+        let result = VKCaptchaHandler()
+            .handleCaptchaData(
+                from: data,
+                responseHeaders: headers,
+                domain: domain
+            )
+
+        if case .failure(.noCaptcha) = result {
+            let apiResponse = try jsonDecoder.decode(
+                APIHostResponse<T>.self,
+                from: data
+            )
+            switch apiResponse {
+            case .response(let resp):
+                return resp
+            case .error(let err):
+                throw err.apiError
+            }
+        }
+        if case .success(let captchaData) = result {
+            throw VKAPIError.captcha(captchaData)
+        }
+        if case .failure(let error) = result {
+            throw VKAPIError.captchaError(error)
+        }
+        throw VKAPIError.noResponseDataProvided
     }
 
     private func handleOAuthHostResponse<T: VKAPIResponse>(

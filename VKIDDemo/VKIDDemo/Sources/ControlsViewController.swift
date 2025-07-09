@@ -34,6 +34,7 @@ final class ControlsViewController: VKIDDemoViewController, UITableViewDataSourc
         case oneTapBottomSheet = "OneTapBottomSheet"
         case oAuthListWidget = "OAuthListWidget"
         case groupSubscriptionSheet = "GroupSubscriptionSheet"
+        case captcha = "Captcha"
     }
 
     override var supportsScreenSplitting: Bool { true }
@@ -163,6 +164,20 @@ final class ControlsViewController: VKIDDemoViewController, UITableViewDataSourc
                 title: "Кастомизация",
                 subtitle: "GroupSubscriptionSheet",
                 description: "Настройте параметры конфигурации",
+                debugSettings: self.debugSettings,
+                api: self.api
+            )
+            controller.vkid = self.vkid
+            controller.debugSettings = self.debugSettings
+            self.navigationController?.pushViewController(
+                controller,
+                animated: true
+            )
+        case .captcha:
+            let controller = CaptchaViewController(
+                title: "Captcha",
+                subtitle: "VKCaptchaHandler",
+                description: "Пройдите капчу",
                 debugSettings: self.debugSettings,
                 api: self.api
             )
