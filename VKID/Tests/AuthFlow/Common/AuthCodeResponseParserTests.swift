@@ -80,7 +80,7 @@ final class AuthCodeResponseParserTests: XCTestCase {
             )
         )
         try given("Создается URL без параметров") {
-            let urlWithoutQuery = URL(string: "vk523633://vk.com/blank.html")!
+            let urlWithoutQuery = URL(string: "vk523633://vk.ru/blank.html")!
             try when("Парсинг URL") {
                 XCTAssertThrowsError(try self.parser.parseAuthCodeResponse(from: urlWithoutQuery)) { error in
                     then("Проверка ошибки - невалидный URL") {
@@ -101,7 +101,7 @@ final class AuthCodeResponseParserTests: XCTestCase {
             )
         )
         try given("Создается URL без пейлаода") {
-            let urlWithoutPayload = URL(string: "vk523633://vk.com/blank.html?skip=0&limit=10")!
+            let urlWithoutPayload = URL(string: "vk523633://vk.ru/blank.html?skip=0&limit=10")!
             try when("Парсинг URL") {
                 XCTAssertThrowsError(try self.parser.parseAuthCodeResponse(from: urlWithoutPayload)) { error in
                     then("Проверка ошибки - невалидный URL") {
@@ -122,7 +122,7 @@ final class AuthCodeResponseParserTests: XCTestCase {
             )
         )
         try given("Создается URL c пустым пейлаодом") {
-            let urlWithEmptyPayload = URL(string: "vk523633://vk.com/blank.html?payload=")!
+            let urlWithEmptyPayload = URL(string: "vk523633://vk.ru/blank.html?payload=")!
             try when("Парсинг URL") {
                 XCTAssertThrowsError(try self.parser.parseAuthCodeResponse(from: urlWithEmptyPayload)) { error in
                     then("Проверка ошибки - невалидный URL") {
@@ -143,7 +143,7 @@ final class AuthCodeResponseParserTests: XCTestCase {
             )
         )
         try given("Создается URL c невалидным пейлаодом") {
-            let urlWithInvalidPayload = URL(string: "vk523633://vk.com/blank.html?payload=invalidPayloadStucture")!
+            let urlWithInvalidPayload = URL(string: "vk523633://vk.ru/blank.html?payload=invalidPayloadStucture")!
             try when("Парсинг URL") {
                 XCTAssertThrowsError(try self.parser.parseAuthCodeResponse(from: urlWithInvalidPayload)) { error in
                     then("Проверка ошибки - невалидный URL") {
@@ -280,7 +280,7 @@ extension AuthCodeResponseParserTests {
     private func makeURLComponents(with response: AuthCodeResponse) -> URLComponents {
         var urlComponents = URLComponents()
         urlComponents.scheme = "vk\(Int.random)"
-        urlComponents.host = "vk.com"
+        urlComponents.host = "vk.ru"
         urlComponents.path = "/blank.html"
         let queryItems: [URLQueryItem] = [
             .init(name: "code", value: response.code),

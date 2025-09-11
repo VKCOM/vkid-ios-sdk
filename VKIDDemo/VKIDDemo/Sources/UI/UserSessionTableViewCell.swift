@@ -28,7 +28,7 @@
 
 import UIKit
 import VKID
-@testable import VKIDCore
+import VKIDCore
 
 final class UserSessionInfoTableViewCell: UITableViewCell {
     enum Constants {

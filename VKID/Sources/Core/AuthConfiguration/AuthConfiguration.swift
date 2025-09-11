@@ -44,8 +44,8 @@ public struct AuthConfiguration {
     /// - Parameters:
     ///   - flow: Флоу авторизации Confidential client flow или Public client flow
     ///   - scope:
-    ///   Запрашиваемые [права доступа](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/api-integration/api-description#Dostup-prilozheniya-k-dannym-polzovatelya).
-    ///   Запрошенный список прав для приложения не может быть больше, чем разрешенный список в [настройках приложения](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/application-settings)
+    ///   Запрашиваемые [права доступа](https://id.vk.ru/about/business/go/docs/ru/vkid/latest/vk-id/connection/api-integration/api-description#Dostup-prilozheniya-k-dannym-polzovatelya).
+    ///   Запрошенный список прав для приложения не может быть больше, чем разрешенный список в [настройках приложения](https://id.vk.ru/about/business/go/docs/ru/vkid/latest/vk-id/connection/application-settings)
     ///   По умолчанию scope = nil, в этом случае будет выдано базовое право доступа `vkid.personal_info`.
     ///   - forceWebViewFlow: Запуск авторизации только в браузере.
     public init (

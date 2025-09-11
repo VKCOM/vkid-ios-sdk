@@ -38,7 +38,7 @@ public enum OAuth2MigrationError: Error {
     case codeVerifierNotProvided
 }
 
-/// Протокол миграции ```UserSession``` на OAuth2.1. При миграции ```AccessToken``` получит доступы, которые были выданы ранее. Если ранее доступы не выдавались, токен получит [базовое право доступа `vkid.personal_info`](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/api-integration/api-description#Dostup-prilozheniya-k-dannym-polzovatelya). Доступы 'phone', 'email' не входят в базовый доступ и должны запрашиваться при авторизации. [Подробнее] (https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/ios/oauth-2.1#Nastrojka-dostupov)
+/// Протокол миграции ```UserSession``` на OAuth2.1. При миграции ```AccessToken``` получит доступы, которые были выданы ранее. Если ранее доступы не выдавались, токен получит [базовое право доступа `vkid.personal_info`](https://id.vk.ru/about/business/go/docs/ru/vkid/latest/vk-id/connection/api-integration/api-description#Dostup-prilozheniya-k-dannym-polzovatelya). Доступы 'phone', 'email' не входят в базовый доступ и должны запрашиваться при авторизации. [Подробнее] (https://id.vk.ru/about/business/go/docs/ru/vkid/latest/vk-id/connection/ios/oauth-2.1#Nastrojka-dostupov)
 public protocol OAuth2MigrationManager {
     /// Метод миграции сессии с помощью `AccessToken`
     /// - Parameters:
@@ -205,7 +205,7 @@ final class OAuth2MigrationManagerImpl: OAuth2MigrationManager, Component {
             .init(
                 from: response,
                 codeVerifier: codeVerifier,
-                redirectURI: "vk\(self.deps.appCredentials.clientId)://vk.com/blank.html"
+                redirectURI: "vk\(self.deps.appCredentials.clientId)://vk.ru/blank.html"
             )
         ) { result in
             switch result {

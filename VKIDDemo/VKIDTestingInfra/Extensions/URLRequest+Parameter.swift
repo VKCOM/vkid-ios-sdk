@@ -41,7 +41,7 @@ extension URLRequest? {
             return nil
         }
 
-        return URLComponents(string: "vk.com?" + queryItemsString)?
+        return URLComponents(string: "vk.ru?" + queryItemsString)?
             .queryItems?
             .value(byName: name)
     }

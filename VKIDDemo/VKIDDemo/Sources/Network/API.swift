@@ -37,9 +37,9 @@ internal struct API {
     private var debugSettings: DebugSettingsStorage
     private var host: String {
         if let template = self.debugSettings.customDomainTemplate, !template.isEmpty {
-            return String(format: "\(template).vk.com", "id")
+            return String(format: "\(template).vk.ru", "id")
         }
-        return "id.vk.com"
+        return "id.vk.ru"
     }
 
     private var session = URLSession.shared

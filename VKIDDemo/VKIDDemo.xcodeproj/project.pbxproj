@@ -23,6 +23,10 @@
 		054BA8872D660C2A00DFF2B0 /* GroupSubscriptionCustomizationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 054BA8852D660C1100DFF2B0 /* GroupSubscriptionCustomizationController.swift */; };
 		056C78612E1BDD5B008B5EC8 /* CaptchaViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056C78602E1BDD59008B5EC8 /* CaptchaViewController.swift */; };
 		056C78622E1BDD5B008B5EC8 /* CaptchaViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056C78602E1BDD59008B5EC8 /* CaptchaViewController.swift */; };
+		057235132E42212E00FD49E4 /* UIImageView+loadImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057235122E42212400FD49E4 /* UIImageView+loadImage.swift */; };
+		057235142E42212E00FD49E4 /* UIImageView+loadImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057235122E42212400FD49E4 /* UIImageView+loadImage.swift */; };
+		057235162E4221CA00FD49E4 /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057235152E4221C500FD49E4 /* ImageLoader.swift */; };
+		057235172E4221CA00FD49E4 /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057235152E4221C500FD49E4 /* ImageLoader.swift */; };
 		057500D12B0E0635008EEB4B /* PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 057500D02B0E0635008EEB4B /* PickerView.swift */; };
 		057E33E12C242813004AA45E /* VKIDAllureReport in Frameworks */ = {isa = PBXBuildFile; productRef = 057E33E02C242813004AA45E /* VKIDAllureReport */; };
 		0591B0252BA9E8C200B18F98 /* DebugSettingsTextFieldCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0591B0242BA9E8C200B18F98 /* DebugSettingsTextFieldCell.swift */; };
@@ -247,6 +251,8 @@
 		053014CB2C0F083700CF799D /* DictionaryRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryRepresentable.swift; sourceTree = "<group>"; };
 		054BA8852D660C1100DFF2B0 /* GroupSubscriptionCustomizationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupSubscriptionCustomizationController.swift; sourceTree = "<group>"; };
 		056C78602E1BDD59008B5EC8 /* CaptchaViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptchaViewController.swift; sourceTree = "<group>"; };
+		057235122E42212400FD49E4 /* UIImageView+loadImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+loadImage.swift"; sourceTree = "<group>"; };
+		057235152E4221C500FD49E4 /* ImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
 		057500D02B0E0635008EEB4B /* PickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerView.swift; sourceTree = "<group>"; };
 		0591B0242BA9E8C200B18F98 /* DebugSettingsTextFieldCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugSettingsTextFieldCell.swift; sourceTree = "<group>"; };
 		05A406FC2C53CF6C00081726 /* OneTapBottomSheetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneTapBottomSheetTests.swift; sourceTree = "<group>"; };
@@ -268,7 +274,6 @@
 		0CCD7A782B5005BC00846B7C /* Collection+Safe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Safe.swift"; sourceTree = "<group>"; };
 		1752AE302AF135890013D976 /* StepSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepSlider.swift; sourceTree = "<group>"; };
 		175364DF2B7D1BD4008AB285 /* ImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
-		175364E22B7D2366008AB285 /* UIImageView+LoadImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImageView+LoadImage.swift"; sourceTree = "<group>"; };
 		175365572B7E6E7B008AB285 /* UserSessionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionsViewController.swift; sourceTree = "<group>"; };
 		175365592B7F3D67008AB285 /* UserSessionTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionTableViewCell.swift; sourceTree = "<group>"; };
 		175A3B5C2C6A386C00255779 /* libVKIDTestingInfra.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libVKIDTestingInfra.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -754,6 +759,7 @@
 		A201B19C2AAB374800E8FA58 /* Misc */ = {
 			isa = PBXGroup;
 			children = (
+				057235152E4221C500FD49E4 /* ImageLoader.swift */,
 				A201B19D2AAB375900E8FA58 /* InfoPlist.swift */,
 				05A6A5602BC83B8E00B01882 /* UserSessionData.swift */,
 				053014CB2C0F083700CF799D /* DictionaryRepresentable.swift */,
@@ -821,9 +827,9 @@
 		A24B64C22AA1FD4600E45F3B /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				057235122E42212400FD49E4 /* UIImageView+loadImage.swift */,
 				0CCD7A782B5005BC00846B7C /* Collection+Safe.swift */,
 				A24B64C32AA1FD6B00E45F3B /* UIColot+Palette.swift */,
-				175364E22B7D2366008AB285 /* UIImageView+LoadImage.swift */,
 				053014C92C0F079D00CF799D /* String+snakeCase.swift */,
 			);
 			path = Extensions;
@@ -1214,9 +1220,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-VKIDCocoapodsDemo/Pods-VKIDCocoapodsDemo-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-VKIDCocoapodsDemo/Pods-VKIDCocoapodsDemo-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1297,6 +1307,7 @@
 				05DB5C892C119C3100663297 /* AuthViewController.swift in Sources */,
 				05DB5C8A2C119C3100663297 /* String+snakeCase.swift in Sources */,
 				05DB5C8B2C119C3100663297 /* DictionaryRepresentable.swift in Sources */,
+				057235172E4221CA00FD49E4 /* ImageLoader.swift in Sources */,
 				05DB5C8C2C119C3100663297 /* OAuthListWidgetCustomizationController.swift in Sources */,
 				05DB5C8D2C119C3100663297 /* AuthViewController+DebugSettings.swift in Sources */,
 				05DB5C8E2C119C3100663297 /* DebugSettingsStorage.swift in Sources */,
@@ -1315,6 +1326,7 @@
 				05DB5C9A2C119C3100663297 /* OneTapButtonCustomizationController.swift in Sources */,
 				05DB5C9B2C119C3100663297 /* VKIDDemoViewController.swift in Sources */,
 				05DB5C9C2C119C3100663297 /* UserSessionTableViewCell.swift in Sources */,
+				057235132E42212E00FD49E4 /* UIImageView+loadImage.swift in Sources */,
 				05DB5C9D2C119C3100663297 /* OneTapBottomSheetCustomizationController.swift in Sources */,
 				05DB5C9F2C119C3100663297 /* UIColot+Palette.swift in Sources */,
 				05DB5CA12C119C3100663297 /* PickerView.swift in Sources */,
@@ -1395,6 +1407,7 @@
 				A2E5F5F22A55A65D0079DE1F /* AuthViewController.swift in Sources */,
 				053014CA2C0F079D00CF799D /* String+snakeCase.swift in Sources */,
 				053014CC2C0F083700CF799D /* DictionaryRepresentable.swift in Sources */,
+				057235162E4221CA00FD49E4 /* ImageLoader.swift in Sources */,
 				A271F71A2B0FD4670015B61C /* OAuthListWidgetCustomizationController.swift in Sources */,
 				A24B64612A9E407B00E45F3B /* AuthViewController+DebugSettings.swift in Sources */,
 				A27EFD332B185245001CF285 /* DebugSettingsStorage.swift in Sources */,
@@ -1413,6 +1426,7 @@
 				A26A35FE2B0D0CED008A4F99 /* OneTapButtonCustomizationController.swift in Sources */,
 				17CA41892AF1BB93008C81C1 /* VKIDDemoViewController.swift in Sources */,
 				1753655A2B7F3D67008AB285 /* UserSessionTableViewCell.swift in Sources */,
+				057235142E42212E00FD49E4 /* UIImageView+loadImage.swift in Sources */,
 				A26A36002B0D151E008A4F99 /* OneTapBottomSheetCustomizationController.swift in Sources */,
 				A24B64C42AA1FD6B00E45F3B /* UIColot+Palette.swift in Sources */,
 				057500D12B0E0635008EEB4B /* PickerView.swift in Sources */,
