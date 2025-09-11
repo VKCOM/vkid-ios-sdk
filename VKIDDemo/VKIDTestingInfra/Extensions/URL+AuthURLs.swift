@@ -32,7 +32,7 @@ import Foundation
 
 extension URL {
     public static var authorize: Self {
-        Self(string: "https://id.vk.com/authorize")!
+        Self(string: "https://id.vk.ru/authorize")!
     }
 
     public static func provider(appId: Int) -> Self {

@@ -2,6 +2,10 @@
 
 > **Note**\
 > Описание основных изменений в релизах VK ID SDK. Наш SDK следует [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## 2.7.1 - 2025-09-10
+
+### Changed
++ ВКонтакте переходит на домен vk.ru — теперь все API-интеграции и авторизации будут доступны только через него.
 ## 2.7.0 - 2025-07-09
 
 ### Added
@@ -14,15 +18,15 @@
 ## 2.5.0 - 2025-06-09
 
 ### Added
-+ Добавили окно подписки на сообщество — с его помощью вы можете предложить пользователю после авторизации в сервисе подписаться на ваше сообщество ВКонтакте. Подписка на сообщество позволяет выстраивать прямой контакт с аудиторией и даёт бизнесу ряд преимуществ, например рост органического трафика за счёт вовлечения аудитории ВКонтакте, возможность информировать подписчиков о новостях, акциях и обновлениях. Подробнее о подключении окна подписки читайте в [документации](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/group-subscription/group-subscription-ios). 
++ Добавили окно подписки на сообщество — с его помощью вы можете предложить пользователю после авторизации в сервисе подписаться на ваше сообщество ВКонтакте. Подписка на сообщество позволяет выстраивать прямой контакт с аудиторией и даёт бизнесу ряд преимуществ, например рост органического трафика за счёт вовлечения аудитории ВКонтакте, возможность информировать подписчиков о новостях, акциях и обновлениях. Подробнее о подключении окна подписки читайте в [документации](!!ru/vkid/latest/vk-id/connection/group-subscription/group-subscription-ios.mdx). 
 
 ### Changed
-+ Изменили [работу локали](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/start-integration/ios/install#Nastrojka-lokali-UI-komponentov): теперь её можно настроить для UI всего SDK, а не только в WebView. 
++ Изменили [работу локали](!!ru/vkid/latest/vk-id/connection/start-integration/ios/instal.mdx#Nastrojka-lokali-UI-komponentov): теперь её можно настроить для UI всего SDK, а не только в WebView. 
 + Сделали небольшие визуальные улучшения виджета 3 в 1.
 ## 2.4.1 - 2025-03-11
 
 ### Added
-+ В `OneTapBottomSheet` добавлен метод `autoShow(configuration:,factory:)`, который позволяет автоматически показывать шторку авторизации сразу при входе пользователя в приложение или с задержкой. [Подробнее](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/elements/onetap-drawer/floating-onetap-ios#Nastrojka-avtomaticheskogo-otobrazheniya-shtorki)
++ В `OneTapBottomSheet` добавлен метод `autoShow(configuration:,factory:)`, который позволяет автоматически показывать шторку авторизации сразу при входе пользователя в приложение или с задержкой. [Подробнее](https://id.vk.ru/about/business/go/docs/ru/vkid/latest/vk-id/connection/elements/onetap-drawer/floating-onetap-ios#Nastrojka-avtomaticheskogo-otobrazheniya-shtorki)
 ## 2.3.1 - 2024-12-05
 
 ### Fixed
@@ -64,17 +68,17 @@
 ## 2.1.0 - 2024-08-08
 
 ### Added
-- Добавлена возможность выбрать текст кнопки One Tap, который увидит пользователь. Это позволяет адаптировать кнопку для разных сценариев — например, для получения услуги отобразить текст «Записаться c VK ID» . Подробнее о настройке текста в кнопке читайте в [документации](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/elements/onetap-button/onetap-ios).
+- Добавлена возможность выбрать текст кнопки One Tap, который увидит пользователь. Это позволяет адаптировать кнопку для разных сценариев — например, для получения услуги отобразить текст «Записаться c VK ID» . Подробнее о настройке текста в кнопке читайте в [документации](https://id.vk.ru/about/business/go/docs/ru/vkid/latest/vk-id/connection/elements/onetap-button/onetap-ios).
 - В соответствии с [требованиями Apple](https://developer.apple.com/documentation/bundleresources/privacy_manifest_files) добавлен файл манифеста `PrivacyInfo.xcprivacy`, который описывает, какие пользовательские данные использует VK ID SDK.
 
 ## 2.0.0 - 2024-06-25
 
 ### Added
-- [VK ID](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/intro/plan) теперь поддерживает авторизацию по [протоколу OAuth 2.1](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-10). За счет работы авторизации на передовом стандарте обеспечивается высокая защита пользовательских данных.
-- Для пользователя добавлена возможность входа через аккаунты «Одноклассников» и Mail.ru. Для отображения кнопок входа через эти сервисы интегрируйте [виджет 3 в 1](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/intro/main#Vidzhet-3-v-1) — блок с кнопками будет располагаться на окне авторизации вашего сервиса — или подключите [дополнительные OAuth](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/intro/main#Podklyuchenie-dopolnitelnyh-OAuth) — для показа кнопок на окне авторизации VK ID.
+- [VK ID](https://id.vk.ru/about/business/go/docs/ru/vkid/latest/vk-id/intro/plan) теперь поддерживает авторизацию по [протоколу OAuth 2.1](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-10). За счет работы авторизации на передовом стандарте обеспечивается высокая защита пользовательских данных.
+- Для пользователя добавлена возможность входа через аккаунты «Одноклассников» и Mail.ru. Для отображения кнопок входа через эти сервисы интегрируйте [виджет 3 в 1](https://id.vk.ru/about/business/go/docs/ru/vkid/latest/vk-id/intro/main#Vidzhet-3-v-1) — блок с кнопками будет располагаться на окне авторизации вашего сервиса — или подключите [дополнительные OAuth](https://id.vk.ru/about/business/go/docs/ru/vkid/latest/vk-id/intro/main#Podklyuchenie-dopolnitelnyh-OAuth) — для показа кнопок на окне авторизации VK ID.
 
 ### Changed
-- **Breaking changes:** Изменения в публичных интерфейсах `AuthConfiguration`, `OAuthListWidget`, `OneTapButton`, `OneTapBottomSheet`. Для перехода с SDK предыдущей версии и поддержки этих изменений воспользуйтесь [инструкцией](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/migration/ios/oauth-2.1).
+- **Breaking changes:** Изменения в публичных интерфейсах `AuthConfiguration`, `OAuthListWidget`, `OneTapButton`, `OneTapBottomSheet`. Для перехода с SDK предыдущей версии и поддержки этих изменений воспользуйтесь [инструкцией](https://id.vk.ru/about/business/go/docs/ru/vkid/latest/vk-id/connection/migration/ios/oauth-2.1).
 
 ## 1.3.2 - 2024-06-05
 
@@ -152,6 +156,6 @@
 ## 1.0.0 - 2023-12-01
 
 ### Added
-- [Базовая авторизация](https://id.vk.com/business/go/docs/ru/vkid/latest/vk-id/connection/ios/auth)
-- [Авторизация по кнопке OneTap](https://id.vk.com/business/go/docs/ru/vkid/latest/vk-id/connection/ios/onetap)
-- [Шторка авторизации](https://id.vk.com/business/go/docs/ru/vkid/latest/vk-id/connection/ios/onetap)
+- [Базовая авторизация](https://id.vk.ru/business/go/docs/ru/vkid/latest/vk-id/connection/ios/auth)
+- [Авторизация по кнопке OneTap](https://id.vk.ru/business/go/docs/ru/vkid/latest/vk-id/connection/ios/onetap)
+- [Шторка авторизации](https://id.vk.ru/business/go/docs/ru/vkid/latest/vk-id/connection/ios/onetap)

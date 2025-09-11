@@ -31,6 +31,6 @@ import Foundation
 
 extension URL {
     public static var randomVKURL: Self {
-        Self(string: "https://vk.com/\(String.random)")!
+        Self(string: "https://vk.ru/\(String.random)")!
     }
 }

@@ -1,9 +1,9 @@
 Pod::Spec.new do |spec|
   spec.name = "VKID"
-  spec.version = "2.7.0"
+  spec.version = "2.7.1"
   spec.summary = "iOS library for VK ID authorization"
-  spec.homepage = "https://id.vk.com/business"
-  spec.authors = { 'VK ID' => 'devsupport@corp.vk.com' }
+  spec.homepage = "https://id.vk.ru/business"
+  spec.authors = { 'VK ID' => 'devsupport@corp.vk.ru' }
   spec.license = { :type => 'Copyright (c) 2023 - present, LLC “V Kontakte”', :text => <<-LICENSE
 1. Permission is hereby granted to any person obtaining a copy of this Software to
 use the Software without charge.
@@ -37,6 +37,7 @@ THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
   spec.source = { :git => "https://github.com/VKCOM/vkid-ios-sdk.git", :tag => "#{spec.version}" }
   spec.cocoapods_version = ">= 1.11.2"
   spec.source_files = "VKID/Sources/**/*.swift"
+  spec.static_framework = true
   spec.dependency 'VKIDCore', "#{spec.version}"
   spec.dependency 'VKCaptchaSDK', '0.1.1'
 

@@ -18,18 +18,18 @@
 - [Установка](#установка)
   - [Swift Package Manager](#swift-package-manager)
   - [CocoaPods](#cocoapods)
-- [Авторизация по кнопке OneTap](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/ios/onetap)
-- [Шторка авторизации](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/ios/floating-onetap)
-- [Виджет 3 в 1](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/elements/widget-3-1/three-in-one-ios)
-- [Пользовательские сессии](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/ios/sessions)
+- [Авторизация по кнопке OneTap](https://id.vk.ru/about/business/go/docs/ru/vkid/latest/vk-id/connection/ios/onetap)
+- [Шторка авторизации](https://id.vk.ru/about/business/go/docs/ru/vkid/latest/vk-id/connection/ios/floating-onetap)
+- [Виджет 3 в 1](https://id.vk.ru/about/business/go/docs/ru/vkid/latest/vk-id/connection/elements/widget-3-1/three-in-one-ios)
+- [Пользовательские сессии](https://id.vk.ru/about/business/go/docs/ru/vkid/latest/vk-id/connection/ios/sessions)
 - [Демонстрация](#демонстрация)
 - [Документация](https://vkcom.github.io/vkid-ios-sdk/documentation/vkid/)
 
 ## Предварительно
 
-Общий план интеграции и в целом что такое VK ID можно прочитать [здесь](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/intro/plan).
+Общий план интеграции и в целом что такое VK ID можно прочитать [здесь](https://id.vk.ru/about/business/go/docs/ru/vkid/latest/vk-id/intro/plan).
 
-Чтобы подключить VK ID SDK, сначала получите ID приложения (app_id) и защищенный ключ (client_secret). Для этого создайте приложение в [кабинете подключения VK ID](https://id.vk.com/business/go).
+Чтобы подключить VK ID SDK, сначала получите ID приложения (app_id) и защищенный ключ (client_secret). Для этого создайте приложение в [кабинете подключения VK ID](https://id.vk.ru/business/go).
 
 ## Требования к приложению и окружению
 * `iOS` - `12.0` и выше.
@@ -61,7 +61,7 @@ pod 'VKID', '~> 2.2'
 pod install --repo-update
 ```
 
-Более подробно об установке VK ID SDK можно прочитать в статье [Как установить SDK](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/ios/install).
+Более подробно об установке VK ID SDK можно прочитать в статье [Как установить SDK](https://id.vk.ru/about/business/go/docs/ru/vkid/latest/vk-id/connection/ios/install).
 
 ## Демонстрация
 

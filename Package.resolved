@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "vkid-captcha-ios-sdk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/VKCOM/vkid-captcha-ios-sdk",
+      "state" : {
+        "revision" : "28f28b549d9a517323ff05f6f49207a72a457168",
+        "version" : "0.1.0"
+      }
+    }
+  ],
+  "version" : 2
+}

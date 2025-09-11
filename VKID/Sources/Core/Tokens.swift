@@ -45,7 +45,7 @@ extension Expiring {
     }
 }
 
-/// Список названий прав доступа, которые необходимы приложению. [Подробнее](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/api-integration/api-description#Dostup-prilozheniya-k-dannym-polzovatelya)
+/// Список названий прав доступа, которые необходимы приложению. [Подробнее](https://id.vk.ru/about/business/go/docs/ru/vkid/latest/vk-id/connection/api-integration/api-description#Dostup-prilozheniya-k-dannym-polzovatelya)
 public struct Scope: Equatable,
     Codable,
     CustomStringConvertible,
@@ -90,7 +90,7 @@ public struct Scope: Equatable,
 /// Токен авторизации запросов
 ///
 ///  Данный токен необходим для вызова методов API после того, как пользователь авторизовался с помощью VK ID в вашем сервисе.
-///  [Access token](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/tokens/access-token)
+///  [Access token](https://id.vk.ru/about/business/go/docs/ru/vkid/latest/vk-id/connection/tokens/access-token)
 ///  — это подпись пользователя в вашем приложении.Он сообщает серверу, от имени какого пользователя осуществляются запросы
 ///  и какие права доступа пользователь выдал вашему приложению.
 public struct AccessToken: Expiring, Equatable, Encodable {
@@ -112,7 +112,7 @@ public struct AccessToken: Expiring, Equatable, Encodable {
     }
 }
 
-/// Токен обновления ```AccessToken```. [Подробнее](https://id.vk.com/about/business/go/docs/ru/vkid/latest/vk-id/connection/tokens/refresh-token)
+/// Токен обновления ```AccessToken```. [Подробнее](https://id.vk.ru/about/business/go/docs/ru/vkid/latest/vk-id/connection/tokens/refresh-token)
 public struct RefreshToken: Equatable, Encodable {
     public let userId: UserID
     public let value: String
