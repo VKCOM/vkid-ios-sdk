@@ -152,6 +152,13 @@ extension AuthViewController {
                 self?.debugSettings.forceWebBrowserFlow.toggle()
                 self?.updateSettings()
             },
+            DebugSettingsTextFieldViewModel(
+                title: "Prompt",
+                placeholder: "Prompt",
+                text: self.debugSettings.prompt
+            ) { [weak self] text in
+                self?.debugSettings.prompt = text ?? ""
+            },
         ]
     }
 
