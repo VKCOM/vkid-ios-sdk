@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name = "VKID"
-  spec.version = "2.7.1"
+  spec.version = "2.8.0-alpha"
   spec.summary = "iOS library for VK ID authorization"
   spec.homepage = "https://id.vk.ru/business"
   spec.authors = { 'VK ID' => 'devsupport@corp.vk.ru' }
@@ -39,7 +39,7 @@ THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
   spec.source_files = "VKID/Sources/**/*.swift"
   spec.static_framework = true
   spec.dependency 'VKIDCore', "#{spec.version}"
-  spec.dependency 'VKCaptchaSDK', '0.1.1'
+  spec.dependency 'VKCaptchaSDK', '0.1.2'
 
   spec.resource_bundles = {
     'VKID-Resources' => ['VKID/Sources/Resources/*.{xcassets,lproj,txt,xcprivacy,xcstrings}']

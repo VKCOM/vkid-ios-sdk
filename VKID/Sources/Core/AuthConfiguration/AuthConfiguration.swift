@@ -28,6 +28,27 @@
 
 import Foundation
 
+/// Параметр позволяет изменить флоу прохождения авторизации. [Подробнее](https://id.vk.ru/about/business/go/docs/ru/vkid/latest/vk-id/connection/api-description#Optional-parameters-authorize)
+public enum Prompt {
+    /// Процесс всегда стартует с аутентификации пользователя, даже если он уже вошёл в VK ID.
+    case login
+    /// Процесс авторизации без взаимодействия с пользователем.
+    case none
+    /// Всегда отображается форма запроса разрешений доступов, даже если пользователь давал их ранее.
+    case consent
+    /// Можно указать несколько значений через пробел.
+    /// Пустое значение или отсутствие параметра — форма входа появляется, если пользователь ещё не вошёл в VK ID. Форма разрешения доступов отображается, если ранее пользователь ещё не разрешал доступ к данным.
+    case custom(String?)
+    internal var value: String {
+        return switch self {
+        case .login: "login"
+        case .custom(let value): value ?? ""
+        case .none: "none"
+        case .consent: "consent"
+        }
+    }
+}
+
 /// Определяет основные параметры авторизации
 public struct AuthConfiguration {
     let scope: Scope?
@@ -37,6 +58,9 @@ public struct AuthConfiguration {
 
     /// Запускает флоу авторизации только в браузере, открывающемся с помощью SDK. Если значение 'true', то будет проигнорирован флоу авторизации через провайдера авторизации. Следует с осторожностью использовать эту настройку, так как выключение авторизации через провайдер может резко снизить конверсию.
     let forceWebViewFlow: Bool
+
+    /// Параметр позволяет изменить флоу прохождения авторизации.
+    let prompt: Prompt
 
     public internal(set) var groupSubscriptionConfiguration: GroupSubscriptionConfiguration?
 
@@ -48,12 +72,16 @@ public struct AuthConfiguration {
     ///   Запрошенный список прав для приложения не может быть больше, чем разрешенный список в [настройках приложения](https://id.vk.ru/about/business/go/docs/ru/vkid/latest/vk-id/connection/application-settings)
     ///   По умолчанию scope = nil, в этом случае будет выдано базовое право доступа `vkid.personal_info`.
     ///   - forceWebViewFlow: Запуск авторизации только в браузере.
+    ///   - groupSubscriptionConfiguration: настройка подписки на сообщество. По умолчанию nil.
+    ///   - prompt: Параметр позволяет изменить флоу прохождения авторизации. По умолчанию .login.
     public init (
         flow: Flow = .publicClientFlow(),
         scope: Scope? = nil,
         forceWebViewFlow: Bool = false,
-        groupSubscriptionConfiguration: GroupSubscriptionConfiguration? = nil
+        groupSubscriptionConfiguration: GroupSubscriptionConfiguration? = nil,
+        prompt: Prompt = .login
     ) {
+        self.prompt = prompt
         self.flow = flow
         self.forceWebViewFlow = forceWebViewFlow
         self.groupSubscriptionConfiguration = groupSubscriptionConfiguration

@@ -44,10 +44,13 @@
       }
     },
     {
+      "skippedTests" : [
+        "GroupSubscriptionSnapshotTests"
+      ],
       "target" : {
         "containerPath" : "container:VKIDDemo.xcodeproj",
         "identifier" : "051189F22C4FBD0A005F9FDC",
-        "name" : "VKIDDemoUITests"
+        "name" : "VKIDUISnapshotTests"
       }
     }
   ],

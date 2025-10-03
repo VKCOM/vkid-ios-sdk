@@ -110,7 +110,7 @@ final class UserSessionDataStorageTests: XCTestCase {
             then("Прочитанные UserSessionData совпадают c записанными") {
                 XCTAssertEqual(
                     userSessionsData,
-                    userSessionsDataFromStorage
+                    userSessionsDataFromStorage.sorted(by: { $0.id.value < $1.id.value })
                 )
             }
         }
@@ -187,7 +187,7 @@ final class UserSessionDataStorageTests: XCTestCase {
                 )
             }
             XCTAssertEqual(
-                try self.userSessionDataStorage.readAllUserSessionsData(),
+                try self.userSessionDataStorage.readAllUserSessionsData().sorted(by: { $0.id.value < $1.id.value }),
                 userSessionsData
             )
         }

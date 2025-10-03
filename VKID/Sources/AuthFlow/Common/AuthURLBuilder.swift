@@ -48,7 +48,8 @@ internal protocol AuthURLBuilder {
         credentials: AppCredentials,
         scope: String?,
         deviceId: String,
-        appearance: Appearance
+        appearance: Appearance,
+        prompt: String
     ) throws -> URL
 }
 
@@ -102,7 +103,8 @@ internal final class AuthURLBuilderImpl: AuthURLBuilder {
         credentials: AppCredentials,
         scope: String?,
         deviceId: String,
-        appearance: Appearance
+        appearance: Appearance,
+        prompt: String
     ) throws -> URL {
         guard let codeChallengeMethod = (try? secrets.codeChallengeMethod.rawValue) else {
             throw AuthFlowError.authOverdue
@@ -112,7 +114,7 @@ internal final class AuthURLBuilderImpl: AuthURLBuilder {
             .provider(oAuth: oAuthProvider),
             .codeChallengeMethod(codeChallengeMethod),
             .deviceId(deviceId),
-            .prompt("login"),
+            .prompt(prompt),
             .oAuthVersion,
             .version(Env.VKIDVersion),
             .scope(scope ?? ""),

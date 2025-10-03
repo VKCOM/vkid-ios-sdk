@@ -35,4 +35,5 @@ struct ExtendedAuthConfiguration {
     let scope: String?
     let forceWebViewFlow: Bool
     let groupSubscriptionConfiguration: GroupSubscriptionConfiguration?
+    let prompt: String
 }
