@@ -78,7 +78,7 @@ package final class URLRequestBuilder: URLRequestBuilding {
         components.host = self.apiHosts.getHostBy(requestHost: request.host)
         components.path = request.path
         if !request.parameters.isEmpty {
-            var queryItems = request.parameters
+            let queryItems = request.parameters
                 .map { ($0.key, String(describing: $0.value)) }
                 .map(URLQueryItem.init(name:value:))
             components.queryItems = queryItems

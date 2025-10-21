@@ -512,11 +512,17 @@ public struct GroupSubscriptionSheet: AsyncUIViewControllerElement {
             contentViewController: viewController,
             layoutConfiguration: .init(
                 cornerRadius: 14,
-                edgeInsets: .init(
+                portraitEdgeInsets: .init(
                     top: 0,
                     left: 16,
                     bottom: 32,
                     right: 16
+                ),
+                landscapeEdgeInsets: .init(
+                    top: 0,
+                    left: 20,
+                    bottom: 20,
+                    right: 20
                 )
             )
         )
@@ -543,7 +549,7 @@ public struct GroupSubscriptionSheet: AsyncUIViewControllerElement {
             contentViewController: viewController,
             layoutConfiguration: .init(
                 cornerRadius: 8,
-                edgeInsets: .init(
+                portraitEdgeInsets: .init(
                     top: 0,
                     left: 8,
                     bottom: 8,

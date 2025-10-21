@@ -487,25 +487,12 @@ final class AuthViewController: VKIDDemoViewController {
                     self?.handleSubscription(result: result)
             }
         }
-        let authConfiguration: AuthConfiguration = .init(
-            groupSubscriptionConfiguration: .init(
-                subscribeToGroupId: "1"
-            ) { result in
-                switch result {
-                case .success:
-                    print("Успешная подписка")
-                case.failure(let error):
-                    print("Не удалось подписаться на сообщество: \(error)")
-                }
-            }
-        )
-        let oneTapConfig = OneTapButton(authConfiguration: authConfiguration, onCompleteAuth: nil)
-        _ = self.vkid?.ui(for: oneTapConfig).uiView()
         return .init(
             flow: self.createFlow(secrets: self.providedAuthSecrets),
             scope: Scope(self.debugSettings.scope),
             forceWebViewFlow: self.debugSettings.forceWebBrowserFlow,
-            groupSubscriptionConfiguration: groupSubscriptionConfiguration
+            groupSubscriptionConfiguration: groupSubscriptionConfiguration,
+            prompt: .custom(self.debugSettings.prompt)
         )
     }
 }

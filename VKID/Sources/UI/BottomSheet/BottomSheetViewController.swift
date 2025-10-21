@@ -68,11 +68,55 @@ struct BottomSheetLayoutConfiguration {
     package var cornerRadius: CGFloat
 
     /// Отступы от краев родительского контейнера в дополнение к его safeAreaInsets
-    package var edgeInsets: UIEdgeInsets
+    package var edgeInsets: UIEdgeInsets {
+        UIDevice.current.orientation.isLandscape ? landscapeEdgeInsets : portraitEdgeInsets
+    }
 
-    package init(cornerRadius: CGFloat, edgeInsets: UIEdgeInsets) {
+    /// Отступы от краев родительского контейнера в дополнение к его safeAreaInsets в 'portrait'
+    package var portraitEdgeInsets: UIEdgeInsets
+
+    /// Отступы от краев родительского контейнера в дополнение к его safeAreaInsets в 'landscape'
+    package var landscapeEdgeInsets: UIEdgeInsets
+
+    package var bottomSheetWidth: BottomSheetWidth
+
+    package init(
+        cornerRadius: CGFloat,
+        portraitEdgeInsets: UIEdgeInsets,
+        landscapeEdgeInsets: UIEdgeInsets = .zero,
+        bottomSheetWidth: BottomSheetWidth = .default) {
         self.cornerRadius = cornerRadius
-        self.edgeInsets = edgeInsets
+        self.portraitEdgeInsets = portraitEdgeInsets
+        self.landscapeEdgeInsets = landscapeEdgeInsets
+        self.bottomSheetWidth = bottomSheetWidth
+    }
+}
+
+enum BottomSheetWidth: Int {
+    case `default` = 420
+    case small = 446
+    case medium = 484
+    case large = 522
+    case extraLarge = 560
+
+    func larger() -> Self? {
+        switch self {
+        case .default: .small
+        case .small: .medium
+        case .medium: .large
+        case .large: .extraLarge
+        case .extraLarge: nil
+        }
+    }
+
+    var imageSize: (CGFloat, CGFloat) {
+        switch self{
+        case .default: (192, 120)
+        case .small: (130, 130)
+        case .medium: (168, 168)
+        case .large: (206, 206)
+        case .extraLarge: (244, 244)
+        }
     }
 }
 
@@ -86,6 +130,7 @@ open class BottomSheetViewController: UIViewController, BottomSheetContent {
 
     let layoutConfiguration: BottomSheetLayoutConfiguration
     internal let presenter: UIKitPresenter?
+    private var adaptiveWidth: Bool = false
 
     /// Инициализирует контейнер с указанным контроллером для отображения контента
     /// - Parameter contentViewController: контроллер для отображения контента шторки
@@ -102,8 +147,9 @@ open class BottomSheetViewController: UIViewController, BottomSheetContent {
         self.layoutConfiguration = layoutConfiguration
         super.init(nibName: nil, bundle: nil)
         self._transitioningDelegate = BottomSheetTransitioningDelegate(
-            bottomSheetInsets: layoutConfiguration.edgeInsets,
-            presenter: presenter
+            bottomSheetInsets: layoutConfiguration.portraitEdgeInsets,
+            presenter: presenter,
+            bottomSheetWidth: layoutConfiguration.bottomSheetWidth
         ) {
             onDismiss?()
         }

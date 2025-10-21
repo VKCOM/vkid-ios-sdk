@@ -203,7 +203,8 @@ final class AuthURLBuilderTests: XCTestCase {
                     credentials: self.credentials,
                     scope: self.scope,
                     deviceId: DeviceId.currentDeviceId.description,
-                    appearance: appearance
+                    appearance: appearance,
+                    prompt: "login"
                 )
 
                 let urlComponents = URLComponents(url: result, resolvingAgainstBaseURL: true)
@@ -285,7 +286,8 @@ final class AuthURLBuilderTests: XCTestCase {
                     credentials: credentials,
                     scope: self.scope,
                     deviceId: DeviceId.currentDeviceId.description,
-                    appearance: appearance
+                    appearance: appearance,
+                    prompt: "login"
                 )
 
                 let urlComponents = URLComponents(url: result, resolvingAgainstBaseURL: true)
