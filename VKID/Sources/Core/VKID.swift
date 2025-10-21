@@ -303,7 +303,8 @@ public final class VKID {
             oAuthProvider: oAuthProviderConfig.primaryProvider,
             scope: authConfig.scope?.description,
             forceWebViewFlow: authConfig.forceWebViewFlow,
-            groupSubscriptionConfiguration: groupConfig
+            groupSubscriptionConfiguration: groupConfig,
+            prompt: authConfig.prompt.value
         )
 
         self.authorize(

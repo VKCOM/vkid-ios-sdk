@@ -40,7 +40,10 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
     private let autoDismissOnSuccess: Bool
     private let onCompleteAuth: AuthResultCompletion?
     private let presenter: UIKitPresenter?
+    private let bottomSheetWidth: BottomSheetWidth
     private var result: AuthResult?
+    private var portraitConstraints: [NSLayoutConstraint]?
+    private var landscapeConstraints: [NSLayoutConstraint]?
 
     private var currentOAuthProivder: OAuthProvider?
 
@@ -60,6 +63,7 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
         serviceName: String,
         targetActionText: OneTapBottomSheet.TargetActionText,
         autoDismissOnSuccess: Bool,
+        bottomSheetWidth: BottomSheetWidth,
         onCompleteAuth: AuthResultCompletion?,
         contentDelegate: BottomSheetContentDelegate? = nil,
         presenter: UIKitPresenter? = nil
@@ -73,6 +77,7 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
         self.onCompleteAuth = onCompleteAuth
         self.contentDelegate = contentDelegate
         self.presenter = presenter
+        self.bottomSheetWidth = bottomSheetWidth
         super.init(nibName: nil, bundle: nil)
         vkid.add(observer: self)
     }
@@ -90,13 +95,15 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
             configuration:
             .init(
                 vkIdImage: self.theme.images.logo,
+                vkIdLandscapeImage: self.theme.images.logoLandscape,
                 authButton: self.oneTapButton,
                 title: self.targetActionText.title,
                 titleColor: self.theme.colors.title,
                 titleFont: .systemFont(ofSize: 23, weight: .semibold),
                 subtitle: self.targetActionText.subtitle,
                 subtitleColor: self.theme.colors.subtitle,
-                subtitleFont: .systemFont(ofSize: 16, weight: .regular)
+                subtitleFont: .systemFont(ofSize: 16, weight: .regular),
+                bottomSheetWidth: self.bottomSheetWidth
             )
         )
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -130,22 +137,12 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
 
     private lazy var closeButton: UIButton = {
         let button = UIButton()
-        button.imageEdgeInsets = UIEdgeInsets(
-            top: 12,
-            left: 12,
-            bottom: 12,
-            right: 12
-        )
         button.addTarget(
             self,
             action: #selector(self.onCloseClicked(sender:)),
             for: .touchUpInside
         )
         button.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            button.widthAnchor.constraint(equalToConstant: 48),
-            button.heightAnchor.constraint(equalToConstant: 48),
-        ])
         return button
     }()
 
@@ -196,8 +193,9 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
         self.view.backgroundColor = .clear
         self.view.addSubview(self.contentPlaceholderView)
         self.view.addSubview(self.closeButton)
-
-        NSLayoutConstraint.activate([
+        portraitConstraints = [
+            closeButton.widthAnchor.constraint(equalToConstant: 48),
+            closeButton.heightAnchor.constraint(equalToConstant: 48),
             self.closeButton.topAnchor.constraint(
                 equalTo: self.view.topAnchor,
                 constant: 4
@@ -206,6 +204,22 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
                 equalTo: self.view.trailingAnchor,
                 constant: -4
             ),
+        ]
+        landscapeConstraints = [
+            closeButton.widthAnchor.constraint(equalToConstant: 20),
+            closeButton.heightAnchor.constraint(equalToConstant: 20),
+            self.closeButton.topAnchor.constraint(
+                equalTo: self.view.topAnchor,
+                constant: 12
+            ),
+            self.closeButton.trailingAnchor.constraint(
+                equalTo: self.view.trailingAnchor,
+                constant: -12
+            ),
+        ]
+        updateOnOrientationChange()
+        NSLayoutConstraint.activate([
+
             self.contentPlaceholderView.leadingAnchor.constraint(
                 equalTo: self.view.leadingAnchor,
                 constant: Constants.contentPlaceholderInsets.left
@@ -232,6 +246,37 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
         }
     }
 
+    private func viewWillTransition(with coordinator: UIViewControllerTransitionCoordinator) {
+        coordinator.animate(alongsideTransition: { [weak self] _ in
+            self?.updateOnOrientationChange()
+        })
+    }
+
+    private func updateOnOrientationChange() {
+        if UIDevice.current.orientation.isLandscape {
+            NSLayoutConstraint.deactivate(self.portraitConstraints ?? [])
+            NSLayoutConstraint.activate(self.landscapeConstraints ?? [])
+            self.closeButton.setImage(
+                self.theme.images.topBarLandscapeCloseButton.value,
+                for: .normal
+            )
+            self.closeButton.imageEdgeInsets = .zero
+        } else {
+            NSLayoutConstraint.deactivate(self.landscapeConstraints ?? [])
+            NSLayoutConstraint.activate(self.portraitConstraints ?? [])
+            self.closeButton.setImage(
+                self.theme.images.topBarCloseButton.value,
+                for: .normal
+            )
+            self.closeButton.imageEdgeInsets = UIEdgeInsets(
+                top: 12,
+                left: 12,
+                bottom: 12,
+                right: 12
+            )
+        }
+    }
+
     func preferredContentSize(withParentContainerSize parentSize: CGSize) -> CGSize {
         self.view.systemLayoutSizeFitting(
             parentSize,
@@ -246,11 +291,15 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
     }
 
     private func apply(theme: OneTapBottomSheet.Theme) {
-        self.view.backgroundColor = theme.colors.background.value
+        let image = UIDevice.current.orientation.isLandscape
+        ? self.theme.images.topBarLandscapeCloseButton.value
+        : self.theme.images.topBarCloseButton.value
+
         self.closeButton.setImage(
-            self.theme.images.topBarCloseButton.value,
+            image,
             for: .normal
         )
+        self.view.backgroundColor = theme.colors.background.value
     }
 
     private func render(authState: AuthState) {

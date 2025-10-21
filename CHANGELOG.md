@@ -2,7 +2,14 @@
 
 > **Note**\
 > Описание основных изменений в релизах VK ID SDK. Наш SDK следует [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-## 2.7.1 - 2025-09-11
+## 2.9.0 - 2025-10-21
+
+### Added
++ Добавили параметр [prompt](https://id.vk.ru/about/business/go/docs/ru/vkid/latest/vk-id/connection/api-description#Optional-parameters-authorize) в `AuthConfiguration`, который позволяет изменить способ прохождения авторизации.
+### Changed
++ Улучшили шторку авторизации в горизонтальной ориентации.
+
+## 2.7.1 - 2025-09-10
 
 ### Changed
 + ВКонтакте переходит на домен vk.ru — теперь все API-интеграции и авторизации будут доступны только через него.

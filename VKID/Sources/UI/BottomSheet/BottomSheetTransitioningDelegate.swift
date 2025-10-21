@@ -33,10 +33,12 @@ internal final class BottomSheetTransitioningDelegate: NSObject, UIViewControlle
     private let bottomSheetInsets: UIEdgeInsets
     private let interactiveDismissTransition: BottomSheetInteractiveDismissTransition
     private let onDismiss: (() -> Void)?
+    private let bottomSheetWidth: BottomSheetWidth
 
     internal init(
         bottomSheetInsets: UIEdgeInsets,
         presenter: UIKitPresenter?,
+        bottomSheetWidth: BottomSheetWidth,
         onDismiss: (() -> Void)? = nil
     ) {
         self.bottomSheetInsets = bottomSheetInsets
@@ -45,6 +47,7 @@ internal final class BottomSheetTransitioningDelegate: NSObject, UIViewControlle
         ) {
             onDismiss?()
         }
+        self.bottomSheetWidth = bottomSheetWidth
         self.onDismiss = onDismiss
     }
 
@@ -76,7 +79,8 @@ internal final class BottomSheetTransitioningDelegate: NSObject, UIViewControlle
         self.interactiveDismissTransition.attach(to: presented)
         return BottomSheetPresentationController(
             presentedViewController: presented,
-            presenting: presenting
+            presenting: presenting,
+            bottomSheetWidth: bottomSheetWidth
         ) { [weak self] in
             self?.onDismiss?()
         }

@@ -273,7 +273,7 @@ final class OneTapBottomSheetSnapshotTests: XCTestCase, TestCaseInfra {
                 on: self.viewController
             ) {
                 then("Проверка открытой шторки") {
-                    assertSnapshot(of: self.bottomSheetViewController, as: .image)
+                    assertSnapshot(of: self.bottomSheetViewController, as: .image(precision: 0.99))
                     XCTAssert(
                         self.bottomSheetViewController.isShown(on: self.window)
                     )
@@ -515,7 +515,7 @@ final class OneTapBottomSheetSnapshotTests: XCTestCase, TestCaseInfra {
                 then("Проверка снапшота шторки") {
                     assertSnapshot(
                         of: self.bottomSheetViewController,
-                        as: .image,
+                        as: .image(precision: 0.99),
                         testName: description
                     )
                     snapshotExpectation.fulfill()

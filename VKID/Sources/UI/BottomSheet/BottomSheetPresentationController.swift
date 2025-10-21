@@ -38,10 +38,12 @@ internal final class BottomSheetPresentationController: UIPresentationController
     }
 
     private var onDismiss: (() -> Void)?
+    private var bottomSheetWidth: BottomSheetWidth = .default
 
     convenience init(
         presentedViewController: UIViewController,
         presenting presentingViewController: UIViewController?,
+        bottomSheetWidth: BottomSheetWidth,
         onDismiss: (() -> Void)?
     ) {
         self.init(
@@ -49,6 +51,7 @@ internal final class BottomSheetPresentationController: UIPresentationController
             presenting: presentingViewController
         )
         self.onDismiss = onDismiss
+        self.bottomSheetWidth = bottomSheetWidth
     }
 
     private var shadowViewFrame: CGRect {
@@ -152,7 +155,7 @@ internal final class BottomSheetPresentationController: UIPresentationController
         let containerSafeArea = containerView.bounds.inset(by: containerView.safeAreaInsets)
         let availableContentSize = CGSize(
             width: min(
-                420,
+                CGFloat(bottomSheetWidth.rawValue),
                 containerSafeArea.width - edgeInsets.left - edgeInsets.right
             ),
             height: containerSafeArea.height

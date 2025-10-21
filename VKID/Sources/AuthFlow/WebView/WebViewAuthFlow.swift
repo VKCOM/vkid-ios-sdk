@@ -69,7 +69,8 @@ internal final class WebViewAuthFlow: Component, AuthFlow {
                 credentials: self.deps.appCredentials,
                 scope: self.deps.authConfig.scope,
                 deviceId: self.deps.deviceId.description,
-                appearance: self.deps.appearance
+                appearance: self.deps.appearance,
+                prompt: self.deps.authConfig.prompt
             )
             self.authInWebView(
                 with: presenter,

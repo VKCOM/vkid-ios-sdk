@@ -32,6 +32,7 @@ import VKIDCore
 internal final class OneTapButtonWithOAuthListWidgetView: UIView {
     private enum Constants {
         static let spacing: CGFloat = 15
+        static let landscapeSpacing: CGFloat = 10
     }
 
     /// Кнопка авторизации
@@ -43,24 +44,14 @@ internal final class OneTapButtonWithOAuthListWidgetView: UIView {
     /// Конфигурация
     private let configuration: Configuration
 
+    /// Констрейнт верхнего отступа разделителя
+    private var separatorTopConstraint: NSLayoutConstraint?
+
     /// Разделитель с текстом
     private lazy var separatorTextLabel: UILabel = {
-        let paragraph = NSMutableParagraphStyle()
-        paragraph.minimumLineHeight = 16
-        paragraph.maximumLineHeight = 16
-        paragraph.alignment = .center
-
         let label = UILabel()
         label.numberOfLines = 0
-
-        label.attributedText = NSAttributedString(
-            string: self.configuration.title,
-            attributes: [
-                .paragraphStyle: paragraph,
-                .font: self.configuration.titleFont,
-                .foregroundColor: self.configuration.titleColor.value,
-            ]
-        )
+        label.attributedText = self.attributedString()
 
         return label
     }()
@@ -95,7 +86,10 @@ internal final class OneTapButtonWithOAuthListWidgetView: UIView {
         self.oneTapButton.translatesAutoresizingMaskIntoConstraints = false
         self.separatorTextLabel.translatesAutoresizingMaskIntoConstraints = false
         self.oAuthListWidget.translatesAutoresizingMaskIntoConstraints = false
-
+        let constraint = self.separatorTextLabel.topAnchor.constraint(
+            equalTo: self.oneTapButton.bottomAnchor, constant: Constants.spacing
+        )
+        self.separatorTopConstraint = constraint
         NSLayoutConstraint.activate([
             self.oneTapButton.topAnchor.constraint(
                 equalTo: self.topAnchor
@@ -106,10 +100,7 @@ internal final class OneTapButtonWithOAuthListWidgetView: UIView {
             self.oneTapButton.trailingAnchor.constraint(
                 equalTo: self.trailingAnchor
             ),
-
-            self.separatorTextLabel.topAnchor.constraint(
-                equalTo: self.oneTapButton.bottomAnchor, constant: Constants.spacing
-            ),
+            constraint,
             self.separatorTextLabel.leadingAnchor.constraint(
                 equalTo: self.leadingAnchor
             ),
@@ -134,5 +125,39 @@ internal final class OneTapButtonWithOAuthListWidgetView: UIView {
 
     private func update() {
         self.separatorTextLabel.textColor = self.configuration.titleColor.value
+    }
+
+    private func onUpdateOrientation() {
+        let isLandscape = UIDevice.current.orientation.isLandscape
+        self.separatorTopConstraint?.constant = isLandscape ?
+        Constants.landscapeSpacing :
+        Constants.spacing
+        self.separatorTextLabel.attributedText = self.attributedString(isLandscapeStyle: isLandscape)
+    }
+
+    private func attributedString(isLandscapeStyle: Bool = false) -> NSAttributedString {
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.minimumLineHeight = 16
+        paragraph.maximumLineHeight = 16
+        paragraph.alignment = .center
+        let font = isLandscapeStyle ?
+        self.configuration.titleFont.withSize(self.configuration.titleFont.pointSize - 3) :
+        self.configuration.titleFont
+        let kern = isLandscapeStyle ? 0.08 : 0
+        return NSAttributedString(
+            string: self.configuration.title,
+            attributes: [
+                .paragraphStyle: paragraph,
+                .font: font,
+                .foregroundColor: self.configuration.titleColor.value,
+                .kern: kern
+            ]
+        )
+    }
+
+    func viewWillTransition(with coordinator: UIViewControllerTransitionCoordinator) {
+        coordinator.animate(alongsideTransition: { [weak self]_ in
+            self?.onUpdateOrientation()
+        })
     }
 }

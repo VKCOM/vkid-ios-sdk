@@ -173,6 +173,14 @@ public struct OneTapBottomSheet: UIViewControllerElement {
             )
         )
         .uiView()
+        var bottomSheetWidth: BottomSheetWidth? = .small
+        if self.targetActionText.title.count > 25 ||
+            self.targetActionText.subtitle.count > 50 {
+            bottomSheetWidth = bottomSheetWidth?.larger()
+        }
+        if !self.oAuthProviderConfig.alternativeProviders.isEmpty {
+            bottomSheetWidth = bottomSheetWidth?.larger()?.larger()
+        }
         let contentController = OneTapBottomSheetContentViewController(
             vkid: factory,
             theme: self.theme,
@@ -180,20 +188,21 @@ public struct OneTapBottomSheet: UIViewControllerElement {
             serviceName: self.serviceName,
             targetActionText: self.targetActionText,
             autoDismissOnSuccess: self.autoDismissOnSuccess,
+            bottomSheetWidth: bottomSheetWidth ?? .extraLarge,
             onCompleteAuth: self.onCompleteAuth,
             presenter: presenter
         )
-
         let sheet = BottomSheetViewController(
             contentViewController: contentController,
             layoutConfiguration: .init(
                 cornerRadius: 24,
-                edgeInsets: .init(
+                portraitEdgeInsets: .init(
                     top: 0,
                     left: 8,
                     bottom: 8,
                     right: 8
-                )
+                ),
+                bottomSheetWidth: bottomSheetWidth ?? .extraLarge
             ),
             presenter: presenter
         ) {
@@ -334,7 +343,9 @@ extension OneTapBottomSheet {
 
         internal struct Images {
             internal var logo: any Image
+            internal var logoLandscape: any Image
             internal var topBarCloseButton: any Image
+            internal var topBarLandscapeCloseButton: any Image
         }
 
         internal var colors: Colors
@@ -385,10 +396,12 @@ extension OneTapBottomSheet {
                             light: light.images.logo.value,
                             dark: dark.images.logo.value
                         ),
+                        logoLandscape: UIImage.vkIdLogoLandscape,
                         topBarCloseButton: DynamicImage(
                             light: light.images.topBarCloseButton.value,
                             dark: dark.images.topBarCloseButton.value
-                        )
+                        ),
+                        topBarLandscapeCloseButton: UIImage.cancelLandscape
                     ),
                     colorScheme: scheme
                 )
@@ -405,7 +418,9 @@ extension OneTapBottomSheet {
                     ),
                     images: .init(
                         logo: UIImage.vkIdLogoLight,
-                        topBarCloseButton: UIImage.closeLight
+                        logoLandscape: UIImage.vkIdLogoLandscape,
+                        topBarCloseButton: UIImage.closeLight,
+                        topBarLandscapeCloseButton: UIImage.cancelLandscape
                     ),
                     colorScheme: scheme
                 )
@@ -422,7 +437,9 @@ extension OneTapBottomSheet {
                     ),
                     images: .init(
                         logo: UIImage.vkIdLogoDark,
-                        topBarCloseButton: UIImage.closeDark
+                        logoLandscape: UIImage.vkIdLogoLandscape,
+                        topBarCloseButton: UIImage.closeDark,
+                        topBarLandscapeCloseButton: UIImage.cancelLandscape
                     ),
                     colorScheme: scheme
                 )

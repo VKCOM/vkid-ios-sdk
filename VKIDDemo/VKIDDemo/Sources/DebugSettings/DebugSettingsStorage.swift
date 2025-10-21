@@ -49,6 +49,7 @@ final class DebugSettingsStorage {
         case limitPeriodInDays = "com.vkid.debug.limitPeriodInDays"
         case groupSubscriptionsLimitEnabled = "com.vkid.debug.groupSubscriptionsLimitEnabled"
         case currentLanguageCode = "com.vkid.debug.currentLanguageCode"
+        case prompt = "com.vkid.debug.prompt"
     }
 
     private let userDefaults = UserDefaults.standard
@@ -315,6 +316,20 @@ final class DebugSettingsStorage {
             self.userDefaults.setValue(
                 newValue,
                 forKey: Keys.currentLanguageCode.rawValue
+            )
+        }
+    }
+
+    var prompt: String {
+        get {
+            (self.userDefaults.value(
+                forKey: Keys.prompt.rawValue
+            ) as? String) ?? "login"
+        }
+        set {
+            self.userDefaults.setValue(
+                newValue,
+                forKey: Keys.prompt.rawValue
             )
         }
     }

@@ -32,6 +32,11 @@ import UIKit
 internal class OneTapBottomSheetInitialStateView: UIView {
     private let config: Configuration
     private let authButton: UIView
+    private var portraitConstraints: [NSLayoutConstraint]?
+    private var landscapeConstraints: [NSLayoutConstraint]?
+    private var landscapeBodyWidth: CGFloat = 254
+    private var imageViewLeadingConstraint: NSLayoutConstraint?
+    private var imageViewTrailingConstraint: NSLayoutConstraint?
 
     internal init(configuration: Configuration) {
         self.config = configuration
@@ -46,29 +51,18 @@ internal class OneTapBottomSheetInitialStateView: UIView {
     }
 
     private lazy var vkIdImageView: UIImageView = {
-        let imageView = UIImageView(image: self.config.vkIdImage.value)
+        let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            imageView.widthAnchor.constraint(equalToConstant: 192),
-            imageView.heightAnchor.constraint(equalToConstant: 120),
-        ])
         return imageView
     }()
 
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.backgroundColor = .clear
-        let paragraph = NSMutableParagraphStyle()
-        paragraph.minimumLineHeight = 24
-        paragraph.maximumLineHeight = 24
-        paragraph.alignment = .center
-        label.attributedText = NSAttributedString(
-            string: self.config.title,
-            attributes: [
-                .paragraphStyle: paragraph,
-                .font: self.config.titleFont,
-            ]
-        )
+        label.attributedText = self.attributedText(
+            text: self.config.title,
+            font: self.config.titleFont,
+            minimumLineHeight: 24)
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -77,28 +71,46 @@ internal class OneTapBottomSheetInitialStateView: UIView {
     private lazy var subtitleLabel: UILabel = {
         let label = UILabel()
         label.backgroundColor = .clear
-        let paragraph = NSMutableParagraphStyle()
-        paragraph.minimumLineHeight = 20
-        paragraph.maximumLineHeight = 20
-        paragraph.alignment = .center
-        label.attributedText = NSAttributedString(
-            string: self.config.subtitle,
-            attributes: [
-                .paragraphStyle: paragraph,
-                .font: self.config.subtitleFont,
-                .kern: 0.15,
-            ]
+        label.attributedText = self.attributedText(
+            text: self.config.subtitle,
+            font: self.config.subtitleFont,
+            minimumLineHeight: 20,
+            kern: 0.15
         )
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
 
+    private func attributedText(
+        text: String,
+        font: UIFont,
+        minimumLineHeight: CGFloat,
+        kern: NSNumber = 0
+    ) -> NSAttributedString{
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.minimumLineHeight = minimumLineHeight
+        paragraph.maximumLineHeight = minimumLineHeight
+        paragraph.alignment = .center
+        return NSAttributedString(
+            string: text,
+            attributes: [
+                .paragraphStyle: paragraph,
+                .font: font,
+                .kern: kern,
+            ]
+        )
+    }
+
     private func setupUI() {
         self.addSubview(self.vkIdImageView)
         self.addSubview(self.titleLabel)
         self.addSubview(self.subtitleLabel)
-        NSLayoutConstraint.activate([
+        self.addSubview(self.authButton)
+        self.authButton.translatesAutoresizingMaskIntoConstraints = false
+        self.portraitConstraints = [
+            self.vkIdImageView.widthAnchor.constraint(equalToConstant: 192),
+            self.vkIdImageView.heightAnchor.constraint(equalToConstant: 120),
             self.vkIdImageView.topAnchor.constraint(
                 equalTo: self.topAnchor,
                 constant: 0
@@ -108,15 +120,15 @@ internal class OneTapBottomSheetInitialStateView: UIView {
             ),
             self.titleLabel.leadingAnchor.constraint(
                 equalTo: self.leadingAnchor,
-                constant: Constants.textContainerInsets.left
+                constant: Constants.portraitTextContainerInsets.left
             ),
             self.titleLabel.trailingAnchor.constraint(
                 equalTo: self.trailingAnchor,
-                constant: Constants.textContainerInsets.right
+                constant: Constants.portraitTextContainerInsets.right
             ),
             self.titleLabel.topAnchor.constraint(
                 equalTo: self.vkIdImageView.bottomAnchor,
-                constant: Constants.textContainerInsets.top
+                constant: Constants.portraitTextContainerInsets.top
             ),
             self.titleLabel.bottomAnchor.constraint(
                 equalTo: self.subtitleLabel.topAnchor,
@@ -124,17 +136,12 @@ internal class OneTapBottomSheetInitialStateView: UIView {
             ),
             self.subtitleLabel.leadingAnchor.constraint(
                 equalTo: self.leadingAnchor,
-                constant: Constants.textContainerInsets.left
+                constant: Constants.portraitTextContainerInsets.left
             ),
             self.subtitleLabel.trailingAnchor.constraint(
                 equalTo: self.trailingAnchor,
-                constant: Constants.textContainerInsets.right
+                constant: Constants.portraitTextContainerInsets.right
             ),
-        ])
-
-        self.addSubview(self.authButton)
-        self.authButton.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
             self.authButton.leadingAnchor.constraint(
                 equalTo: self.leadingAnchor
             ),
@@ -146,9 +153,102 @@ internal class OneTapBottomSheetInitialStateView: UIView {
             ),
             self.subtitleLabel.bottomAnchor.constraint(
                 equalTo: self.authButton.topAnchor,
-                constant: Constants.textContainerInsets.bottom
+                constant: Constants.portraitTextContainerInsets.bottom
             ),
-        ])
+        ]
+        let (imageWidth, imageHeight) = self.config.bottomSheetWidth.imageSize
+        let aspectRatioConstraint = NSLayoutConstraint(
+            item: self.vkIdImageView,
+            attribute: .width,
+            relatedBy: .equal,
+            toItem: self.vkIdImageView,
+            attribute: .height,
+            multiplier: CGFloat(imageWidth / imageHeight),
+            constant: 0
+        )
+        let imageViewLeadingConstraint = self.vkIdImageView.leadingAnchor.constraint(
+            equalTo: self.leadingAnchor, constant: 0
+        )
+        self.imageViewLeadingConstraint = imageViewLeadingConstraint
+        let imageViewTrailingConstraint = self.titleLabel.leadingAnchor.constraint(
+            equalTo: self.vkIdImageView.trailingAnchor,
+            constant: Constants.landscapeTextContainerInsets.left
+        )
+        
+        self.imageViewTrailingConstraint = imageViewTrailingConstraint
+        landscapeConstraints = [
+            imageViewLeadingConstraint,
+            aspectRatioConstraint,
+            self.vkIdImageView.heightAnchor.constraint(equalToConstant: CGFloat(imageHeight)),
+            self.vkIdImageView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
+            self.heightAnchor.constraint(
+                lessThanOrEqualToConstant: min(UIScreen.main.bounds.width, UIScreen.main.bounds.height) - Constants.cardVerticalPadding
+            ),
+            self.titleLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 0),
+            self.titleLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: landscapeBodyWidth),
+            self.subtitleLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: landscapeBodyWidth),
+            imageViewTrailingConstraint,
+            self.titleLabel.trailingAnchor.constraint(
+                equalTo: self.trailingAnchor,
+                constant: Constants.landscapeTextContainerInsets.right
+            ),
+            self.subtitleLabel.topAnchor.constraint(
+                equalTo: self.titleLabel.bottomAnchor,
+                constant: Constants.titleAndSubtitlePadding
+            ),
+            self.subtitleLabel.leadingAnchor.constraint(
+                equalTo: self.titleLabel.leadingAnchor,
+            ),
+            self.subtitleLabel.trailingAnchor.constraint(
+                equalTo: self.trailingAnchor,
+                constant: Constants.landscapeTextContainerInsets.right
+            ),
+            self.authButton.leadingAnchor.constraint(
+                equalTo: self.titleLabel.leadingAnchor
+            ),
+            self.authButton.widthAnchor.constraint(equalToConstant: landscapeBodyWidth),
+            self.authButton.trailingAnchor.constraint(
+                equalTo: self.trailingAnchor
+            ),
+            self.authButton.bottomAnchor.constraint(
+                equalTo: self.bottomAnchor
+            ),
+            self.subtitleLabel.bottomAnchor.constraint(
+                greaterThanOrEqualTo: self.authButton.topAnchor,
+                constant: Constants.landscapeTextContainerInsets.bottom
+            ),
+        ]
+        self.updateOrientationChanges()
+        self.updateContentConstraintsIfNeeded()
+    }
+
+    private func updateContentConstraintsIfNeeded() {
+        let targetSize = CGSize(width: landscapeBodyWidth, height: UIView.layoutFittingCompressedSize.height)
+        let titleLabelHeight = self.titleLabel.systemLayoutSizeFitting(
+            targetSize,
+            withHorizontalFittingPriority: .required,
+            verticalFittingPriority: .fittingSizeLevel
+        ).height
+        let subtitleLabelHeight = self.subtitleLabel.systemLayoutSizeFitting(
+            targetSize,
+            withHorizontalFittingPriority: .required,
+            verticalFittingPriority: .fittingSizeLevel
+        ).height
+        self.authButton.setNeedsLayout()
+        self.authButton.layoutIfNeeded()
+        let buttonHeight = self.authButton.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height
+        if UIScreen.main.bounds.height < CGFloat(
+            Constants.cardVerticalPadding +
+            titleLabelHeight +
+            Constants.titleAndSubtitlePadding +
+            subtitleLabelHeight +
+            (-Constants.landscapeTextContainerInsets.bottom) +
+            buttonHeight
+        ) {
+            self.landscapeBodyWidth = 294
+            self.imageViewTrailingConstraint?.constant = 2
+            self.imageViewLeadingConstraint?.constant = -20
+        }
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -159,17 +259,71 @@ internal class OneTapBottomSheetInitialStateView: UIView {
     private func apply(config: Configuration) {
         self.titleLabel.textColor = config.titleColor.value
         self.subtitleLabel.textColor = config.subtitleColor.value
-        self.vkIdImageView.image = config.vkIdImage.value
+        if UIDevice.current.orientation.isLandscape {
+            self.vkIdImageView.image = config.vkIdLandscapeImage.value
+            self.titleLabel.attributedText = self.attributedText(
+                text: self.config.title,
+                font: self.config.titleFont.withSize(self.config.titleFont.pointSize - 6),
+                minimumLineHeight: 22)
+            self.subtitleLabel.attributedText = self.attributedText(
+                text: self.config.subtitle,
+                font: self.config.subtitleFont.withSize(
+                    self.config.subtitleFont.pointSize - 3
+                ),
+                minimumLineHeight: 16,
+                kern: 0.2)
+        } else {
+            self.vkIdImageView.image = config.vkIdImage.value
+            self.titleLabel.attributedText = self.attributedText(
+                text: self.config.title,
+                font: self.config.titleFont,
+                minimumLineHeight: 24)
+            self.subtitleLabel.attributedText = self.attributedText(
+                text: self.config.subtitle,
+                font: self.config.subtitleFont,
+                minimumLineHeight: 20,
+                kern: 0.15)
+        }
+    }
+
+    func viewWillTransition(with coordinator: UIViewControllerTransitionCoordinator) {
+        coordinator.animate(alongsideTransition: { [weak self] _ in
+            guard let self else { return }
+            self.updateOrientationChanges()
+            self.apply(config: self.config)
+        })
+        (self.authButton as? OneTapButtonWithOAuthListWidgetView)?.viewWillTransition(with: coordinator)
+    }
+
+    private func updateOrientationChanges() {
+        guard let portraitConstraints, let landscapeConstraints else {
+            return
+        }
+        if UIDevice.current.orientation.isLandscape {
+            NSLayoutConstraint.deactivate(portraitConstraints)
+            NSLayoutConstraint.activate(landscapeConstraints)
+        } else {
+            NSLayoutConstraint.deactivate(landscapeConstraints)
+            NSLayoutConstraint.activate(portraitConstraints)
+        }
     }
 }
 
 extension OneTapBottomSheetInitialStateView {
-    private enum Constants {
-        static let textContainerInsets = UIEdgeInsets(
+    enum Constants {
+        static let portraitTextContainerInsets = UIEdgeInsets(
             top: 16,
             left: 0,
             bottom: -24,
             right: 0
         )
+        static let landscapeTextContainerInsets = UIEdgeInsets(
+            top: 20,
+            left: 22,
+            bottom: -16,
+            right: 0
+        )
+        static let cardVerticalPadding: CGFloat = 48
+        static let titleAndSubtitlePadding: CGFloat = 8
     }
 }

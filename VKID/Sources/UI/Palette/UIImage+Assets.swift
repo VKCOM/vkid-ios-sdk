@@ -31,6 +31,8 @@ import UIKit
 extension UIImage {
     internal static let vkIdLogoLight = UIImage.moduleNamed("vk_id_logo_light")
     internal static let vkIdLogoDark = UIImage.moduleNamed("vk_id_logo_dark")
+    internal static let vkIdLogoLandscape = UIImage.moduleNamed("vk_id_logo_landscape")
+    internal static let cancelLandscape = UIImage.moduleNamed("cancel_20")
     internal static let logoPrimary = UIImage.moduleNamed("vk_id_logo_primary")
     internal static let logoSecondary = UIImage.moduleNamed("vk_id_logo_secondary")
     internal static let okRuLogoSecondary = UIImage.moduleNamed("ok_ru_logo_secondary")

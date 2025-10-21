@@ -32,6 +32,7 @@ import VKIDCore
 extension OneTapBottomSheetInitialStateView {
     internal struct Configuration {
         let vkIdImage: any Image
+        let vkIdLandscapeImage: any Image
         let authButton: UIView
         let title: String
         let titleColor: any Color
@@ -39,16 +40,19 @@ extension OneTapBottomSheetInitialStateView {
         let subtitle: String
         let subtitleColor: any Color
         let subtitleFont: UIFont
+        let bottomSheetWidth: BottomSheetWidth
 
         internal init(
             vkIdImage: any Image,
+            vkIdLandscapeImage: any Image,
             authButton: UIView,
             title: String,
             titleColor: any Color,
             titleFont: UIFont,
             subtitle: String,
             subtitleColor: any Color,
-            subtitleFont: UIFont
+            subtitleFont: UIFont,
+            bottomSheetWidth: BottomSheetWidth
         ) {
             self.authButton = authButton
             self.title = title
@@ -58,6 +62,8 @@ extension OneTapBottomSheetInitialStateView {
             self.subtitleColor = subtitleColor
             self.subtitleFont = subtitleFont
             self.vkIdImage = vkIdImage
+            self.bottomSheetWidth = bottomSheetWidth
+            self.vkIdLandscapeImage = vkIdLandscapeImage
         }
     }
 }
