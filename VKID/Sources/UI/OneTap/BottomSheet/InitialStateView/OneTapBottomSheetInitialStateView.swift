@@ -197,7 +197,7 @@ internal class OneTapBottomSheetInitialStateView: UIView {
                 constant: Constants.titleAndSubtitlePadding
             ),
             self.subtitleLabel.leadingAnchor.constraint(
-                equalTo: self.titleLabel.leadingAnchor,
+                equalTo: self.titleLabel.leadingAnchor
             ),
             self.subtitleLabel.trailingAnchor.constraint(
                 equalTo: self.trailingAnchor,
