@@ -246,6 +246,12 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
         }
     }
 
+    override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
+        super.viewWillTransition(to: size, with: coordinator)
+        self.initialStateView.viewWillTransition(with: coordinator)
+        self.viewWillTransition(with: coordinator)
+    }
+
     private func viewWillTransition(with coordinator: UIViewControllerTransitionCoordinator) {
         coordinator.animate(alongsideTransition: { [weak self] _ in
             self?.updateOnOrientationChange()
