@@ -61,6 +61,7 @@ package struct VKAPIRequest {
     package var retryCount: Int = 0
     package let domainCaptcha: Bool
     package let onlyVersionGenericHeader: Bool
+    package let skipCaptcha: Bool
 
     package init(
         host: Host,
@@ -70,7 +71,8 @@ package struct VKAPIRequest {
         headers: Headers = .init(),
         authorization: Authorization,
         domainCaptcha: Bool = false,
-        onlyVersionGenericHeader: Bool = false
+        onlyVersionGenericHeader: Bool = false,
+        skipCaptcha: Bool = false
     ) {
         self.host = host
         self.path = path
@@ -80,6 +82,7 @@ package struct VKAPIRequest {
         self.authorization = authorization
         self.domainCaptcha = domainCaptcha
         self.onlyVersionGenericHeader = onlyVersionGenericHeader
+        self.skipCaptcha = skipCaptcha
     }
 }
 

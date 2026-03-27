@@ -78,6 +78,7 @@ internal final class CaptchaInterceptor: VKAPIResponseInterceptor {
         completion: @escaping (VKAPIResponseInterceptionResult<T>) -> Void
     ) where T: VKAPIResponse {
         guard request.retryCount < 3,
+              !request.skipCaptcha,
               case .failure(let responseError) = response,
               case .captcha(let captchaData) = responseError
         else {

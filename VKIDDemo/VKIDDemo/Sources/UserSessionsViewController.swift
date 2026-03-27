@@ -29,7 +29,10 @@
 import UIKit
 import VKID
 
-final class UserSessionsViewController: VKIDDemoViewController, UITableViewDataSource, UITableViewDelegate {
+final class UserSessionsViewController: VKIDDemoViewController,
+    UITableViewDataSource,
+    UITableViewDelegate
+{
     override var supportsScreenSplitting: Bool { true }
 
     private lazy var sessionsTableView = {

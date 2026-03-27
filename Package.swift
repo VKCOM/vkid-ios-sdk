@@ -50,7 +50,7 @@ let package = Package(
             name: "testing-infra",
             path: "scripts/testing-infra"
         ),
-        .package(url: "https://github.com/VKCOM/vkid-captcha-ios-sdk", .upToNextMajor(from: "0.1.0")),
+        .package(url: "https://github.com/VKCOM/vkid-captcha-ios-sdk", .upToNextMajor(from: "0.1.5-alpha")),
     ],
     targets: [
         .target(

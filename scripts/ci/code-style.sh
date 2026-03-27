@@ -4,9 +4,11 @@ set -e
 
 PROJECT_PATH="$(git rev-parse --show-toplevel)"
 $PROJECT_PATH/bin/swiftformat .
+
 if [[ `git status --porcelain --untracked-files=no` ]]; then
-    git commit -a -m "Code style auto formatting"
-    git push
+    echo "ERROR: Code style issues found. Please run swiftformat locally and commit the changes."
+    git diff --stat
+    exit 1
 else
-    echo "No changes to commit"
+    echo "Code style check passed"
 fi

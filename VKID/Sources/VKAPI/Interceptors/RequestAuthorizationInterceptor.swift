@@ -83,7 +83,7 @@ internal final class RequestAuthorizationInterceptor: VKAPIRequestInterceptor {
                         token: externalAccessToken,
                         completion: completion)
         case .anonymousToken:
-            self.deps.anonymousTokenService.getFreshToken { result in
+            self.deps.anonymousTokenService.getFreshToken(allowCaptcha: true) { result in
                 switch result {
                 case .success(let token):
                     signRequest(request,

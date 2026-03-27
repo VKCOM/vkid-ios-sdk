@@ -87,7 +87,7 @@ extension Allure.TestCase {
             owner: Owner,
             platform: Platform = .iOS_Auto,
             layer: Layer,
-            project: Project = .VKIDSDK,
+            project: Project = .ESDK,
             product: Product,
             feature: String?,
             component: String? = nil,
@@ -137,7 +137,7 @@ extension Allure.TestCase {
 
 extension Allure.TestCase {
     public enum Project: String, AllureReportable {
-        case VKIDSDK
+        case ESDK
     }
 }
 

@@ -40,7 +40,7 @@ public enum Prompt {
     /// Пустое значение или отсутствие параметра — форма входа появляется, если пользователь ещё не вошёл в VK ID. Форма разрешения доступов отображается, если ранее пользователь ещё не разрешал доступ к данным.
     case custom(String?)
     internal var value: String {
-        return switch self {
+        switch self {
         case .login: "login"
         case .custom(let value): value ?? ""
         case .none: "none"

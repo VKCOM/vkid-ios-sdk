@@ -69,7 +69,7 @@ struct BottomSheetLayoutConfiguration {
 
     /// Отступы от краев родительского контейнера в дополнение к его safeAreaInsets
     package var edgeInsets: UIEdgeInsets {
-        UIDevice.current.orientation.isLandscape ? landscapeEdgeInsets : portraitEdgeInsets
+        UIDevice.current.orientation.isLandscape ? self.landscapeEdgeInsets : self.portraitEdgeInsets
     }
 
     /// Отступы от краев родительского контейнера в дополнение к его safeAreaInsets в 'portrait'
@@ -84,7 +84,8 @@ struct BottomSheetLayoutConfiguration {
         cornerRadius: CGFloat,
         portraitEdgeInsets: UIEdgeInsets,
         landscapeEdgeInsets: UIEdgeInsets = .zero,
-        bottomSheetWidth: BottomSheetWidth = .default) {
+        bottomSheetWidth: BottomSheetWidth = .default
+    ) {
         self.cornerRadius = cornerRadius
         self.portraitEdgeInsets = portraitEdgeInsets
         self.landscapeEdgeInsets = landscapeEdgeInsets
@@ -110,7 +111,7 @@ enum BottomSheetWidth: Int {
     }
 
     var imageSize: (CGFloat, CGFloat) {
-        switch self{
+        switch self {
         case .default: (192, 120)
         case .small: (130, 130)
         case .medium: (168, 168)
