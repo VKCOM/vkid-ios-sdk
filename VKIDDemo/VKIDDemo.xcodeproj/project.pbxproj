@@ -273,7 +273,6 @@
 		05FED83A2C60EC17002E5200 /* OneTapButtonConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OneTapButtonConfiguration.swift; sourceTree = "<group>"; };
 		0CCD7A782B5005BC00846B7C /* Collection+Safe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Safe.swift"; sourceTree = "<group>"; };
 		1752AE302AF135890013D976 /* StepSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StepSlider.swift; sourceTree = "<group>"; };
-		175364DF2B7D1BD4008AB285 /* ImageLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
 		175365572B7E6E7B008AB285 /* UserSessionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionsViewController.swift; sourceTree = "<group>"; };
 		175365592B7F3D67008AB285 /* UserSessionTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSessionTableViewCell.swift; sourceTree = "<group>"; };
 		175A3B5C2C6A386C00255779 /* libVKIDTestingInfra.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libVKIDTestingInfra.a; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -529,7 +528,6 @@
 		175364E12B7D1BDB008AB285 /* Network */ = {
 			isa = PBXGroup;
 			children = (
-				175364DF2B7D1BD4008AB285 /* ImageLoader.swift */,
 				053014C72C0F03CB00CF799D /* API.swift */,
 			);
 			path = Network;

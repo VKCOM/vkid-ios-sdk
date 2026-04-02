@@ -56,7 +56,8 @@ internal struct StatEvents: VKAPINamespace {
                 path: "/method/statEvents.addVKID",
                 httpMethod: .post,
                 parameters: parameters.dictionaryWithoutExternalAccessToken,
-                authorization: parameters.externalAccessToken.getAuthorization(userId: userId)
+                authorization: parameters.externalAccessToken.getAuthorization(userId: userId),
+                skipCaptcha: true
             )
         }
     }
@@ -71,7 +72,8 @@ internal struct StatEvents: VKAPINamespace {
                 path: "/method/statEvents.addVKIDAnonymously",
                 httpMethod: .post,
                 parameters: parameters.dictionaryWithoutExternalAccessToken,
-                authorization: .anonymousToken
+                authorization: .anonymousToken,
+                skipCaptcha: true
             )
         }
     }

@@ -193,9 +193,9 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
         self.view.backgroundColor = .clear
         self.view.addSubview(self.contentPlaceholderView)
         self.view.addSubview(self.closeButton)
-        portraitConstraints = [
-            closeButton.widthAnchor.constraint(equalToConstant: 48),
-            closeButton.heightAnchor.constraint(equalToConstant: 48),
+        self.portraitConstraints = [
+            self.closeButton.widthAnchor.constraint(equalToConstant: 48),
+            self.closeButton.heightAnchor.constraint(equalToConstant: 48),
             self.closeButton.topAnchor.constraint(
                 equalTo: self.view.topAnchor,
                 constant: 4
@@ -205,9 +205,9 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
                 constant: -4
             ),
         ]
-        landscapeConstraints = [
-            closeButton.widthAnchor.constraint(equalToConstant: 20),
-            closeButton.heightAnchor.constraint(equalToConstant: 20),
+        self.landscapeConstraints = [
+            self.closeButton.widthAnchor.constraint(equalToConstant: 20),
+            self.closeButton.heightAnchor.constraint(equalToConstant: 20),
             self.closeButton.topAnchor.constraint(
                 equalTo: self.view.topAnchor,
                 constant: 12
@@ -217,9 +217,8 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
                 constant: -12
             ),
         ]
-        updateOnOrientationChange()
+        self.updateOnOrientationChange()
         NSLayoutConstraint.activate([
-
             self.contentPlaceholderView.leadingAnchor.constraint(
                 equalTo: self.view.leadingAnchor,
                 constant: Constants.contentPlaceholderInsets.left
@@ -298,8 +297,8 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
 
     private func apply(theme: OneTapBottomSheet.Theme) {
         let image = UIDevice.current.orientation.isLandscape
-        ? self.theme.images.topBarLandscapeCloseButton.value
-        : self.theme.images.topBarCloseButton.value
+            ? self.theme.images.topBarLandscapeCloseButton.value
+            : self.theme.images.topBarCloseButton.value
 
         self.closeButton.setImage(
             image,

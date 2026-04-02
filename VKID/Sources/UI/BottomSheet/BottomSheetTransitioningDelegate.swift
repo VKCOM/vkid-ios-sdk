@@ -80,7 +80,7 @@ internal final class BottomSheetTransitioningDelegate: NSObject, UIViewControlle
         return BottomSheetPresentationController(
             presentedViewController: presented,
             presenting: presenting,
-            bottomSheetWidth: bottomSheetWidth
+            bottomSheetWidth: self.bottomSheetWidth
         ) { [weak self] in
             self?.onDismiss?()
         }

@@ -175,7 +175,8 @@ public struct OneTapBottomSheet: UIViewControllerElement {
         .uiView()
         var bottomSheetWidth: BottomSheetWidth? = .small
         if self.targetActionText.title.count > 25 ||
-            self.targetActionText.subtitle.count > 50 {
+            self.targetActionText.subtitle.count > 50
+        {
             bottomSheetWidth = bottomSheetWidth?.larger()
         }
         if !self.oAuthProviderConfig.alternativeProviders.isEmpty {
