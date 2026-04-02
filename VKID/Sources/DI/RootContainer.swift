@@ -57,6 +57,9 @@ internal final class RootContainer {
             urlRequestBuilder: URLRequestBuilder(
                 apiHosts: self.apiHosts
             ),
+            responseInterceptors: [
+                self.captchaInterceptor,
+            ],
             genericParameters: VKAPIGenericParameters(
                 deviceId: self.deviceId.description,
                 clientId: self.appCredentials.clientId,

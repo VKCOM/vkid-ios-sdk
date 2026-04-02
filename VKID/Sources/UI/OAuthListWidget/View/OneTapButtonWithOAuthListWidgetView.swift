@@ -130,8 +130,8 @@ internal final class OneTapButtonWithOAuthListWidgetView: UIView {
     private func onUpdateOrientation() {
         let isLandscape = UIDevice.current.orientation.isLandscape
         self.separatorTopConstraint?.constant = isLandscape ?
-        Constants.landscapeSpacing :
-        Constants.spacing
+            Constants.landscapeSpacing :
+            Constants.spacing
         self.separatorTextLabel.attributedText = self.attributedString(isLandscapeStyle: isLandscape)
     }
 
@@ -141,8 +141,8 @@ internal final class OneTapButtonWithOAuthListWidgetView: UIView {
         paragraph.maximumLineHeight = 16
         paragraph.alignment = .center
         let font = isLandscapeStyle ?
-        self.configuration.titleFont.withSize(self.configuration.titleFont.pointSize - 3) :
-        self.configuration.titleFont
+            self.configuration.titleFont.withSize(self.configuration.titleFont.pointSize - 3) :
+            self.configuration.titleFont
         let kern = isLandscapeStyle ? 0.08 : 0
         return NSAttributedString(
             string: self.configuration.title,
@@ -150,7 +150,7 @@ internal final class OneTapButtonWithOAuthListWidgetView: UIView {
                 .paragraphStyle: paragraph,
                 .font: font,
                 .foregroundColor: self.configuration.titleColor.value,
-                .kern: kern
+                .kern: kern,
             ]
         )
     }

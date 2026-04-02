@@ -32,15 +32,17 @@ import VKIDCore
 internal protocol AnonymousTokenService {
     func getFreshToken(
         forceRefresh: Bool,
+        allowCaptcha: Bool,
         completion: @escaping (Result<AnonymousToken, Error>) -> Void
     )
 }
 
 extension AnonymousTokenService {
     internal func getFreshToken(
+        allowCaptcha: Bool,
         completion: @escaping (Result<AnonymousToken, Error>) -> Void
     ) {
-        self.getFreshToken(forceRefresh: false, completion: completion)
+        self.getFreshToken(forceRefresh: false, allowCaptcha: allowCaptcha, completion: completion)
     }
 }
 
@@ -65,6 +67,7 @@ internal final class AnonymousTokenServiceImpl: AnonymousTokenService {
 
     func getFreshToken(
         forceRefresh: Bool,
+        allowCaptcha: Bool,
         completion: @escaping (Result<AnonymousToken, Error>) -> Void
     ) {
         if
@@ -82,7 +85,8 @@ internal final class AnonymousTokenServiceImpl: AnonymousTokenService {
                 with: .init(
                     anonymousToken: try? self.cachedToken?.value,
                     clientId: self.deps.credentials.clientId,
-                    clientSecret: self.deps.credentials.clientSecret
+                    clientSecret: self.deps.credentials.clientSecret,
+                    skipCaptcha: !allowCaptcha
                 )
             ) { result in
                 switch result {

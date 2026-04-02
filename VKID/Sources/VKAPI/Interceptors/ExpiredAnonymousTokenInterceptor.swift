@@ -48,7 +48,7 @@ internal final class ExpiredAnonymousTokenInterceptor: VKAPIResponseInterceptor 
             completion(.continue(request: request, response: response))
             return
         }
-        self.anonymousTokenService.getFreshToken(forceRefresh: true) { result in
+        self.anonymousTokenService.getFreshToken(forceRefresh: true, allowCaptcha: false) { result in
             switch result {
             case .success:
                 completion(.retry(request: request))

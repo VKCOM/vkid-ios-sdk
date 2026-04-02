@@ -40,6 +40,19 @@ internal struct Auth: VKAPINamespace {
             let anonymousToken: String?
             let clientId: String
             let clientSecret: String
+            let skipCaptcha: Bool
+
+            init(
+                anonymousToken: String?,
+                clientId: String,
+                clientSecret: String,
+                skipCaptcha: Bool = false
+            ) {
+                self.anonymousToken = anonymousToken
+                self.clientId = clientId
+                self.clientSecret = clientSecret
+                self.skipCaptcha = skipCaptcha
+            }
         }
 
         static func request(with parameters: Parameters, for userId: Int?) -> VKAPIRequest {
@@ -48,7 +61,8 @@ internal struct Auth: VKAPINamespace {
                 path: "/oauth/get_anonym_token",
                 httpMethod: .post,
                 parameters: parameters.dictionaryRepresentation,
-                authorization: .none
+                authorization: .none,
+                skipCaptcha: parameters.skipCaptcha
             )
         }
     }

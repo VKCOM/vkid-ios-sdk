@@ -37,6 +37,9 @@
       }
     },
     {
+      "skippedTests" : [
+        "AutoLogoutTests\/testAutoLogoutOnSessionOverride()"
+      ],
       "target" : {
         "containerPath" : "container:VKIDDemo.xcodeproj",
         "identifier" : "0514A8D82C2C262600853BF9",

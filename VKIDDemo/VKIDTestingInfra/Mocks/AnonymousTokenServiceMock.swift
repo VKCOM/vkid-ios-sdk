@@ -32,14 +32,17 @@ import Foundation
 public final class AnonymousTokenServiceMock: AnonymousTokenService {
     public typealias Completion = (Result<AnonymousToken, any Error>) -> Void
 
+    public var lastAllowCaptcha: Bool?
+    public var onGetFreshToken: ((Bool, Bool, @escaping Completion) -> Void)?
+
     public init() {}
 
     public func getFreshToken(
         forceRefresh: Bool,
+        allowCaptcha: Bool,
         completion: @escaping Completion
     ) {
-        completion(
-            .failure(NSError.random)
-        )
+        self.lastAllowCaptcha = allowCaptcha
+        self.onGetFreshToken?(forceRefresh, allowCaptcha, completion)
     }
 }

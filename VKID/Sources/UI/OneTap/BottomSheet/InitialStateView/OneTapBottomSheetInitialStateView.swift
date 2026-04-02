@@ -62,7 +62,8 @@ internal class OneTapBottomSheetInitialStateView: UIView {
         label.attributedText = self.attributedText(
             text: self.config.title,
             font: self.config.titleFont,
-            minimumLineHeight: 24)
+            minimumLineHeight: 24
+        )
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -87,7 +88,7 @@ internal class OneTapBottomSheetInitialStateView: UIView {
         font: UIFont,
         minimumLineHeight: CGFloat,
         kern: NSNumber = 0
-    ) -> NSAttributedString{
+    ) -> NSAttributedString {
         let paragraph = NSMutableParagraphStyle()
         paragraph.minimumLineHeight = minimumLineHeight
         paragraph.maximumLineHeight = minimumLineHeight
@@ -174,19 +175,20 @@ internal class OneTapBottomSheetInitialStateView: UIView {
             equalTo: self.vkIdImageView.trailingAnchor,
             constant: Constants.landscapeTextContainerInsets.left
         )
-        
+
         self.imageViewTrailingConstraint = imageViewTrailingConstraint
-        landscapeConstraints = [
+        self.landscapeConstraints = [
             imageViewLeadingConstraint,
             aspectRatioConstraint,
             self.vkIdImageView.heightAnchor.constraint(equalToConstant: CGFloat(imageHeight)),
             self.vkIdImageView.centerYAnchor.constraint(equalTo: self.centerYAnchor),
             self.heightAnchor.constraint(
-                lessThanOrEqualToConstant: min(UIScreen.main.bounds.width, UIScreen.main.bounds.height) - Constants.cardVerticalPadding
+                lessThanOrEqualToConstant: min(UIScreen.main.bounds.width, UIScreen.main.bounds.height) - Constants
+                    .cardVerticalPadding
             ),
             self.titleLabel.topAnchor.constraint(equalTo: self.topAnchor, constant: 0),
-            self.titleLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: landscapeBodyWidth),
-            self.subtitleLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: landscapeBodyWidth),
+            self.titleLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: self.landscapeBodyWidth),
+            self.subtitleLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: self.landscapeBodyWidth),
             imageViewTrailingConstraint,
             self.titleLabel.trailingAnchor.constraint(
                 equalTo: self.trailingAnchor,
@@ -206,7 +208,7 @@ internal class OneTapBottomSheetInitialStateView: UIView {
             self.authButton.leadingAnchor.constraint(
                 equalTo: self.titleLabel.leadingAnchor
             ),
-            self.authButton.widthAnchor.constraint(equalToConstant: landscapeBodyWidth),
+            self.authButton.widthAnchor.constraint(equalToConstant: self.landscapeBodyWidth),
             self.authButton.trailingAnchor.constraint(
                 equalTo: self.trailingAnchor
             ),
@@ -239,11 +241,11 @@ internal class OneTapBottomSheetInitialStateView: UIView {
         let buttonHeight = self.authButton.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize).height
         if UIScreen.main.bounds.height < CGFloat(
             Constants.cardVerticalPadding +
-            titleLabelHeight +
-            Constants.titleAndSubtitlePadding +
-            subtitleLabelHeight +
-            (-Constants.landscapeTextContainerInsets.bottom) +
-            buttonHeight
+                titleLabelHeight +
+                Constants.titleAndSubtitlePadding +
+                subtitleLabelHeight +
+                (-Constants.landscapeTextContainerInsets.bottom) +
+                buttonHeight
         ) {
             self.landscapeBodyWidth = 294
             self.imageViewTrailingConstraint?.constant = 2
@@ -264,25 +266,29 @@ internal class OneTapBottomSheetInitialStateView: UIView {
             self.titleLabel.attributedText = self.attributedText(
                 text: self.config.title,
                 font: self.config.titleFont.withSize(self.config.titleFont.pointSize - 6),
-                minimumLineHeight: 22)
+                minimumLineHeight: 22
+            )
             self.subtitleLabel.attributedText = self.attributedText(
                 text: self.config.subtitle,
                 font: self.config.subtitleFont.withSize(
                     self.config.subtitleFont.pointSize - 3
                 ),
                 minimumLineHeight: 16,
-                kern: 0.2)
+                kern: 0.2
+            )
         } else {
             self.vkIdImageView.image = config.vkIdImage.value
             self.titleLabel.attributedText = self.attributedText(
                 text: self.config.title,
                 font: self.config.titleFont,
-                minimumLineHeight: 24)
+                minimumLineHeight: 24
+            )
             self.subtitleLabel.attributedText = self.attributedText(
                 text: self.config.subtitle,
                 font: self.config.subtitleFont,
                 minimumLineHeight: 20,
-                kern: 0.15)
+                kern: 0.15
+            )
         }
     }
 
