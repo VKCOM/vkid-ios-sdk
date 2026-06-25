@@ -3,6 +3,11 @@
 > **Note**\
 > Описание основных изменений в релизах VK ID SDK. Наш SDK следует [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.9.5 - 2026-06-25
+
+### Changed
++ Обновлены SSL-сертификаты
+
 ## 2.9.4 - 2026-04-02
 
 ### Changed

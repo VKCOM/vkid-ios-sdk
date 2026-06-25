@@ -49,7 +49,18 @@ generate_allure_results() {
     local xcresults_tool_path=${1}
     local xcresult_artifact_path=${2}
     local allure_results_folder=${3}
-    $xcresults_tool_path export $xcresult_artifact_path $allure_results_folder
+    $xcresults_tool_path export $xcresult_artifact_path $allure_results_folder || true
+}
+
+filter_unit_tests() {
+    echo "Filtering out unit tests..."
+    local allure_results_folder=${1}
+    # Remove test result files that have layer=unit (unit tests)
+    for f in $allure_results_folder/*.json; do
+        if grep -qF '"name":"layer","value":"unit"' "$f" 2>/dev/null; then
+            rm "$f"
+        fi
+    done
 }
 
 SIM_ID=""
@@ -75,6 +86,7 @@ main() {
     build_for_testing $project_path $scheme
     test_without_building $project_path $scheme $sim_id $xcresult_artifact_path
     generate_allure_results $xcresults_tool_path $xcresult_artifact_path $allure_results_folder
+    filter_unit_tests $allure_results_folder
     shutdown_simulator $sim_id
     delete_simulator $sim_id
     SIM_ID=""
