@@ -91,7 +91,7 @@ extension Allure.TestCase {
             product: Product,
             feature: String?,
             component: String? = nil,
-            priority: Priority? = nil
+            priority: Priority? = .normal
         ) {
             self.owner = owner
             self.platform = platform

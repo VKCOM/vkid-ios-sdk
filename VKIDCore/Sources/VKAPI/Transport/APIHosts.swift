@@ -28,12 +28,37 @@
 
 import Foundation
 
-package struct APIHosts {
+package protocol APIHostStorage: AnyObject {
+    func string(forKey defaultName: String) -> String?
+    func set(_ value: Any?, forKey defaultName: String)
+}
+
+extension UserDefaults: APIHostStorage {}
+
+package final class APIHosts {
+    private enum Constants {
+        static let defaultAPIHost = "api.vk.ru"
+        static let defaultAPIHosts = [
+            defaultAPIHost,
+            "internal-sdk.api.vk.ru",
+            "api.l.vk.ru",
+            "api.r.vk.com",
+        ]
+        static let activeAPIHostKey = "com.vkid.apiHost"
+    }
+
     private let id: String
     private let oauth: String
-    private let api: String
+    private let api: [String]
+    private let storage: APIHostStorage?
+    private let lock = NSLock()
+    private var activeAPIHost: String
 
-    package init(template: String? = nil, hostname: String) {
+    package init(
+        template: String? = nil,
+        hostname: String,
+        storage: APIHostStorage? = UserDefaults.standard
+    ) {
         func format(host: VKAPIRequest.Host) -> String {
             guard let template, !template.isEmpty else {
                 return "\(host.rawValue).\(hostname)"
@@ -42,17 +67,46 @@ package struct APIHosts {
         }
         self.id = format(host: .id)
         self.oauth = format(host: .oauth)
-        self.api = format(host: .api)
+        let api = format(host: .api)
+        let apiHosts = api == Constants.defaultAPIHost
+            ? Constants.defaultAPIHosts
+            : [api]
+        self.api = apiHosts
+        self.storage = storage
+        self.activeAPIHost = storage?
+            .string(forKey: Constants.activeAPIHostKey)
+            .flatMap { apiHosts.contains($0) ? $0 : nil }
+            ?? apiHosts[0]
     }
 
     package func getHostBy(requestHost: VKAPIRequest.Host) -> String {
         switch requestHost {
         case .api:
-            return self.api
+            self.lock.lock()
+            defer { self.lock.unlock() }
+            return self.activeAPIHost
         case .id:
             return self.id
         case .oauth:
             return self.oauth
         }
+    }
+
+    package func switchToNextAPIHost(after host: String) -> String? {
+        self.lock.lock()
+        defer { self.lock.unlock() }
+
+        guard
+            self.api.count > 1,
+            let currentIndex = self.api.firstIndex(where: { $0.caseInsensitiveCompare(host) == .orderedSame })
+        else {
+            return nil
+        }
+
+        let nextIndex = self.api.index(after: currentIndex)
+        let nextHost = nextIndex == self.api.endIndex ? self.api[0] : self.api[nextIndex]
+        self.activeAPIHost = nextHost
+        self.storage?.set(nextHost, forKey: Constants.activeAPIHostKey)
+        return nextHost
     }
 }

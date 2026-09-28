@@ -225,11 +225,7 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
             for: .normal
         )
         bt.titleLabel?.font = UIFont.systemFont(ofSize: 18, weight: .bold)
-        if #available(iOS 13.0, *) {
-            bt.setTitleColor(.label, for: .normal)
-        } else {
-            bt.setTitleColor(.black, for: .normal)
-        }
+        bt.setTitleColor(.label, for: .normal)
         bt.addTarget(
             self,
             action: #selector(self.onOpenOneTapSheet(sender:)),
@@ -701,10 +697,8 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
                 guard let self else {
                     return
                 }
-                if let keyWindow = UIApplication.shared.keyWindow, keyWindow === self.window {
-                    if #available(iOS 13.0, *) {
-                        self.window.windowScene = nil
-                    }
+                if let keyWindow = self.keyWindow, keyWindow === self.window {
+                    self.window.windowScene = nil
                     self.window.isHidden = true
                     self.window.resignKey()
                 }
@@ -780,12 +774,10 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
         if self.autoShowSwitcher.isOn, let vkid = self.vkid {
             let (presenter, name) = self.presenters[self.pickerView.selectedRow(inComponent: 0)]
             if name == "UIWindow" {
-                guard let keyWindow = UIApplication.shared.keyWindow else {
+                guard let keyWindow = self.keyWindow else {
                     return
                 }
-                if #available(iOS 13.0, *) {
-                    self.window.windowScene = keyWindow.windowScene
-                }
+                self.window.windowScene = keyWindow.windowScene
                 self.window.frame = keyWindow.frame
                 self.window.isHidden = false
                 self.window.makeKeyAndVisible()
@@ -800,6 +792,14 @@ final class OneTapBottomSheetCustomizationController: VKIDDemoViewController,
                 self.present(controller, animated: true)
             }
         }
+    }
+
+    private var keyWindow: UIWindow? {
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first { $0.activationState == .foregroundActive }?
+            .windows
+            .first { $0.isKeyWindow }
     }
 
     private var alertPresentationController: UIViewController {

@@ -158,22 +158,26 @@ struct NewUIWindowPresenter: UIKitPresenting {
         self.window
     }
 
+    private static var keyWindow: UIWindow? {
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first { $0.activationState == .foregroundActive }?
+            .windows
+            .first { $0.isKeyWindow }
+    }
+
     private func moveWindowToActiveScene() {
-        guard let keyWindow = UIApplication.shared.keyWindow else {
+        guard let keyWindow = Self.keyWindow else {
             return
         }
-        if #available(iOS 13.0, *) {
-            self.window.windowScene = keyWindow.windowScene
-        }
+        self.window.windowScene = keyWindow.windowScene
         self.window.frame = keyWindow.frame
         self.window.isHidden = false
         self.window.makeKeyAndVisible()
     }
 
     private func removeWindow() {
-        if #available(iOS 13.0, *) {
-            self.window.windowScene = nil
-        }
+        self.window.windowScene = nil
 
         self.window.isHidden = true
         self.window.resignKey()

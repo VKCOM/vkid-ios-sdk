@@ -17,6 +17,15 @@
         "revision" : "4c6cc0a3b9e8f14b3ae2307c5ccae4de6167ac2c",
         "version" : "600.0.0-prerelease-2024-06-12"
       }
+    },
+    {
+      "identity" : "vkid-captcha-ios-sdk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/VKCOM/vkid-captcha-ios-sdk",
+      "state" : {
+        "revision" : "b027944e943a80cb2b0c8f15b5d009b109853320",
+        "version" : "0.1.5"
+      }
     }
   ],
   "version" : 2

@@ -56,10 +56,9 @@ internal final class SSLPinningValidator: SSLPinningValidating {
         }
 
         // Check each certificate in the server's certificate chain (the trust object); start with the CA all the way down to the leaf
-        let certificateChainLength = SecTrustGetCertificateCount(serverTrust)
-        for idx in (0..<certificateChainLength).reversed() {
+        let certificateChain = SecTrustCopyCertificateChain(serverTrust) as? [SecCertificate] ?? []
+        for cert in certificateChain.reversed() {
             guard
-                let cert = SecTrustGetCertificateAtIndex(serverTrust, idx),
                 let publicKey = self.extractServerCertificatePublicKey(from: cert),
                 let asn1Header = self.asn1HeaderMatching(
                     keyType: publicKey.type,

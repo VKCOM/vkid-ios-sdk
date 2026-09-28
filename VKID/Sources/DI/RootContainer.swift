@@ -120,7 +120,7 @@ internal final class RootContainer {
 
     internal var sslPinningConfiguration: SSLPinningConfiguration {
         self.networkConfiguration.isSSLPinningEnabled
-            ? .init(domains: [.vkcom]) : .pinningDisabled
+            ? .init(domains: [.vkru, .vkcom]) : .pinningDisabled
     }
 
     internal lazy var keychain = Keychain()

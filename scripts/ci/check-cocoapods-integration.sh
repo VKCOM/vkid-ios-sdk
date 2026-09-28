@@ -13,7 +13,7 @@ main() {
 create_podfile() {
     local vkid_version="'${1}'"
     echo "
-    platform :ios, '12.0'
+    platform :ios, '15.0'
     project '$CHECK_INTEGRATION_DIR/CheckCocoaPodsIntegration/CheckCocoaPodsIntegration.xcodeproj'
     target 'CheckCocoaPodsIntegration' do
         use_frameworks!

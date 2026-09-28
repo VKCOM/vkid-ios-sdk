@@ -30,6 +30,19 @@ import Foundation
 
 package protocol URLRequestBuilding {
     func buildURLRequest(from request: VKAPIRequest) throws -> URLRequest
+    func buildFallbackURLRequest(
+        from request: VKAPIRequest,
+        after failedRequest: URLRequest
+    ) throws -> URLRequest?
+}
+
+extension URLRequestBuilding {
+    package func buildFallbackURLRequest(
+        from request: VKAPIRequest,
+        after failedRequest: URLRequest
+    ) throws -> URLRequest? {
+        nil
+    }
 }
 
 package final class URLRequestBuilder: URLRequestBuilding {
@@ -70,6 +83,30 @@ package final class URLRequestBuilder: URLRequestBuilding {
                 uniquingKeysWith: { $1 }
             )
         return urlRequest
+    }
+
+    package func buildFallbackURLRequest(
+        from request: VKAPIRequest,
+        after failedRequest: URLRequest
+    ) throws -> URLRequest? {
+        guard
+            request.host == .api,
+            let failedURL = failedRequest.url,
+            var components = URLComponents(url: failedURL, resolvingAgainstBaseURL: false),
+            let failedHost = components.host,
+            let fallbackHost = self.apiHosts.switchToNextAPIHost(after: failedHost)
+        else {
+            return nil
+        }
+
+        components.host = fallbackHost
+        guard let fallbackURL = components.url else {
+            throw VKAPIError.invalidRequest(reason: .invalidURL)
+        }
+
+        var fallbackRequest = failedRequest
+        fallbackRequest.url = fallbackURL
+        return fallbackRequest
     }
 
     private func urlComponents(for request: VKAPIRequest) -> URLComponents {

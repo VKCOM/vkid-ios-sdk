@@ -372,7 +372,7 @@
       }
     },
     "vkconnect_auth_floatingonetap_btn_unauth_make_order_with_service" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -425,7 +425,7 @@
       }
     },
     "vkconnect_auth_floatingonetap_btn_unauth_make_order_without_service" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -478,7 +478,7 @@
       }
     },
     "vkconnect_auth_floatingonetap_btn_unauth_registration_for_event" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -531,7 +531,7 @@
       }
     },
     "vkconnect_auth_floatingonetap_btn_unauth_sign_in_to_account" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -584,7 +584,7 @@
       }
     },
     "vkconnect_auth_floatingonetap_btn_unauth_sign_in_to_service" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -637,7 +637,7 @@
       }
     },
     "vkconnect_auth_floatingonetap_btn_unauth_submit_applications" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -690,7 +690,7 @@
       }
     },
     "vkconnect_auth_floatingonetap_description" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -743,7 +743,7 @@
       }
     },
     "vkconnect_auth_floatingonetap_header_make_order_with_service" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -796,7 +796,7 @@
       }
     },
     "vkconnect_auth_floatingonetap_header_make_order_without_service" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -849,7 +849,7 @@
       }
     },
     "vkconnect_auth_floatingonetap_header_registration_for_event" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -902,7 +902,7 @@
       }
     },
     "vkconnect_auth_floatingonetap_header_sign_in_to_account" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -955,7 +955,7 @@
       }
     },
     "vkconnect_auth_floatingonetap_header_sign_in_to_service" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1008,7 +1008,7 @@
       }
     },
     "vkconnect_auth_floatingonetap_header_submit_applications" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1061,7 +1061,7 @@
       }
     },
     "vkconnect_auth_onetap_btn_calculate" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1114,7 +1114,7 @@
       }
     },
     "vkconnect_auth_onetap_btn_calculate_with_vkid" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1167,7 +1167,7 @@
       }
     },
     "vkconnect_auth_onetap_btn_get" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1220,7 +1220,7 @@
       }
     },
     "vkconnect_auth_onetap_btn_get_with_vkid" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1273,7 +1273,7 @@
       }
     },
     "vkconnect_auth_onetap_btn_make_order" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1326,7 +1326,7 @@
       }
     },
     "vkconnect_auth_onetap_btn_make_order_with_vkid" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1379,7 +1379,7 @@
       }
     },
     "vkconnect_auth_onetap_btn_open" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1432,7 +1432,7 @@
       }
     },
     "vkconnect_auth_onetap_btn_open_with_vkid" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1485,7 +1485,7 @@
       }
     },
     "vkconnect_auth_onetap_btn_order" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1538,7 +1538,7 @@
       }
     },
     "vkconnect_auth_onetap_btn_order_with_vkid" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1591,7 +1591,7 @@
       }
     },
     "vkconnect_auth_onetap_btn_participate" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1644,7 +1644,7 @@
       }
     },
     "vkconnect_auth_onetap_btn_participate_with_vkid" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1697,7 +1697,7 @@
       }
     },
     "vkconnect_auth_onetap_btn_sign_up" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1750,7 +1750,7 @@
       }
     },
     "vkconnect_auth_onetap_btn_sign_up_with_vkid" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1803,7 +1803,7 @@
       }
     },
     "vkconnect_auth_onetap_btn_submit_request" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1856,7 +1856,7 @@
       }
     },
     "vkconnect_auth_onetap_btn_submit_request_with_vkid" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1909,7 +1909,7 @@
       }
     },
     "vkconnect_auth_onetap_login_via_vkid" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -1962,7 +1962,7 @@
       }
     },
     "vkconnect_auth_onetap_vkid" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2015,7 +2015,7 @@
       }
     },
     "vkconnect_auth_via_providers_legal" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2068,7 +2068,7 @@
       }
     },
     "vkconnect_oauth_mail_button_primary_title" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2121,7 +2121,7 @@
       }
     },
     "vkconnect_oauth_ok_button_primary_title" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2174,7 +2174,7 @@
       }
     },
     "vkid_group_subscription_fail_description" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2227,7 +2227,7 @@
       }
     },
     "vkid_group_subscription_fail_primary" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2280,7 +2280,7 @@
       }
     },
     "vkid_group_subscription_fail_secondary" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2333,7 +2333,7 @@
       }
     },
     "vkid_group_subscription_fail_title" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2386,7 +2386,7 @@
       }
     },
     "vkid_group_subscription_primary" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2439,7 +2439,7 @@
       }
     },
     "vkid_group_subscription_secondary" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2492,7 +2492,7 @@
       }
     },
     "vkid_group_subscription_snackbar_label" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2545,7 +2545,7 @@
       }
     },
     "vkid_sheet_state_auth_failed" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2598,7 +2598,7 @@
       }
     },
     "vkid_sheet_state_auth_failed_retry" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2651,7 +2651,7 @@
       }
     },
     "vkid_sheet_state_auth_in_progress" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -2704,7 +2704,7 @@
       }
     },
     "vkid_sheet_state_auth_success" : {
-      "extractionState" : "migrated",
+      "extractionState" : "manual",
       "localizations" : {
         "de" : {
           "stringUnit" : {

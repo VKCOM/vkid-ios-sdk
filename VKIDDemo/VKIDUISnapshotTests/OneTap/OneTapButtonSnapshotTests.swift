@@ -115,7 +115,7 @@ final class OneTapButtonSnapshotTests: XCTestCase, TestCaseInfra {
     func testTitle() {
         Allure.report(
             .init(
-                id: 2341968,
+                id: 1349783,
                 name: "Проверка тайтлов",
                 meta: self.testCaseMeta
             )

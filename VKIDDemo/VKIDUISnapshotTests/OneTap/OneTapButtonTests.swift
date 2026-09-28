@@ -98,6 +98,40 @@ final class OneTapButtonConfigurationTests: XCTestCase, TestCaseInfra {
         }
     }
 
+    func testOneTapButtonExcludesVKIDFromAlternativeProviders() {
+        Allure.report(
+            .init(
+                id: 1350550,
+                name: "OneTap не отображает VK ID среди OAuth-иконок",
+                meta: self.testCaseMeta
+            )
+        )
+
+        let oAuthProviderConfiguration = OAuthProviderConfiguration(
+            alternativeProviders: [.vkid, .ok, .mail]
+        )
+
+        given("OneTap сконфигурирован с VK ID, OK и Mail среди OAuth-провайдеров") {
+            then("VK ID исключается из OAuth-провайдеров, так как он уже представлен OneTap-кнопкой") {
+                XCTAssertEqual(oAuthProviderConfiguration.alternativeProviders, [.ok, .mail])
+            }
+        }
+
+        when("Создаём OneTap-кнопку с альтернативными OAuth-провайдерами") {
+            let oneTapButton = OneTapButton(
+                authConfiguration: .init(),
+                oAuthProviderConfiguration: oAuthProviderConfiguration,
+                onCompleteAuth: nil
+            )
+            let view = self.vkid.ui(for: oneTapButton).uiView()
+
+            then("В интерфейсе одна OneTap-кнопка и две OAuth-кнопки без дополнительной VK ID иконки") {
+                let controls: [UIControl] = view.findElements()
+                XCTAssertEqual(controls.count, 3)
+            }
+        }
+    }
+
     private func mockServiceAuthFlow(completion: @escaping (ExtendedAuthConfiguration) -> Void) {
         self.authFlowBuilderMock.serviceAuthFlowHandler = { _, config, _ in
             completion(config)

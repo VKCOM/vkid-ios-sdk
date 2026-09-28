@@ -52,6 +52,7 @@
 		05DB5C952C119C3100663297 /* DebugSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A24B645E2A9E2DD500E45F3B /* DebugSettings.swift */; };
 		05DB5C962C119C3100663297 /* AlertPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = A257BEFE2B162C390060F9A2 /* AlertPresentable.swift */; };
 		05DB5C972C119C3100663297 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2E5F5ED2A55A65D0079DE1F /* AppDelegate.swift */; };
+		F54610012E84000000000001 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54610012E84000000000000 /* SceneDelegate.swift */; };
 		05DB5C982C119C3100663297 /* Collection+Safe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CCD7A782B5005BC00846B7C /* Collection+Safe.swift */; };
 		05DB5C992C119C3100663297 /* DebugSettingsTextFieldCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0591B0242BA9E8C200B18F98 /* DebugSettingsTextFieldCell.swift */; };
 		05DB5C9A2C119C3100663297 /* OneTapButtonCustomizationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A26A35FD2B0D0CED008A4F99 /* OneTapButtonCustomizationController.swift */; };
@@ -164,6 +165,7 @@
 		A271F71A2B0FD4670015B61C /* OAuthListWidgetCustomizationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A271F7192B0FD4670015B61C /* OAuthListWidgetCustomizationController.swift */; };
 		A27EFD332B185245001CF285 /* DebugSettingsStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A27EFD322B185245001CF285 /* DebugSettingsStorage.swift */; };
 		A2E5F5EE2A55A65D0079DE1F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2E5F5ED2A55A65D0079DE1F /* AppDelegate.swift */; };
+		F54610012E84000000000002 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F54610012E84000000000000 /* SceneDelegate.swift */; };
 		A2E5F5F22A55A65D0079DE1F /* AuthViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2E5F5F12A55A65D0079DE1F /* AuthViewController.swift */; };
 		A2E5F5F72A55A65E0079DE1F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2E5F5F62A55A65E0079DE1F /* Assets.xcassets */; };
 		A2E5F5FA2A55A65E0079DE1F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A2E5F5F82A55A65E0079DE1F /* LaunchScreen.storyboard */; };
@@ -359,6 +361,7 @@
 		A2E370692ACDBE1900715703 /* MRPipeline.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = MRPipeline.xctestplan; sourceTree = "<group>"; };
 		A2E5F5EA2A55A65D0079DE1F /* VKIDDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VKIDDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2E5F5ED2A55A65D0079DE1F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		F54610012E84000000000000 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		A2E5F5F12A55A65D0079DE1F /* AuthViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewController.swift; sourceTree = "<group>"; };
 		A2E5F5F62A55A65E0079DE1F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A2E5F5F92A55A65E0079DE1F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -798,6 +801,7 @@
 				A24B64C22AA1FD4600E45F3B /* Extensions */,
 				A24B645B2A9E2C2400E45F3B /* DebugSettings */,
 				A2E5F5ED2A55A65D0079DE1F /* AppDelegate.swift */,
+				F54610012E84000000000000 /* SceneDelegate.swift */,
 				A2E5F5F12A55A65D0079DE1F /* AuthViewController.swift */,
 				A24B64602A9E407B00E45F3B /* AuthViewController+DebugSettings.swift */,
 				175365572B7E6E7B008AB285 /* UserSessionsViewController.swift */,
@@ -1319,6 +1323,7 @@
 				05DB5C952C119C3100663297 /* DebugSettings.swift in Sources */,
 				05DB5C962C119C3100663297 /* AlertPresentable.swift in Sources */,
 				05DB5C972C119C3100663297 /* AppDelegate.swift in Sources */,
+				F54610012E84000000000001 /* SceneDelegate.swift in Sources */,
 				05DB5C982C119C3100663297 /* Collection+Safe.swift in Sources */,
 				05DB5C992C119C3100663297 /* DebugSettingsTextFieldCell.swift in Sources */,
 				05DB5C9A2C119C3100663297 /* OneTapButtonCustomizationController.swift in Sources */,
@@ -1419,6 +1424,7 @@
 				A24B645F2A9E2DD500E45F3B /* DebugSettings.swift in Sources */,
 				A257BEFF2B162C390060F9A2 /* AlertPresentable.swift in Sources */,
 				A2E5F5EE2A55A65D0079DE1F /* AppDelegate.swift in Sources */,
+				F54610012E84000000000002 /* SceneDelegate.swift in Sources */,
 				0CCD7A792B5005BC00846B7C /* Collection+Safe.swift in Sources */,
 				0591B0252BA9E8C200B18F98 /* DebugSettingsTextFieldCell.swift in Sources */,
 				A26A35FE2B0D0CED008A4F99 /* OneTapButtonCustomizationController.swift in Sources */,
@@ -1554,7 +1560,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				OTHER_SWIFT_FLAGS = "";
@@ -1579,7 +1585,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				OTHER_SWIFT_FLAGS = "";
@@ -1603,7 +1609,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
 				MARKETING_VERSION = 1.0;
@@ -1629,7 +1635,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MACOSX_DEPLOYMENT_TARGET = 14.5;
 				MARKETING_VERSION = 1.0;
@@ -1662,7 +1668,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1699,7 +1705,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1726,7 +1732,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1748,7 +1754,7 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1770,7 +1776,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.vk.vkid.VKIDKeychainTests;
@@ -1795,7 +1801,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.vk.vkid.VKIDKeychainTests;
@@ -1903,7 +1909,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1959,7 +1965,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = VKIDDemo;
@@ -1990,7 +1996,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -2027,7 +2033,7 @@
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen.storyboard;
 				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
