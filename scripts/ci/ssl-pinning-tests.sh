@@ -9,10 +9,10 @@ SRC_ROOT="$(git rev-parse --show-toplevel)"
 
 set_up_simulator () {
 	echo "setting up simulator"
-	SIMOS=$(xcrun simctl runtime list | awk '/-- iOS --/{f=1;next} /--/{f=0} f' | tail -n1 | cut -d ' ' -f 1-2 | tr -d ' ')
+	SIMOS=$(xcrun simctl runtime list | awk '/-- iOS --/{f=1;next} /^$|--/{f=0} f' | tail -n1 | cut -d ' ' -f 1-2 | tr -d ' ')
 	echo "current runtime is $SIMOS"
 	if [ -z "$SIMID" ]; then
-		killall "Simulator"
+		killall "Simulator" 2>/dev/null
 		xcrun simctl list | grep -w "Shutdown"  | grep -o "([-A-Z0-9]*)" | sed 's/[\(\)]//g' | xargs -I uid xcrun simctl delete uid
 		SIMID=$(xcrun simctl create "$SIMNAME" "$SIMDEVICE" "$SIMOS")
 
@@ -65,7 +65,7 @@ run_test () {
 
 	rm -rf $xcresult_artifact_path
 
-	arch -x86_64 xcodebuild \
+	xcodebuild \
 	-workspace $SRC_ROOT/VKIDDemo/VKIDDemo.xcworkspace \
 	-scheme $SCHEME \
 	-testPlan SSLPinning \
@@ -92,16 +92,33 @@ run_tests_with_allure () {
 	local allure_results_folder=$SRC_ROOT/allure-results
 	local xcresult_artifact_paths_string=""
 	local return_val=""
+
 	run_test testRequestIsCancelledIfTrafficIsSniffed spm return_val
 	xcresult_artifact_paths_string="$return_val"
 	run_test testRequestIsCancelledIfTrafficIsSniffed cocoapods return_val
 	xcresult_artifact_paths_string="$xcresult_artifact_paths_string $return_val"
 	shut_down_proxy
 
+	# Restart mitmdump in passthrough mode for oauth.vk.ru (no SSL interception)
+	pkill -f mitmdump || true
+	sleep 1
+	> ./nohup.out
+	nohup mitmdump -p 8080 --set tls_version_client_min=UNBOUNDED --mode upstream:http://prodc1proxy1.mail.msk:3129 --ignore-hosts 'oauth\.vk\.ru' &
+	PROXY_PID=$!
+	sleep 3
+	if ! ps -p $PROXY_PID > /dev/null 2>&1; then
+	    echo >&2 "mitmdump (passthrough) failed to start"
+	    cat ./nohup.out
+	    exit 1
+	fi
+	networksetup -setsecurewebproxy $currentservice 0.0.0.0 8080
+	echo "proxy restarted in passthrough mode"
+
 	run_test testRequestIsSucceededIfTrafficIsNotSniffed spm return_val
 	xcresult_artifact_paths_string="$xcresult_artifact_paths_string $return_val"
 	run_test testRequestIsSucceededIfTrafficIsNotSniffed cocoapods return_val
 	xcresult_artifact_paths_string="$xcresult_artifact_paths_string $return_val"
+	shut_down_proxy
 
 	echo "Exporting allure results..."
 	$xcresults_tool_path export $xcresult_artifact_paths_string -o $allure_results_folder
@@ -149,13 +166,37 @@ fi
 
 echo "starting proxy..."
 
+# kill any leftover mitmdump from previous failed runs
+pkill -f mitmdump || true
+sleep 1
+
+# verify port 8080 is free
+if lsof -i :8080 &>/dev/null; then
+    echo >&2 "Port 8080 is still in use after killing mitmdump"
+    exit 1
+fi
+
 > ./nohup.out
-nohup mitmdump -p 8080 -q &
+nohup mitmdump -p 8080 --set tls_version_client_min=UNBOUNDED --mode upstream:http://prodc1proxy1.mail.msk:3129 &
 PROXY_PID=$!
 
 echo "pid is $PROXY_PID"
 
 sleep 3
+
+# verify proxy actually started and is listening
+if ! ps -p $PROXY_PID > /dev/null 2>&1; then
+    echo >&2 "mitmdump failed to start. Check nohup.out:"
+    cat ./nohup.out
+    exit 1
+fi
+
+if ! lsof -i :8080 &>/dev/null; then
+    echo >&2 "mitmdump started but port 8080 is not listening"
+    exit 1
+fi
+
+echo "proxy is running on port 8080"
 
 echo "setting proxy up in settings..."
 

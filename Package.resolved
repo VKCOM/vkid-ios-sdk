@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/VKCOM/vkid-captcha-ios-sdk",
       "state" : {
-        "revision" : "28f28b549d9a517323ff05f6f49207a72a457168",
-        "version" : "0.1.0"
+        "revision" : "b027944e943a80cb2b0c8f15b5d009b109853320",
+        "version" : "0.1.5"
       }
     }
   ],

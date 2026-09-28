@@ -54,12 +54,15 @@ final class OneTapBottomSheetSnapshotAutoShowTests: XCTestCase, TestCaseInfra {
         self.viewController = UIViewController()
         self.window.rootViewController = self.viewController
         self.window.isUserInteractionEnabled = true
-        guard let keyWindow = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) else {
+        guard let keyWindow = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first(where: { $0.activationState == .foregroundActive })?
+            .windows
+            .first(where: { $0.isKeyWindow })
+        else {
             return
         }
-        if #available(iOS 13.0, *) {
-            self.window.windowScene = keyWindow.windowScene
-        }
+        self.window.windowScene = keyWindow.windowScene
         self.window.frame = keyWindow.frame
         self.window.isHidden = false
         self.window.makeKeyAndVisible()

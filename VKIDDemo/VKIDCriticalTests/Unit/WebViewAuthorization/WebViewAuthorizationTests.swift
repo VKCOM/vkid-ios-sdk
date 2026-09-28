@@ -80,7 +80,7 @@ final class WebViewAuthorizationTests: XCTestCase {
     func testWebViewOpensProperURL() throws {
         Allure.report(
             .init(
-                id: 2315444,
+                id: 1350496,
                 name: "Формирование и открытие корректного URL /authorize в WebView, использование scope , переданного в `AuthConfiguration`",
                 meta: self.testCaseMeta
             )

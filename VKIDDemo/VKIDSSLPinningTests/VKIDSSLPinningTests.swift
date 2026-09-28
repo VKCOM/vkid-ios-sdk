@@ -59,9 +59,18 @@ final class VKIDSSLPinningTests: XCTestCase {
             clientId: clientId,
             clientSecret: clientSecret
         )
+        self.api = self.makeAPI(apiHosts: APIHosts(hostname: Env.apiHost))
+    }
+
+    override func tearDownWithError() throws {
+        self.api = nil
+        self.appCredentials = nil
+    }
+
+    private func makeAPI(apiHosts: APIHosts) -> VKAPI<Auth> {
         let transport = URLSessionTransport(
             urlRequestBuilder: URLRequestBuilder(
-                apiHosts: APIHosts(hostname: Env.apiHost)
+                apiHosts: apiHosts
             ),
             genericParameters: VKAPIGenericParameters(
                 deviceId: DeviceId.currentDeviceId.description,
@@ -72,14 +81,9 @@ final class VKIDSSLPinningTests: XCTestCase {
             defaultHeaders: [
                 "User-Agent": "\(UserAgent.default) VKID/\(Env.VKIDVersion)",
             ],
-            sslPinningConfiguration: .init(domains: [.vkcom])
+            sslPinningConfiguration: .init(domains: [.vkru, .vkcom])
         )
-        self.api = .init(transport: transport)
-    }
-
-    override func tearDownWithError() throws {
-        self.api = nil
-        self.appCredentials = nil
+        return .init(transport: transport)
     }
 
     func testRequestIsCancelledIfTrafficIsSniffed() {
@@ -138,6 +142,40 @@ final class VKIDSSLPinningTests: XCTestCase {
                             XCTAssertTrue(true, "Expected behaviour, request successfully completed.")
                         default:
                             XCTFail("Request should complete successfully")
+                        }
+                        requestCompleted.fulfill()
+                    }
+                }
+            self.wait(for: [requestCompleted], timeout: 60)
+        }
+    }
+
+    func testRequestToFallbackVKComPassesSSLPinning() {
+        Allure.report(
+            .init(
+                name: "[\(self.packageManager)] Запрос к api.r.vk.com проходит SSL-пиннинг",
+                meta: self.testCaseMeta
+            )
+        )
+        let requestCompleted = self.expectation(description: "Request completed")
+        let fallbackAPI = self.makeAPI(
+            apiHosts: APIHosts(
+                template: "%@.r",
+                hostname: "vk.com",
+                storage: nil
+            )
+        )
+
+        when("Отправка запроса напрямую на резервный домен") {
+            fallbackAPI
+                .captchaDefault
+                .execute(with: .init()) { result in
+                    then("Проверяем, что api.r.vk.com вернул ожидаемый прикладной ответ") {
+                        switch result {
+                        case .failure(.captcha(_)):
+                            break
+                        default:
+                            XCTFail("Expected captcha response from api.r.vk.com, got \(result)")
                         }
                         requestCompleted.fulfill()
                     }

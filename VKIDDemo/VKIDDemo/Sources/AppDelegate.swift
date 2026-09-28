@@ -38,7 +38,6 @@ import VKIDCore
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var vkid: VKID?
-    var window: UIWindow?
 
     private let debugSettings = DebugSettingsStorage()
 
@@ -88,27 +87,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             preconditionFailure("Failed to set configuration for VKID: \(error)")
         }
 
-        let tabBarController = UITabBarController()
         self.api = API(debugSettings: self.debugSettings)
+        return true
+    }
+
+    func makeRootViewController() -> UIViewController {
+        let tabBarController = UITabBarController()
         tabBarController.viewControllers = [
             self.makeAuthViewController(),
             self.makeCustomizationViewController(),
             self.makeAccountViewController(),
         ]
 
-        self.window = UIWindow(frame: UIScreen.main.bounds)
-        self.window?.rootViewController = tabBarController
-        self.window?.makeKeyAndVisible()
-
-        return true
-    }
-
-    func application(
-        _ app: UIApplication,
-        open url: URL,
-        options: [UIApplication.OpenURLOptionsKey : Any] = [:]
-    ) -> Bool {
-        self.vkid?.open(url: url) ?? false
+        return tabBarController
     }
 
     private func makeAuthViewController() -> UIViewController {

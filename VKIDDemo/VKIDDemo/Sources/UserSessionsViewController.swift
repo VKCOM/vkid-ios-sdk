@@ -128,7 +128,7 @@ final class UserSessionsViewController: VKIDDemoViewController,
                             session: session,
                             color: UIColor.systemGreen)
                 { session, completion in
-                    session.getFreshAccessToken(forceRefresh: true) { [weak self] result in
+                    session.getFreshAccessToken(forceRefresh: true) { [weak self = self] result in
                         self?.handleRefresh(session: session, result: result)
                         tableView.reloadData()
                     }

@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name = "VKIDCore"
-  spec.version = "2.9.5"
+  spec.version = "3.0.0"
   spec.summary = "VKID core functionality. Not for public use."
   spec.homepage = "https://id.vk.ru/business"
     spec.authors = { 'VK ID' => 'devsupport@corp.vk.ru' }
@@ -32,12 +32,12 @@ THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
 }
 
   spec.platform = :ios
-  spec.ios.deployment_target = "12.0"
+  spec.ios.deployment_target = "15.0"
   spec.swift_version = "5.9"
   spec.source = { :git => "https://github.com/VKCOM/vkid-ios-sdk.git", :tag => "#{spec.version}" }
   spec.cocoapods_version = ">= 1.11.2"
   spec.static_framework = true
-  spec.dependency 'VKCaptchaSDK', '0.1.2'
+  spec.dependency 'VKCaptchaSDK', '0.1.6'
 
   spec.source_files = "VKIDCore/Sources/**/*.swift"
     spec.resource_bundles = {

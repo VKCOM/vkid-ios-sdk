@@ -110,6 +110,22 @@ final class OAuthListWidgetSnapshotTests: XCTestCase, TestCaseInfra {
         )
     }
 
+    func testVKIDSecondaryButtonWhenNoAlternativeOAuthProviders() {
+        Allure.report(
+            .init(
+                id: 1350758,
+                name: "VK ID как второстепенная кнопка без альтернативных OAuth",
+                meta: self.testCaseMeta
+            )
+        )
+        self.snapshotTest(
+            config: .init(
+                providers: [.vkid]
+            ),
+            diffConfig: self.defaultConfig
+        )
+    }
+
     func testMailOKProvider() {
         Allure.report(
             .init(
@@ -129,7 +145,7 @@ final class OAuthListWidgetSnapshotTests: XCTestCase, TestCaseInfra {
     func testMailOKVKIDProvider() {
         Allure.report(
             .init(
-                id: 2335336,
+                id: 1349676,
                 name: "Конфигурация виджета Mail, OK, VKID",
                 meta: self.testCaseMeta
             )
@@ -182,10 +198,28 @@ final class OAuthListWidgetSnapshotTests: XCTestCase, TestCaseInfra {
         }
     }
 
+    func testOAuthProviderIconsWithoutText() {
+        Allure.report(
+            .init(
+                id: 1349801,
+                name: "Отображение OAuth-иконок без текста",
+                meta: self.testCaseMeta
+            )
+        )
+        self.snapshotTest(
+            config: .init(
+                buttonBaseConfiguration: .init(
+                    cornerRadius: CGFloat(exactly: LayoutConstants.defaultCornerRadius - 2.0)!
+                )
+            ),
+            diffConfig: self.defaultConfig
+        )
+    }
+
     func testTheme() {
         Allure.report(
             .init(
-                id: 2341964,
+                id: 1350747,
                 name: "Конфигурация виджета c темной темой",
                 meta: self.testCaseMeta
             )
@@ -198,9 +232,44 @@ final class OAuthListWidgetSnapshotTests: XCTestCase, TestCaseInfra {
         )
     }
 
+    func testLargestAccessibilityTextSize() {
+        Allure.report(
+            .init(
+                id: 1350770,
+                name: "Виджет с максимальным системным размером текста",
+                meta: self.testCaseMeta
+            )
+        )
+        self.snapshotTest(
+            config: .init(),
+            diffConfig: self.defaultConfig,
+            traits: .init(preferredContentSizeCategory: .accessibilityExtraExtraExtraLarge),
+            snapshotName: "LargestAccessibilityTextSize"
+        )
+    }
+
+    func testLandscapeLayout() {
+        Allure.report(
+            .init(
+                id: 1349830,
+                name: "Виджет в альбомной ориентации",
+                meta: self.testCaseMeta
+            )
+        )
+        self.snapshotTest(
+            config: .init(),
+            diffConfig: self.defaultConfig,
+            frame: .init(x: 0, y: 0, width: 812, height: 375),
+            snapshotName: "Landscape"
+        )
+    }
+
     private func snapshotTest(
         config: OAuthListWidgetConfiguration,
-        diffConfig: OAuthListWidgetConfiguration? = nil
+        diffConfig: OAuthListWidgetConfiguration? = nil,
+        frame: CGRect = .widgetFrame,
+        traits: UITraitCollection = .init(),
+        snapshotName: String? = nil
     ) {
         let description: String = Descriptioner.diffDescription(
             config: config,
@@ -219,10 +288,18 @@ final class OAuthListWidgetSnapshotTests: XCTestCase, TestCaseInfra {
         }
         when("Создаем виджет и задаем размеры") {
             self.widgetView = self.vkid.ui(for: self.widget).uiView()
-            self.widgetView.frame = .widgetFrame
+            self.widgetView.frame = frame
         }
         then("Проверка снапшота виджета c: \(description)") {
-            assertSnapshot(of: self.widgetView, as: .image, testName: description)
+            let testName = [description, snapshotName]
+                .compactMap { $0 }
+                .filter { !$0.isEmpty }
+                .joined(separator: "-")
+            assertSnapshot(
+                of: self.widgetView,
+                as: .image(traits: traits),
+                testName: testName
+            )
         }
     }
 }

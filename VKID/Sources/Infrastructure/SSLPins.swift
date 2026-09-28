@@ -30,10 +30,17 @@ import Foundation
 import VKIDCore
 
 extension SSLPinnedDomain {
-    internal static let vkcom = Self(
+    internal static let vkru = Self(
         domain: Env.apiHost,
-        pins: Set(Bundle.resources.sslPins)
+        pins: SSLPinnedDomain.sslPins
     )
+
+    internal static let vkcom = Self(
+        domain: "vk.com",
+        pins: SSLPinnedDomain.sslPins
+    )
+
+    private static let sslPins = Set(Bundle.resources.sslPins)
 }
 
 extension Bundle {

@@ -26,6 +26,7 @@
 // THIRD PARTIES FOR ANY DAMAGE IN CONNECTION WITH USE OF THE SOFTWARE.
 //
 
+import CFNetwork
 import Foundation
 import VKCaptchaSDK
 
@@ -141,7 +142,7 @@ package final class URLSessionTransport: NSObject, VKAPITransport {
             mutableRequest.add(headers: self.defaultHeaders, overwriteIfAlreadyExists: false)
             self.requestInterceptors.intercept(
                 request: mutableRequest
-            ) { [weak self] result in
+            ) { [weak self = self] result in
                 guard let self else { return }
 
                 self.processingQueue.async {
@@ -198,6 +199,7 @@ package final class URLSessionTransport: NSObject, VKAPITransport {
     private func execute<T: VKAPIResponse>(
         _ urlRequest: URLRequest,
         for request: VKAPIRequest,
+        allowsDomainFallback: Bool = true,
         completion: @escaping (Result<T, VKAPIError>) -> Void
     ) {
         dispatchPrecondition(condition: .onQueue(self.processingQueue))
@@ -211,6 +213,27 @@ package final class URLSessionTransport: NSObject, VKAPITransport {
 
             if let error {
                 self.logger.error("\(request.id) failed with error: \(error)")
+                if allowsDomainFallback, error.isDomainAvailabilityError {
+                    do {
+                        if let fallbackRequest = try self.urlRequestBuilder.buildFallbackURLRequest(
+                            from: request,
+                            after: urlRequest
+                        ) {
+                            self.logger.warning(
+                                "\(request.id) retrying with fallback host: \(fallbackRequest.url?.host ?? "")"
+                            )
+                            self.execute(
+                                fallbackRequest,
+                                for: request,
+                                allowsDomainFallback: false,
+                                completion: completion
+                            )
+                            return
+                        }
+                    } catch {
+                        self.logger.error("\(request.id) failed to build fallback request: \(error)")
+                    }
+                }
                 let apiError: VKAPIError
                 if error.isURLErrorCancelled {
                     apiError = .cancelled
@@ -365,5 +388,38 @@ extension Error {
         let nsError = self as NSError
         return nsError.domain == NSURLErrorDomain &&
             nsError.code == NSURLErrorCancelled
+    }
+
+    fileprivate var isDomainAvailabilityError: Bool {
+        var currentError: NSError? = self as NSError
+        while let error = currentError {
+            if error.domain == NSURLErrorDomain,
+               Self.domainAvailabilityErrorCodes.contains(error.code)
+            {
+                return true
+            }
+            if error.domain == kCFErrorDomainCFNetwork as String,
+               error.code == Int(CFNetworkErrors.cfErrorHTTPSProxyConnectionFailure.rawValue)
+            {
+                return true
+            }
+            currentError = error.userInfo[NSUnderlyingErrorKey] as? NSError
+        }
+        return false
+    }
+
+    private static var domainAvailabilityErrorCodes: Set<Int> {
+        [
+            NSURLErrorCancelled,
+            NSURLErrorCannotFindHost,
+            NSURLErrorDNSLookupFailed,
+            NSURLErrorSecureConnectionFailed,
+            NSURLErrorServerCertificateHasBadDate,
+            NSURLErrorServerCertificateUntrusted,
+            NSURLErrorServerCertificateHasUnknownRoot,
+            NSURLErrorServerCertificateNotYetValid,
+            NSURLErrorClientCertificateRejected,
+            NSURLErrorClientCertificateRequired,
+        ]
     }
 }

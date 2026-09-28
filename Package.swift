@@ -34,7 +34,7 @@ import PackageDescription
 let package = Package(
     name: "VKID",
     defaultLocalization: "ru",
-    platforms: [.iOS(.v12)],
+    platforms: [.iOS(.v15)],
     products: [
         .library(
             name: "VKID",
@@ -50,7 +50,7 @@ let package = Package(
             name: "testing-infra",
             path: "scripts/testing-infra"
         ),
-        .package(url: "https://github.com/VKCOM/vkid-captcha-ios-sdk", .upToNextMajor(from: "0.1.5")),
+        .package(url: "https://github.com/VKCOM/vkid-captcha-ios-sdk", .upToNextMajor(from: "0.1.6")),
     ],
     targets: [
         .target(

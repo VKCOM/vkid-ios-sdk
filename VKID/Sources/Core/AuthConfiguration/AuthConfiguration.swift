@@ -128,10 +128,14 @@ public protocol AuthCodeExchanging: ConfFlowCodeHandler {
     /// - Parameters:
     ///   - code: ```AuthorizationCode```, который необходимо заменить на токены, чтобы завершить авторизацию
     ///   - completion: колбек с результатом авторизации ```AuthFlowData```
+    ///
+    /// @DeprecationSummary {
+    /// Используйте ``AuthCodeHandler/exchange(_:finishFlow:)`` для обмена кода на вашем сервере.
+    /// }
     @available(
         *,
         deprecated,
-        message: "'exchangeAuthCode' was replaced by 'exchange(_ code:, finishFlow:)' in 'AuthCodeHandler' and will be removed shortly"
+        message: "Use AuthCodeHandler.exchange(_:finishFlow:) instead."
     )
     func exchangeAuthCode(
         _ code: AuthorizationCode,
@@ -150,6 +154,14 @@ public protocol AuthCodeHandler: AuthCodeExchanging {
 }
 
 extension AuthCodeExchanging {
+    /// Обмен кода авторизации на токены
+    /// - Parameters:
+    ///   - code: ```AuthorizationCode```, который необходимо заменить на токены, чтобы завершить авторизацию
+    ///   - completion: колбек с результатом авторизации ```AuthFlowData```
+    ///
+    /// @DeprecationSummary {
+    /// Используйте ``AuthCodeHandler/exchange(_:finishFlow:)`` для обмена кода на вашем сервере.
+    /// }
     public func exchangeAuthCode(
         _ code: AuthorizationCode,
         completion: @escaping (Result<AuthFlowData, Error>) -> Void

@@ -27,18 +27,20 @@ shutdown_simulator() {
 # Build
 build_for_testing() {
     xcodebuild clean build-for-testing \
-    -project ${1} \
-    -scheme ${2} \
-    -configuration Debug \
-    -sdk iphonesimulator \
-    CLIENT_ID=$VKID_DEMO_IOS_CLIENT_ID CLIENT_SECRET=$VKID_DEMO_IOS_CLIENT_SECRET
+        -project "${1}" \
+        -scheme "${2}" \
+        -configuration Debug \
+        -sdk iphonesimulator \
+        CODE_SIGN_IDENTITY=- \
+        CLIENT_ID="$VKID_DEMO_IOS_CLIENT_ID" \
+        CLIENT_SECRET="$VKID_DEMO_IOS_CLIENT_SECRET"
 }
 
 test_without_building() {
     xcodebuild test-without-building \
     -project ${1} \
     -scheme ${2} \
-    -destination "platform=iOS Simulator,id=${3},OS=17.0" \
+    -destination "platform=iOS Simulator,id=${3}" \
     -resultBundlePath ${4}
 }
 
@@ -84,12 +86,14 @@ main() {
     SIM_ID=$sim_id
     boot_simulator $sim_id || true
     build_for_testing $project_path $scheme
-    test_without_building $project_path $scheme $sim_id $xcresult_artifact_path
+    local test_exit_code=0
+    test_without_building $project_path $scheme $sim_id $xcresult_artifact_path || test_exit_code=$?
     generate_allure_results $xcresults_tool_path $xcresult_artifact_path $allure_results_folder
     filter_unit_tests $allure_results_folder
     shutdown_simulator $sim_id
     delete_simulator $sim_id
     SIM_ID=""
+    return "$test_exit_code"
 }
 
 cleanup() {

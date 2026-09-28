@@ -85,15 +85,27 @@ final class OneTapBottomSheetAuthStateView: UIView {
     }()
 
     private lazy var retryButton: UIButton = {
-        let button: UIButton
-        button = UIButton()
-        button.contentEdgeInsets = Constants.buttonContentInsets
+        var configuration = UIButton.Configuration.plain()
+        configuration.title = self.config.texts.failedButtonText
+        configuration.baseForegroundColor = self.config.retryButtonTitleColor.value
+        configuration.background = .clear()
+        configuration.contentInsets = NSDirectionalEdgeInsets(
+            top: Constants.buttonContentInsets.top,
+            leading: Constants.buttonContentInsets.left,
+            bottom: Constants.buttonContentInsets.bottom,
+            trailing: Constants.buttonContentInsets.right
+        )
+        let titleFont = self.config.retryButtonTitleFont
+        configuration.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { attributes in
+            var attributes = attributes
+            attributes.font = titleFont
+            return attributes
+        }
+
+        let button = RetryButton(configuration: configuration)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.layer.cornerRadius = self.config.retryButtonCornerRadius
-        button.setTitle(self.config.texts.failedButtonText, for: .normal)
-        button.setTitleColor(self.config.retryButtonTitleColor.value, for: .normal)
-        button.titleLabel?.font = self.config.retryButtonTitleFont
         button.backgroundColor = self.config.retryButtonColor.value
+        button.layer.cornerRadius = self.config.retryButtonCornerRadius
         button.addTarget(self, action: #selector(self.retryButtonTap), for: .touchUpInside)
         button.alpha = 0
         button.accessibilityIdentifier = AccessibilityIdentifier.OneTapBottomSheet.Button.retry.id
@@ -192,7 +204,9 @@ final class OneTapBottomSheetAuthStateView: UIView {
 
     private func apply(config: Configuration) {
         self.titleLabel.textColor = self.config.titleColor.value
-        self.retryButton.setTitleColor(self.config.retryButtonTitleColor.value, for: .normal)
+        var configuration = self.retryButton.configuration ?? .plain()
+        configuration.baseForegroundColor = self.config.retryButtonTitleColor.value
+        self.retryButton.configuration = configuration
         self.retryButton.backgroundColor = self.config.retryButtonColor.value
     }
 }
@@ -247,6 +261,14 @@ extension OneTapBottomSheetAuthStateView {
 }
 
 extension OneTapBottomSheetAuthStateView {
+    private final class RetryButton: UIButton {
+        override var intrinsicContentSize: CGSize {
+            var size = super.intrinsicContentSize
+            size.width = size.width.rounded(.up)
+            return size
+        }
+    }
+
     private enum Constants {
         static let imageViewSize: CGSize = .init(width: 56, height: 56)
         static let activityIndicatorSize: CGSize = .init(width: 74, height: 74)

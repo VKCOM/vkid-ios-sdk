@@ -261,25 +261,30 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
         if UIDevice.current.orientation.isLandscape {
             NSLayoutConstraint.deactivate(self.portraitConstraints ?? [])
             NSLayoutConstraint.activate(self.landscapeConstraints ?? [])
-            self.closeButton.setImage(
-                self.theme.images.topBarLandscapeCloseButton.value,
-                for: .normal
+            self.configureCloseButton(
+                image: self.theme.images.topBarLandscapeCloseButton.value,
+                contentInsets: .zero
             )
-            self.closeButton.imageEdgeInsets = .zero
         } else {
             NSLayoutConstraint.deactivate(self.landscapeConstraints ?? [])
             NSLayoutConstraint.activate(self.portraitConstraints ?? [])
-            self.closeButton.setImage(
-                self.theme.images.topBarCloseButton.value,
-                for: .normal
-            )
-            self.closeButton.imageEdgeInsets = UIEdgeInsets(
-                top: 12,
-                left: 12,
-                bottom: 12,
-                right: 12
+            self.configureCloseButton(
+                image: self.theme.images.topBarCloseButton.value,
+                contentInsets: NSDirectionalEdgeInsets(
+                    top: 12,
+                    leading: 12,
+                    bottom: 12,
+                    trailing: 12
+                )
             )
         }
+    }
+
+    private func configureCloseButton(image: UIImage?, contentInsets: NSDirectionalEdgeInsets) {
+        var configuration = UIButton.Configuration.plain()
+        configuration.image = image
+        configuration.contentInsets = contentInsets
+        self.closeButton.configuration = configuration
     }
 
     func preferredContentSize(withParentContainerSize parentSize: CGSize) -> CGSize {
@@ -296,14 +301,7 @@ internal final class OneTapBottomSheetContentViewController: UIViewController, B
     }
 
     private func apply(theme: OneTapBottomSheet.Theme) {
-        let image = UIDevice.current.orientation.isLandscape
-            ? self.theme.images.topBarLandscapeCloseButton.value
-            : self.theme.images.topBarCloseButton.value
-
-        self.closeButton.setImage(
-            image,
-            for: .normal
-        )
+        self.updateOnOrientationChange()
         self.view.backgroundColor = theme.colors.background.value
     }
 

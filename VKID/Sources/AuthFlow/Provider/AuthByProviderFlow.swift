@@ -57,6 +57,7 @@ internal final class AuthByProviderFlow: Component, AuthFlow {
 
     private var callbackHandler: ClosureBasedURLHandler?
     private var appStateObserver: AnyObject?
+    private var providerResponseTimeout: DispatchWorkItem?
 
     init(deps: Dependencies) {
         self.deps = deps
@@ -213,22 +214,35 @@ internal final class AuthByProviderFlow: Component, AuthFlow {
             forName: UIApplication.didBecomeActiveNotification,
             object: nil,
             queue: .main
-        ) { _ in
-            self.cleanup()
+        ) { [weak self] _ in
+            guard let self else { return }
 
-            DispatchQueue
-                .main
-                .asyncAfter(
-                    deadline: .now() + 0.5,
-                    execute: handler
-                )
+            self.removeAppStateObserver()
+
+            let timeout = DispatchWorkItem { [weak self] in
+                guard let self, self.callbackHandler != nil else { return }
+
+                self.cleanup()
+                handler()
+            }
+            self.providerResponseTimeout = timeout
+            DispatchQueue.main.asyncAfter(
+                deadline: .now() + 0.5,
+                execute: timeout
+            )
         }
     }
 
     private func cleanup() {
-        self.appStateObserver.map(NotificationCenter.default.removeObserver)
-        self.appStateObserver = nil
+        self.removeAppStateObserver()
+        self.providerResponseTimeout?.cancel()
+        self.providerResponseTimeout = nil
         self.callbackHandler.map(self.deps.appInteropHandler.detach(handler:))
         self.callbackHandler = nil
+    }
+
+    private func removeAppStateObserver() {
+        self.appStateObserver.map(NotificationCenter.default.removeObserver)
+        self.appStateObserver = nil
     }
 }

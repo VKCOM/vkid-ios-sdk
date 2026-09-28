@@ -435,15 +435,86 @@ final class ProviderAuthorizationTests: XCTestCase, TestCaseInfra {
         }
     }
 
-    func testStartAuthorizationViaWebViewWhenOAuthProviderIsntVKID() throws {
+    func testProviderCallbackAfterApplicationDidBecomeActive() throws {
         Allure.report(
             .init(
-                id: 2315438,
-                name: "Фолбэк на авторизацию через вебвью (при авторизации не через vkid)",
+                name: "Получение callback URL после UIApplication.didBecomeActiveNotification",
                 meta: self.testCaseMeta
             )
         )
 
+        let didEnterToProviderExpectation = XCTestExpectation(
+            description: "Ожидание открытия авторизации через провайдер"
+        )
+        let didEndAuthorizationExpectation = XCTestExpectation(
+            description: "Ожидание успешного конца авторизации"
+        )
+        let didEnterToWebViewExpectation = XCTestExpectation(
+            description: "WebView не должен открыться"
+        )
+        didEnterToWebViewExpectation.isInverted = true
+
+        self.setupMainTransportResponse(
+            authProvidersRequestInterceptor: {
+                didEnterToProviderExpectation.fulfill()
+                return self.getAuthProvidersResponse(count: 1)
+            }
+        )
+        self.appInteropOpenerMock.didOpenApplication = { _ in true }
+        self.webViewAuthStrategyMock.handler = { _, _, _, _ in
+            didEnterToWebViewExpectation.fulfill()
+        }
+
+        self.vkid.authorize(
+            authContext: self.authContext,
+            authConfig: self.authConfig,
+            oAuthProviderConfig: self.oAuthProviderConfig,
+            presenter: .newUIWindow
+        ) { result in
+            guard case .success = result else {
+                XCTFail("Получена ошибка авторизации")
+                return
+            }
+            didEndAuthorizationExpectation.fulfill()
+        }
+        wait(for: [didEnterToProviderExpectation])
+
+        NotificationCenter.default.post(
+            Notification(name: UIApplication.didBecomeActiveNotification)
+        )
+        XCTAssertTrue(self.vkid.open(url: try self.getURLFromProvider()))
+
+        wait(
+            for: [didEndAuthorizationExpectation, didEnterToWebViewExpectation],
+            timeout: 0.7
+        )
+    }
+
+    func testStartAuthorizationViaWebViewForOKProvider() throws {
+        Allure.report(
+            .init(
+                id: 1350475,
+                name: "Авторизация через OK открывает WebView",
+                meta: self.testCaseMeta
+            )
+        )
+
+        try self.assertAuthorizationStartsInWebView(for: .ok)
+    }
+
+    func testStartAuthorizationViaWebViewForMailProvider() throws {
+        Allure.report(
+            .init(
+                id: 1349763,
+                name: "Авторизация через Mail.ru открывает WebView",
+                meta: self.testCaseMeta
+            )
+        )
+
+        try self.assertAuthorizationStartsInWebView(for: .mail)
+    }
+
+    private func assertAuthorizationStartsInWebView(for oAuthProvider: OAuthProvider) throws {
         let didEnterToWebViewExpectation = XCTestExpectation(
             description: "Ожидание открытия авторизации через WebView"
         )
@@ -470,11 +541,7 @@ final class ProviderAuthorizationTests: XCTestCase, TestCaseInfra {
             }
         }
 
-        try when("Запускается авторизация через сторонний сервис") {
-            let oAuthProvider: OAuthProvider = try XCTUnwrap(
-                [.ok, .mail].randomElement()
-            )
-
+        when("Запускается авторизация через сторонний сервис") {
             self.vkid.authorize(
                 authContext: self.authContext,
                 authConfig: self.authConfig,
